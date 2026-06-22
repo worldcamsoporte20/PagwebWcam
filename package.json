@@ -1,0 +1,20 @@
+{
+  "name": "odoo-headless-commerce",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Arquitectura headless B2B/B2C con Next.js, NestJS, PostgreSQL, Redis y Odoo.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "dev:web": "npm run dev -w apps/web",
+    "dev:api": "npm run start:dev -w apps/api",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}
