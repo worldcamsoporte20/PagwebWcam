@@ -32,6 +32,7 @@ type CatalogProduct = {
   oldPrice?: number;
   discount?: string;
   image?: string;
+  description?: string;
 };
 
 type AuthState = { email: string; role: string } | null;
@@ -216,7 +217,7 @@ function getIconForCategory(category: string) {
 }
 
 export default function CatalogoPage() {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("camara");
   const [brand, setBrand] = useState("Todas");
   const [category, setCategory] = useState("Todas");
   const [sortMode, setSortMode] = useState<SortMode>("price-asc");
@@ -604,7 +605,7 @@ export default function CatalogoPage() {
                 >
                   <a
                     href={`/catalogo/${encodeURIComponent(productKey(product))}`}
-                    className="relative flex shrink-0 items-center justify-center bg-[#222635] p-2 outline-none transition group-hover:bg-[#262b3d] max-sm:w-[38%] sm:aspect-square sm:w-full sm:p-3"
+                    className="relative flex shrink-0 items-center justify-center bg-white p-2 outline-none transition max-sm:w-[38%] sm:aspect-square sm:w-full sm:p-3"
                     aria-label={`Ver detalle de ${product.name}`}
                   >
                     {product.image ? (
@@ -641,6 +642,16 @@ export default function CatalogoPage() {
                     >
                       {compactName(product.name)}
                     </a>
+
+                    {product.description ? (
+                      <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-blue-100/55 sm:text-sm">
+                        {compactName(product.description)}
+                      </p>
+                    ) : (
+                      <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-blue-100/45 sm:text-sm">
+                        Ficha de Odoo con precio, clave y existencia disponible.
+                      </p>
+                    )}
 
                     <div className="mt-2 rounded-lg border border-white/10 bg-white/[0.025] px-2 py-1.5 text-xs sm:mt-3 sm:p-3 sm:text-sm">
                       <p className="flex items-center justify-between gap-2 text-blue-100/55">
