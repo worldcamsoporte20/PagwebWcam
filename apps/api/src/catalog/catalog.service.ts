@@ -34,7 +34,7 @@ export class CatalogService {
   }
 
   async findProductsResult(): Promise<CatalogProductsResult> {
-    const cacheKey = "catalog:products:all:v4";
+    const cacheKey = "catalog:products:all:v6";
     const cached = await this.cache.getJson<OdooProduct[]>(cacheKey);
 
     if (cached) {
