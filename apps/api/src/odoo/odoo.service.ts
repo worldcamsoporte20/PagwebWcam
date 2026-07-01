@@ -18,6 +18,9 @@ type OdooProductRecord = {
   categ_id?: OdooMany2One;
   product_variant_id?: OdooMany2One;
   image_128?: string | false;
+  image_512?: string | false;
+  description?: string | false;
+  description_sale?: string | false;
   product_variant_count?: number;
   type?: string;
 };
@@ -45,6 +48,8 @@ export type OdooProduct = {
   category: string;
   brand: string;
   image?: string;
+  description?: string;
+  internalNotesHtml?: string;
 };
 
 type OdooStockQuant = {
@@ -1049,6 +1054,9 @@ export class OdooService {
           "categ_id",
           "product_variant_id",
           "image_128",
+          "image_512",
+          "description",
+          "description_sale",
           "product_variant_count",
           "type",
         ],
@@ -1084,7 +1092,9 @@ export class OdooService {
         price: Number(record.list_price ?? 0),
         category,
         brand: this.inferBrand(record.name, category),
-        image: record.image_128 ? `data:image/png;base64,${record.image_128}` : undefined,
+        image: record.image_512 ? `data:image/png;base64,${record.image_512}` : record.image_128 ? `data:image/png;base64,${record.image_128}` : undefined,
+        description: this.cleanDescription(record.description_sale || record.description),
+        internalNotesHtml: this.cleanProductHtml(record.description),
       };
     });
   }
@@ -1266,6 +1276,32 @@ export class OdooService {
 
   private cleanOdooValue(value?: string | false): string {
     return typeof value === "string" ? value : "";
+  }
+
+  private cleanDescription(value?: string | false): string {
+    if (typeof value !== "string") return "";
+    return value
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  private cleanProductHtml(value?: string | false): string {
+    if (typeof value !== "string") return "";
+
+    const baseUrl = this.requiredConfig("ODOO_URL").replace(/\/$/, "");
+    return value
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/\son\w+=(["']).*?\1/gi, "")
+      .replace(/\s(href|src)=(["'])\/(?!\/)/gi, ` $1=$2${baseUrl}/`)
+      .trim();
   }
 
   private inferBrand(name: string, category: string): string {

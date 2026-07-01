@@ -6,18 +6,28 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Flame,
   GraduationCap,
+  Home as HomeIcon,
+
+  LayoutGrid,
   LockKeyhole,
   MapPin,
   PackageSearch,
   Phone,
   ShieldCheck,
+  Sparkles,
   Star,
+  Tag,
   Wifi,
 } from "lucide-react";
+import Image from "next/image";
 import { PointerEvent, useEffect, useRef, useState } from "react";
+import Script from "next/script";
 import AntiGravityPtz from "../components/AntiGravityPtz";
+import BrandCarousel from "../components/BrandCarousel";
 import SiteHeader from "../components/SiteHeader";
+import TikTokVideos from "@/components/TikTokVideos";
 
 type CatalogProduct = {
   id?: number;
@@ -81,13 +91,22 @@ const courses = [
   },
 ];
 
+const navItems = [
+  { label: "Inicio", href: "/", icon: HomeIcon, key: "home" },
+  { label: "Productos", href: "/catalogo", icon: LayoutGrid, key: "catalogo" },
+  { label: "Nuevos", href: "/#nuevos", icon: Flame, key: "nuevos" },
+  { label: "Para ti", href: "/#para-ti", icon: Sparkles, key: "para-ti" },
+  { label: "Cursos", href: "/#eventos", icon: GraduationCap, key: "cursos" },
+  { label: "Promociones", href: "/promociones", icon: Tag, key: "promociones" },
+];
+
 const quickCategories = ["Videovigilancia", "Acceso", "Alarmas", "Redes", "Cableado UTP", "Cerraduras"];
 
 function money(value: number) {
   return value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 }
 
-export default function Home() {
+export default function Homeicon() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [catalogHighlights, setCatalogHighlights] = useState<CatalogProduct[]>([]);
   const dragStartX = useRef<number | null>(null);
@@ -198,52 +217,77 @@ export default function Home() {
   };
 
   return (
-    <main className="home-page min-h-screen bg-slate-50 text-gray-900 dark:bg-[#080d19] dark:text-white">
+    <main className="home-page min-h-screen bg-white text-black">
       <SiteHeader active="home" />
 
-      <section className="border-b border-gray-200 bg-gray-100 dark:border-white/10 dark:bg-[#060a14]">
-        <div className="relative select-none overflow-hidden bg-gray-200 dark:bg-[#061225]">
-          <div className="relative w-full" style={{ aspectRatio: "1774/484" }}>
-            <img
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
-              src={slide.image}
-              alt={slide.title}
-              draggable={false}
-              onError={(event) => {
-                event.currentTarget.src = "/images/dahua-ptz-3d-flyer.png";
-              }}
-            />
-          </div>
+      <section className="bg-transparent">
+        <div className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
+          <div className="overflow-hidden bg-white shadow-soft">
+            <div className="relative select-none overflow-hidden bg-white">
+              <div className="relative w-full min-h-[280px] md:min-h-[320px] lg:min-h-[360px]" style={{ aspectRatio: "1774/484" }}>
+                <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden transition-opacity duration-500">
+                  <Image
+                    className="h-full w-full object-contain"
+                    src={slide.image}
+                    alt={slide.title}
+                    fill
+                    sizes="100vw"
+                    draggable={false}
+                    onError={(event) => {
+                      const target = event.target as HTMLImageElement;
+                      target.src = "/images/dahua-ptz-3d-flyer.png";
+                    }}
+                  />
+                </div>
+              </div>
 
-          <button
-            type="button"
-            className="absolute inset-0 z-10 cursor-grab touch-pan-y active:cursor-grabbing"
-            onClick={handleBannerClick}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            aria-label={`${slide.title}. Presiona para ver productos o desliza para cambiar promocion.`}
-          />
-
-          <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1.5 shadow-soft backdrop-blur md:bottom-5 md:right-5 md:gap-2 md:px-3 md:py-2">
-            {promoSlides.map((item, index) => (
               <button
-                key={item.title}
-                className={`h-2 rounded-full transition-all ${activeSlide === index ? "w-8 bg-blue-700" : "w-2 bg-slate-400"}`}
-                onClick={() => setActiveSlide(index)}
-                aria-label={`Ver promocion ${index + 1}`}
+                type="button"
+                className="absolute inset-0 z-10 cursor-grab touch-pan-y active:cursor-grabbing"
+                onClick={handleBannerClick}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                aria-label={`${slide.title}. Presiona para ver productos o desliza para cambiar promocion.`}
               />
-            ))}
-            <button className="ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-ink" onClick={goToPrevious} aria-label="Promocion anterior">
-              <ChevronLeft className="h-5 w-5" aria-hidden />
-            </button>
-            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-ink" onClick={goToNext} aria-label="Siguiente promocion">
-              <ChevronRight className="h-5 w-5" aria-hidden />
-            </button>
+
+              <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1.5 shadow-soft backdrop-blur md:bottom-5 md:right-5 md:gap-2 md:px-3 md:py-2">
+                {promoSlides.map((item, index) => (
+                  <button
+                    key={item.title}
+                    className={`h-2 rounded-full transition-all ${activeSlide === index ? "w-8 bg-blue-700" : "w-2 bg-slate-400"}`}
+                    onClick={() => setActiveSlide(index)}
+                    aria-label={`Ver promocion ${index + 1}`}
+                  />
+                ))}
+                <button className="ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-ink" onClick={goToPrevious} aria-label="Promocion anterior">
+                  <ChevronLeft className="h-5 w-5" aria-hidden />
+                </button>
+                <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-ink" onClick={goToNext} aria-label="Siguiente promocion">
+                  <ChevronRight className="h-5 w-5" aria-hidden />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-3 pb-3 sm:px-4 lg:px-8 lg:pb-4">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <a
+              key={item.label}
+              className="flex h-10 shrink-0 items-center gap-2 rounded-lg border border-[#1E49A2] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/50 sm:h-11 sm:px-4"
+              href={item.href}
+            >
+              <Icon className="h-4 w-4" aria-hidden />
+              {item.label}
+            </a>
+          );
+        })}
+      </nav>
 
       <section id="eventos" className="mx-auto max-w-7xl scroll-mt-40 px-4 py-6 lg:px-8 lg:py-8">
         <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
@@ -348,6 +392,8 @@ export default function Home() {
           </aside>
         </div>
       </section>
+      <BrandCarousel />
+      <TikTokVideos />
 
       <section className="border-y border-gray-200 bg-gray-100 dark:border-white/10 dark:bg-[#0b1020]">
         <div className="mx-auto flex max-w-7xl gap-3 overflow-x-auto px-5 py-5 lg:px-8">
@@ -382,9 +428,17 @@ export default function Home() {
             <article key={`${product.sku}-${product.model}`} className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-[#121827]">
               <div className="relative flex h-56 items-center justify-center bg-white p-5">
                 {product.image ? (
-                  <img className="h-full w-full object-contain" src={product.image} alt={product.name} />
+                  <div className="relative h-44 w-full overflow-hidden rounded-xl bg-slate-50">
+                    <Image
+                      className="object-cover"
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
                 ) : (
-                  <div className="text-sm font-black uppercase tracking-widest text-gray-400">Sin imagen</div>
+                  <div className="flex h-44 items-center justify-center text-sm font-black uppercase tracking-widest text-gray-400">Sin imagen</div>
                 )}
                 <span className="absolute left-3 top-3 flex items-center gap-1 rounded bg-blue-700 px-3 py-1 text-xs font-black uppercase">
                   <Star className="h-3.5 w-3.5 fill-white" aria-hidden />
@@ -425,6 +479,8 @@ export default function Home() {
           ) : null}
         </div>
       </section>
+
+      
 
       <section id="nuevos" className="scroll-mt-40 border-t border-gray-200 bg-slate-50 dark:border-white/10 dark:bg-[#080d19]">
         <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">

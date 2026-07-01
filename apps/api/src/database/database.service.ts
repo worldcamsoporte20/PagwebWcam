@@ -7,8 +7,15 @@ export class DatabaseService implements OnModuleDestroy {
   private readonly pool: Pool;
 
   constructor(config: ConfigService) {
+    const connectionString = config.get<string>("DATABASE_URL");
+    if (!connectionString || typeof connectionString !== "string") {
+      throw new Error(
+        "DATABASE_URL must be defined as a non-empty string. Copy .env.example to .env and set DATABASE_URL to a valid Postgres connection string."
+      );
+    }
+
     this.pool = new Pool({
-      connectionString: config.get<string>("DATABASE_URL"),
+      connectionString,
       max: 10,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,
