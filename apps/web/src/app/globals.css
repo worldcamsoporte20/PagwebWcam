@@ -531,12 +531,12 @@ select {
 
 @media (prefers-color-scheme: light) {
   .home-page {
-    background: #f6f8fb;
+    background: #020202;
     color: #17202a;
   }
 
   .home-page header {
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(10, 10, 10, 0.96);
     border-color: rgba(23, 32, 42, 0.12);
   }
 
@@ -665,6 +665,7 @@ select {
     opacity: 1;
   }
 }
+
 
 
 /*=========================================================
@@ -1617,12 +1618,224 @@ select {
     background:#fff;
 
     color:#123B8E;
+}
+
+
+
+
+
+
+
+
+
+
+/* ─────────────────────────────────────────
+   pagues.css — Página de Cupones
+   Coloca este archivo en:
+   /web/src/app/cupones
+───────────────────────────────────────── */
+/* ===== Barra Superior ===== */
+
+.topbar{
+    width:100%;
+    height:70px;
+
+background:#03164C;
+    display:flex;
+    align-items:center;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.12);
+
+    margin-bottom:35px;
+}
+
+.topbar-content{
+
+    width:100%;
+    max-width:1400px;
+
+    margin:auto;
+
+    display:flex;
+    align-items:center;
+
+    gap:15px;
+
+    padding:0 25px;
+}
+
+.topbar-logo{
+
+    border-radius:50%;
+}
+
+.topbar span{
+
+    color:white;
+
+    font-size:24px;
+
+    font-weight:bold;
+}
+
+/* ===== Página ===== */
+
+.cupones-page{
+    min-height:100vh;
+    background:#dfe8f8;
+    padding:40px;
+}
+
+.cupones-header h1{
+
+    color:var(--azul-oscuro);
+
+    font-size:42px;
+
+    margin-bottom:25px;
+}
+
+.cupon-input{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-bottom:40px;
+}
+
+.cupon-input input{
+
+    width:320px;
+
+    padding:14px;
+
+    border-radius:10px;
+
+    border:1px solid var(--bordes);
+
+    outline:none;
+}
+
+.cupon-input button{
+
+    background:var(--azul-principal);
+
+    color:rgb(20, 20, 20);
+
+    border:none;
+
+    padding:14px 22px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.cupon-input button:hover{
+
+    background:var(--azul-boton);
+}
+
+/* ===== Tarjetas ===== */
+
+.cupones-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(370px,1fr));
+
+    gap:25px;
+}
+
+.cupon-card{
+
+    position:relative;
+
+    background:white;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+
+    transition:.3s;
+}
+
+.cupon-card:hover{
+
+    transform:translateY(-6px);
+
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+}
+
+.cupon-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:24px;
+
+    height:24px;
+
+    border-radius:50%;
+
+    background:#dfe8f8;
+
+    left:-12px;
+
+    top:50%;
+}
+
+.cupon-card::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:24px;
+
+    height:24px;
+
+    border-radius:50%;
+
+    background:#dfe8f8;
+
+    right:-12px;
+
+    top:50%;
+}
+
+.cupon-card-top{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    padding:22px;
+}
+
+.cupon-icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:50%;
+
 
     display:flex;
 
     justify-content:center;
 
     align-items:center;
+
 
 }
 
@@ -1675,11 +1888,63 @@ select {
 
 .faq-grid summary{
 
+    background:white;
+
+    border:2px solid var(--bordes);
+
+    flex-shrink:0;
+}
+
+.logo-cupon{
+
+    width:55px;
+
+    height:55px;
+
+    object-fit:contain;
+}
+
+.cupon-info{
+
+    flex:1;
+}
+
+.cupon-info h2{
+
+    color:var(--azul-oscuro);
+
+    font-size:24px;
+
+    margin-bottom:8px;
+}
+
+.cupon-info p{
+
+    color:var(--texto-secundario);
+
+    margin-bottom:6px;
+}
+
+.cupon-info span{
+
+    color:var(--rojo-principal);
+
+    font-weight:bold;
+}
+
+.ticket-line{
+
+    border-top:2px dashed #d9d9d9;
+}
+
+.cupon-footer{
+
     display:flex;
 
     justify-content:space-between;
 
     align-items:center;
+
 
     cursor:pointer;
 
@@ -2016,6 +2281,36 @@ select {
 
 }
 
+.cupon-footer small{
+
+    color:#777;
+}
+
+.btn-aplicar{
+
+    background:var(--azul-principal);
+
+    color:white;
+
+    border:none;
+
+    padding:10px 22px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.btn-aplicar:hover{
+
+    background:var(--azul-boton);
+
+    transform:scale(1.05);
+
+}
+
 .tiktok-section {
   width: 100%;
   max-width: 1240px;
@@ -2152,4 +2447,393 @@ select {
 }
 .warranty-bar p{
     color:#fff;
+
+}
+/* ====== FORZAR COLORES DE CUPONES ====== */
+
+.cupones-page{
+    color:#1e293b;
+}
+
+.cupones-page h1{
+    color:#03164C !important;
+}
+
+.cupones-page h2{
+    color:#03164C !important;
+}
+
+.cupones-page p{
+    color:#475569 !important;
+}
+
+.cupones-page span{
+    color:#dc2626 !important;
+}
+
+.cupones-page small{
+    color:#6b7280 !important;
+}
+
+.cupones-page input{
+    color:#111827 !important;
+    background:white;
+}
+
+.cupones-page input::placeholder{
+    color:#94a3b8;
+}
+
+.cupones-page button{
+    color:white !important;
+}
+
+
+/* ================================================= */
+/*      POLITICAS DE GARANTIA - WORLDCAM             */
+/* ================================================= */
+
+/* ---------- CONTENEDOR GENERAL ---------- */
+
+.wc-politicas-page{
+    background: #caf6fc;
+    min-height:100vh;
+    padding:50px 20px 80px;
+}
+/* ================================================= */
+/*                     BANNER                        */
+/* ================================================= */
+
+.wc-politicas-banner{
+
+    max-width:1200px;
+    margin:0 auto 45px;
+
+    background:linear-gradient(
+        135deg,
+        var(--azul-principal),
+        var(--azul-boton)
+    );
+
+    border-radius:28px;
+
+    padding:60px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:50px;
+
+    color:white;
+
+    box-shadow:0 20px 45px rgba(2,44,150,.20);
+
+}
+
+.wc-politicas-info{
+    flex:1;
+}
+
+.wc-politicas-etiqueta{
+
+    display:inline-block;
+
+    background:rgba(255,255,255,.15);
+
+    padding:10px 22px;
+
+    border-radius:50px;
+
+    font-size:.85rem;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin-bottom:25px;
+
+    color:white;
+
+}
+
+.wc-politicas-banner h1{
+
+    color:white;
+
+    font-size:58px;
+
+    font-weight:800;
+
+    line-height:1.05;
+
+    margin-bottom:18px;
+
+}
+
+.wc-politicas-banner p{
+
+    color:#EDF1FA;
+
+    font-size:22px;
+
+    line-height:1.6;
+
+}
+
+.wc-politicas-logo-contenedor{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.wc-politicas-logo{
+
+    width:240px;
+
+    height:auto;
+
+    transition:.30s;
+
+}
+
+.wc-politicas-logo:hover{
+
+    transform:scale(1.05);
+
+}
+
+/* ================================================= */
+/*                    TARJETAS                       */
+/* ================================================= */
+
+.wc-politicas-tarjeta{
+
+    max-width:1200px;
+
+    margin:0 auto 35px;
+
+    background:#FFF;
+
+    border-radius:22px;
+
+    padding:40px;
+
+    border-top:6px solid var(--azul-principal);
+
+    box-shadow:0 10px 35px rgba(0,0,0,.08);
+
+    transition:.30s;
+
+}
+
+.wc-politicas-tarjeta:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 20px 45px rgba(0,0,0,.12);
+
+}
+
+/* ================================================= */
+/*                  TITULOS                          */
+/* ================================================= */
+
+.wc-politicas-tarjeta h2{
+
+    color:var(--azul-principal);
+
+    font-size:34px;
+
+    font-weight:700;
+
+    margin-bottom:28px;
+
+    padding-bottom:12px;
+
+    border-bottom:4px solid var(--azul-principal);
+
+    display:inline-block;
+
+}
+
+/* ================================================= */
+/*                 PARRAFOS                          */
+/* ================================================= */
+
+.wc-politicas-tarjeta p{
+
+    color:var(--texto-principal);
+
+    font-size:17px;
+
+    line-height:1.9;
+
+    margin-bottom:15px;
+
+}
+
+/* ================================================= */
+/*                   LISTAS                          */
+/* ================================================= */
+
+.wc-politicas-tarjeta ul{
+
+    margin-top:15px;
+
+    padding-left:28px;
+
+}
+
+.wc-politicas-tarjeta li{
+
+    color:var(--texto-principal);
+
+    font-size:16px;
+
+    line-height:1.9;
+
+    margin-bottom:15px;
+
+}
+
+/* ================================================= */
+/*                 RESPONSIVE                        */
+/* ================================================= */
+
+@media(max-width:900px){
+
+.wc-politicas-banner{
+
+flex-direction:column;
+
+text-align:center;
+
+padding:40px 30px;
+
+}
+
+.wc-politicas-banner h1{
+
+font-size:42px;
+
+}
+
+.wc-politicas-banner p{
+
+font-size:18px;
+
+}
+
+.wc-politicas-logo{
+
+width:180px;
+
+}
+
+.wc-politicas-tarjeta{
+
+padding:30px;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.wc-politicas-page{
+
+padding:20px 12px 60px;
+
+}
+
+.wc-politicas-banner{
+
+padding:30px 20px;
+
+}
+
+.wc-politicas-banner h1{
+
+font-size:32px;
+
+}
+
+.wc-politicas-banner p{
+
+font-size:16px;
+
+}
+
+.wc-politicas-tarjeta{
+
+padding:24px;
+
+}
+
+.wc-politicas-tarjeta h2{
+
+font-size:28px;
+
+}
+
+.wc-politicas-tarjeta p,
+.wc-politicas-tarjeta li{
+
+font-size:15px;
+
+}
+
+}
+
+/* ===========================
+   FORZAR ESTILOS POLÍTICAS
+=========================== */
+
+.wc-politicas-page *{
+    box-sizing:border-box;
+}
+
+.wc-politicas-page h1{
+    color:#FFFFFF !important;
+    font-size:58px !important;
+    font-weight:800 !important;
+    line-height:1.1 !important;
+}
+
+.wc-politicas-page h2{
+    color:#022C96 !important;
+    font-size:34px !important;
+    font-weight:700 !important;
+}
+
+.wc-politicas-page p{
+    color:#12141A !important;
+    font-size:17px !important;
+    line-height:1.8 !important;
+}
+
+.wc-politicas-page li{
+    color:#12141A !important;
+    font-size:16px !important;
+    line-height:1.9 !important;
+}
+
+.wc-politicas-banner p{
+    color:#EDF1FA !important;
+}
+
+.wc-politicas-etiqueta{
+    color:white !important;
+}
+
+.wc-politicas-banner{
+    background:linear-gradient(
+        135deg,
+        #022C96,
+        #0F46AF
+    ) !important;
 }
