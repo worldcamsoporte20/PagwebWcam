@@ -13,6 +13,7 @@ import {
   Video,
 } from "lucide-react";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 
 type AdvisorProduct = {
   name: string;
@@ -153,8 +154,9 @@ export default function PromocionesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#080d19] text-white">
+    <>
       <SiteHeader active="promociones" />
+      <main className="min-h-screen bg-[#080d19] text-white">
 
       <section className="relative overflow-hidden border-b border-white/10 bg-[#0b1020] text-white">
         <div className="absolute inset-0 opacity-25 tech-grid" />
@@ -417,6 +419,8 @@ export default function PromocionesPage() {
         </div>
       </section>
     </main>
+      <SiteFooter />
+    </>
   );
 }
 
