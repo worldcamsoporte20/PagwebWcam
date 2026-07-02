@@ -10,10 +10,14 @@ import {
     Clock3,
     HeartHandshake,
 } from "lucide-react";
+import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 
 export default function Facturacion() {
     return (
-        <main className="facturacion-container">
+        <>
+            <SiteHeader active="home" />
+            <main className="facturacion-container">
 
             {/* Hero */}
             <section className="facturacion-hero">
@@ -277,5 +281,7 @@ export default function Facturacion() {
             </section>
 
         </main>
+            <SiteFooter />
+        </>
     );
 }

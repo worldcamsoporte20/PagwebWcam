@@ -9,10 +9,14 @@ import {
   TriangleAlert,
   BadgeCheck,
 } from "lucide-react";
+import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 
 export default function GarantiasPage() {
-  return (
-    <main className="garantia-container">
+  return ( 
+    <>
+      <SiteHeader active="home" />
+      <main className="garantia-container">
 
       {/*================ HERO ===============*/}
     <section className="garantia-hero">
@@ -384,7 +388,8 @@ export default function GarantiasPage() {
       </section>
 
     </main>
-
+    <SiteFooter />
+    </>
   );
 
 }

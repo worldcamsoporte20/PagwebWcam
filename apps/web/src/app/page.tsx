@@ -28,6 +28,7 @@ import AntiGravityPtz from "../components/AntiGravityPtz";
 import BrandCarousel from "../components/BrandCarousel";
 import SiteHeader from "../components/SiteHeader";
 import TikTokVideos from "@/components/TikTokVideos";
+import SiteFooter from "@/components/SiteFooter";
 
 type CatalogProduct = {
   id?: number;
@@ -519,7 +520,7 @@ export default function Homeicon() {
           </div>
         </div>
       </section>
-
+          <SiteFooter/>
       <a
         className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-700 text-white shadow-soft"
         href="tel:2216531107"

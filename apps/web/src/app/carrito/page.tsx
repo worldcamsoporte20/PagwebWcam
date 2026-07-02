@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 import {
   clearCart,
   EcommerceCartItem,
@@ -220,6 +221,7 @@ export default function CarritoPage() {
           </form>
         </aside>
       </section>
+      <SiteFooter />
     </main>
   );
 }

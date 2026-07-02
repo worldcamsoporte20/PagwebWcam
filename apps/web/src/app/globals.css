@@ -2073,3 +2073,83 @@ select {
   }
 }
 
+/*=========================================================
+                WARRANTY BAR
+=========================================================*/
+
+.warranty-bar{
+    width:100%;
+    background:linear-gradient(135deg,#123B8E,#0a2472);
+    padding:18px 20px;
+}
+
+.warranty-content{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+}
+
+.warranty-text{
+    color:#fff;
+    font-size:1rem;
+    font-weight:500;
+    margin:0;
+}
+
+.warranty-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:#fff;
+    color:#123B8E;
+    text-decoration:none;
+    font-weight:700;
+    padding:12px 22px;
+    border-radius:50px;
+    transition:.3s;
+    box-shadow:0 8px 20px rgba(240, 239, 239, 0.18);
+}
+
+.warranty-btn:hover{
+    background:#E53935;
+    color:#fff;
+    transform:translateY(-2px);
+}
+
+.warranty-btn svg{
+    transition:.3s;
+}
+
+.warranty-btn:hover svg{
+    transform:rotate(-20deg);
+}
+
+/*================ RESPONSIVE ================*/
+
+@media(max-width:768px){
+
+    .warranty-content{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .warranty-text{
+    color:#fff;
+    font-size:1rem;
+    font-weight:500;
+    margin:0;
+}
+
+    .warranty-btn{
+        width:100%;
+        justify-content:center;
+        max-width:340px;
+    }
+
+}
+.warranty-bar p{
+    color:#fff;
+}
