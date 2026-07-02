@@ -218,7 +218,7 @@ export default function Homeicon() {
   };
 
   return (
-    <main className="home-page min-h-screen bg-white text-black">
+    <main className="home-page min-h-screen bg-white text-black dark:bg-[#080d19] dark:text-white">
       <SiteHeader active="home" />
 
       <section className="bg-transparent">
