@@ -3,7 +3,53 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+html.dark,
+body.dark {
+  color-scheme: dark;
+}
+
+html.dark body,
+body.dark {
+  background: #080d19;
+  color: #f8fafc;
+}
+
+html.dark [class*="bg-white"],
+html.dark [class*="bg-[#FCFCFD]"],
+body.dark [class*="bg-white"],
+body.dark [class*="bg-[#FCFCFD]"] {
+  background-color: #0d1223 !important;
+}
+
+html.dark [class*="text-black"],
+html.dark [class*="text-[#12141A]"],
+body.dark [class*="text-black"],
+body.dark [class*="text-[#12141A]"] {
+  color: #f8fafc !important;
+}
+
+html.dark [class*="border-[#CBC9D4]"],
+html.dark [class*="border-[#1E49A2]"],
+html.dark .border-gray-200,
+body.dark [class*="border-[#CBC9D4]"],
+body.dark [class*="border-[#1E49A2]"],
+body.dark .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark [class*="bg-[#F00922]"],
+body.dark [class*="bg-[#F00922]"] {
+  background-color: #b91c1c !important;
+}
+
+html.dark [class*="text-[#012477]"],
+html.dark [class*="text-[#1E49A2]"],
+body.dark [class*="text-[#012477]"],
+body.dark [class*="text-[#1E49A2]"] {
+  color: #bfdbfe !important;
 }
 
 * {
@@ -23,6 +69,11 @@ body {
   background: #ffffff;
   color: #000000;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html.dark body {
+  background: #080d19;
+  color: #f8fafc;
 }
 
 img,
@@ -48,7 +99,8 @@ label {
 }
 
 @media (prefers-color-scheme: dark) {
-  body {
+  html:not(.dark) body,
+  body:not(.dark) {
     background: #ffffff;
     color: #e8edf5;
   }
@@ -1403,3 +1455,52 @@ select {
 }
 
 
+
+.topbar {
+  background-color: #0a2472; /* mismo azul del header actual */
+  padding: 8px 24px;
+}
+
+.topbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.topbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #1e5fd9; /* azul más claro, combina bien con el fondo */
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.topbar-btn:hover {
+  background-color: #ffffff;
+  color: #0a2472;
+}
+
+.topbar-links {
+  display: flex;
+  gap: 24px;
+}
+
+.topbar-links a {
+  color: white;
+  font-size: 13px;
+  text-decoration: underline;
+}

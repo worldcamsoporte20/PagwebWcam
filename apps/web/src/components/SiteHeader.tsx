@@ -1,11 +1,8 @@
 "use client";
-
 import {
   ArrowRight,
   BarChart3,
-  CalendarCheck,
   Cpu,
-  CreditCard,
   FileText,
   Flame,
   Gamepad2,
@@ -14,12 +11,14 @@ import {
   Home as HomeIcon,
   LayoutGrid,
   Monitor,
+  Moon,        // nuevo
   Percent,
   Phone,
   Search,
   ShieldCheck,
   ShoppingCart,
   Sparkles,
+  Sun,         // nuevo
   Tag,
   Truck,
   UserRound,
@@ -58,12 +57,36 @@ const categoryItems = [
   { label: "Telefonía", href: "/catalogo?categoria=telefonia", icon: Phone },
 ];
 
+const topbarActions = [
+  { label: "Quiero ser distribuidor", href: "/distribuidor", icon: Truck },
+  { label: "Sucursales", href: "/sucursales", icon: HomeIcon },
+  { label: "Facturación", href: "/facturacion", icon: FileText },
+];
+
 export default function SiteHeader({ active = "home" }: { active?: ActivePage }) {
   const [query, setQuery] = useState("");
   const [currentHash, setCurrentHash] = useState("");
   const [auth, setAuth] = useState<AuthState>(null);
   const [cartQty, setCartQty] = useState(0);
   const [salesDraftQty, setSalesDraftQty] = useState(0);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("wc-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialDark = savedTheme ? savedTheme === "dark" : prefersDark;
+
+    setIsDark(initialDark);
+    document.documentElement.classList.toggle("dark", initialDark);
+    document.documentElement.style.colorScheme = initialDark ? "dark" : "light";
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+    document.body.classList.toggle("dark", isDark);
+    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    window.localStorage.setItem("wc-theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -132,33 +155,33 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
 
   return (
-    <header className="sticky top-0 z-50">
-      <div className="bg-[#022C96] text-[#FCFCFD] text-[11px]">
-        <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-xs sm:px-4 lg:px-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1">
-              <Truck className="h-3.5 w-3.5 text-white" aria-hidden />
-              Envíos a todo México
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <CreditCard className="h-3.5 w-3.5 text-white" aria-hidden />
-              Hasta 12 MSI con tarjetas participantes
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <CalendarCheck className="h-3.5 w-3.5 text-white" aria-hidden />
-              Compra hoy y recibe de 1 a 3 días hábiles
-            </span>
+    <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
+      <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
+        <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-3 py-2.5 text-xs sm:px-4 lg:px-6">
+          <div className="flex flex-wrap items-center gap-2">
+            {topbarActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <a
+                  key={action.label}
+                  href={action.href}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                  {action.label}
+                </a>
+              );
+            })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
             <a href="/ayuda" className="underline decoration-white/70 hover:text-white">Ayuda</a>
-            <a href="/sucursales" className="underline decoration-white/70 hover:text-white">Sucursales</a>
             <a href="/rastrea-tu-pedido" className="underline decoration-white/70 hover:text-white">Rastrea tu pedido</a>
           </div>
         </div>
       </div>
 
-      <div className="bg-[#FCFCFD] shadow-sm">
+      <div className="bg-[#FCFCFD] shadow-sm dark:bg-[#0d1526] dark:text-white">
         <div className="mx-auto flex w-full flex-wrap md:flex-nowrap items-center gap-3 justify-between px-3 py-1.5 sm:px-4 lg:px-6">
           <a href="/" aria-label="Ir a inicio" className="flex items-center gap-3 flex-none">
             <img src="/images/logo/logo.png" alt="Worldcam" className="h-24 w-auto sm:h-32 lg:h-36 xl:h-40" />
@@ -167,12 +190,12 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
           <div className="order-2 flex w-full flex-1 min-w-[240px] justify-center md:order-none">
             <form
               onSubmit={handleSearch}
-              className="w-full max-w-3xl overflow-hidden rounded-full border border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] shadow-sm"
+              className="w-full max-w-3xl overflow-hidden rounded-full border border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] shadow-sm dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
             >
               <div className="flex h-12 items-center gap-3 px-4">
-                <Search className="h-5 w-5 text-[#1E49A2]" aria-hidden />
+                <Search className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
                 <input
-                  className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base"
+                  className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base dark:text-white dark:placeholder:text-white/40"
                   placeholder="Buscar productos, categorías o marcas..."
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -186,7 +209,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               <a
                 href="/cuenta"
                 aria-label="Mi cuenta"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
                   {auth.initials}
@@ -196,7 +219,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               <a
                 href="/login"
                 aria-label="Iniciar sesion"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
               >
                 <UserRound className="h-5 w-5" aria-hidden />
               </a>
@@ -204,7 +227,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             {auth ? (
               <a
                 href="/cuenta"
-                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5"
+                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
                   {auth.initials}
@@ -213,7 +236,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : (
               <a
-                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5"
+                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
                 href="/login"
               >
                 <UserRound className="h-5 w-5" aria-hidden />
@@ -222,16 +245,16 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             )}
             <a
               href="/favoritos"
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
               aria-label="Favoritos"
             >
-              <Heart className="h-6 w-6 text-[#1E49A2]" aria-hidden />
+              <Heart className="h-6 w-6 text-[#1E49A2] dark:text-white" aria-hidden />
             </a>
             <a
               href="/favoritos"
-              className="hidden h-11 items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5"
+              className="hidden h-11 items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
             >
-              <Heart className="h-5 w-5 text-[#1E49A2]" aria-hidden />
+              <Heart className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
               <span className="hidden lg:inline">Favoritos</span>
             </a>
             {isStaff ? (
@@ -248,9 +271,10 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
                 ) : null}
               </a>
             ) : null}
+            
             {!isStaff ? (
               <a
-                className="relative flex items-center gap-2 rounded-2xl bg-[#022C96] px-4 py-3 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF]"
+                className="relative flex h-11 items-center gap-2 rounded-2xl bg-[#022C96] px-4 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF]"
                 href="/carrito"
               >
                 <ShoppingCart className="h-5 w-5" aria-hidden />
@@ -263,8 +287,18 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : null}
           </div>
-        </div>
+            <button
+              type="button"
+              onClick={() => setIsDark((value) => !value)}
+              className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+              aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+            >
+              {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+              <span className="hidden sm:inline">{isDark ? "Claro" : "Oscuro"}</span>
+            </button>
 
+        </div>
+        
         <div className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full">
           <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-1.5 sm:px-4 lg:px-6">
             <a href="/catalogo" className="inline-flex h-12 items-center gap-2 rounded-full bg-[#F00922] px-3 text-sm font-black text-[#FCFCFD] shadow-sm transition hover:bg-[#D41020]">

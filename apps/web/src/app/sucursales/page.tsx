@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, Phone, Clock, Building2, Share2 } from "lucide-react";
+import SiteHeader from "../../components/SiteHeader";
 
 const SUCURSALES = [
   {
@@ -112,7 +113,9 @@ const IconInstagram = () => (
 
 export default function SucursalesPage() {
   return (
-    <div className="suc-page">
+    <>
+      <SiteHeader />
+      <div className="suc-page">
 
       {/* HERO */}
       <div className="suc-container">
@@ -250,6 +253,7 @@ export default function SucursalesPage() {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
