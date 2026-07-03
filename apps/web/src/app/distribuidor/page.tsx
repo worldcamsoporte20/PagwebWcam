@@ -4,6 +4,7 @@ import { Handshake } from "lucide-react";
 
 import { useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
   
 const VOLUMEN_OPCIONES = [
   "0 a $49,999.00",
@@ -332,6 +333,7 @@ export default function DistribuidorPage() {
         </div>
       </div>
       </div>
+      <SiteFooter/>
     </>
   );
 }

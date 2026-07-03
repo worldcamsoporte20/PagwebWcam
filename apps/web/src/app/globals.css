@@ -1677,60 +1677,6 @@ select {
 
 
 
-
-
-
-
-
-/* ─────────────────────────────────────────
-   pagues.css — Página de Cupones
-   Coloca este archivo en:
-   /web/src/app/cupones
-───────────────────────────────────────── */
-/* ===== Barra Superior ===== */
-
-.topbar{
-    width:100%;
-    height:70px;
-
-background:#03164C;
-    display:flex;
-    align-items:center;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.12);
-
-    margin-bottom:35px;
-}
-
-.topbar-content{
-
-    width:100%;
-    max-width:1400px;
-
-    margin:auto;
-
-    display:flex;
-    align-items:center;
-
-    gap:15px;
-
-    padding:0 25px;
-}
-
-.topbar-logo{
-
-    border-radius:50%;
-}
-
-.topbar span{
-
-    color:white;
-
-    font-size:24px;
-
-    font-weight:bold;
-}
-
 /* ===== Página ===== */
 
 .cupones-page{
@@ -2343,7 +2289,7 @@ background:#03164C;
 
     background:var(--azul-principal);
 
-    color:white;
+    color:rgb(237, 145, 145);
 
     border:none;
 
@@ -3106,77 +3052,122 @@ background:#03164C;
 
 .warranty-bar{
     width:100%;
-    background:linear-gradient(135deg,#123B8E,#0a2472);
-    padding:18px 20px;
+    background:linear-gradient(135deg,#123B8E,#2C64D8);
+    padding:16px 20px;
 }
 
 .warranty-content{
+
     max-width:1200px;
     margin:auto;
+
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:20px;
+    gap:35px;
+
 }
 
 .warranty-text{
-    color:#fff;
-    font-size:1rem;
-    font-weight:500;
+
     margin:0;
+
+    color:#fff;
+
+    font-size:1.1rem;
+
+    font-weight:600;
+
+    flex:1;
+
+}
+
+.warranty-buttons{
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-shrink:0;
+
 }
 
 .warranty-btn{
-    display:inline-flex;
+
+    display:flex;
     align-items:center;
+    justify-content:center;
     gap:10px;
-    background:#fff;
-    color:#123B8E;
-    text-decoration:none;
-    font-weight:700;
+
     padding:12px 22px;
+
+    background:#fff;
+
+    color:#123B8E;
+
     border-radius:50px;
-    transition:.3s;
-    box-shadow:0 8px 20px rgba(240, 239, 239, 0.18);
+
+    text-decoration:none;
+
+    font-weight:700;
+
+    transition:.30s;
+
+    white-space:nowrap;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
+
 }
 
 .warranty-btn:hover{
+
     background:#E53935;
+
     color:#fff;
-    transform:translateY(-2px);
+
+    transform:translateY(-3px);
+
 }
 
 .warranty-btn svg{
+
     transition:.3s;
+
 }
 
 .warranty-btn:hover svg{
-    transform:rotate(-20deg);
+
+    transform:rotate(-15deg);
+
 }
 
 /*================ RESPONSIVE ================*/
 
-@media(max-width:768px){
+@media(max-width:900px){
 
-    .warranty-content{
-        flex-direction:column;
-        text-align:center;
-    }
+.warranty-content{
 
-    .warranty-text{
-    color:#fff;
-    font-size:1rem;
-    font-weight:500;
-    margin:0;
-}
-
-    .warranty-btn{
-        width:100%;
-        justify-content:center;
-        max-width:340px;
-    }
+    flex-direction:column;
+    text-align:center;
 
 }
+
+.warranty-buttons{
+
+    flex-direction:column;
+    width:100%;
+
+}
+
+.warranty-btn{
+
+    width:100%;
+    max-width:330px;
+
+}
+
+}
+
+
 .warranty-bar p{
     color:#fff;
 
@@ -3220,99 +3211,355 @@ background:#03164C;
     color:white !important;
 }
 
+/*=========================================================
+                AVISO DE PRIVACIDAD
+=========================================================*/
 
-/* ================================================= */
-/*      POLITICAS DE GARANTIA - WORLDCAM             */
-/* ================================================= */
-
-/* ---------- CONTENEDOR GENERAL ---------- */
-
-.wc-politicas-page{
-    background: #caf6fc;
-    min-height:100vh;
-    padding:50px 20px 80px;
-}
-/* ================================================= */
-/*                     BANNER                        */
-/* ================================================= */
-
-.wc-politicas-banner{
-
+.privacidad-container{
     max-width:1200px;
-    margin:0 auto 45px;
+    margin:auto;
+    padding:60px 20px 80px;
+}
 
-    background:linear-gradient(
-        135deg,
-        var(--azul-principal),
-        var(--azul-boton)
-    );
+/*================ HERO ================*/
 
-    border-radius:28px;
+.privacidad-hero{
+
+    background:linear-gradient(135deg,#123B8E,#2C64D8);
+
+    color:#fff;
+
+    border-radius:25px;
 
     padding:60px;
 
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
-    gap:50px;
 
-    color:white;
+    gap:40px;
 
-    box-shadow:0 20px 45px rgba(2,44,150,.20);
+    margin-bottom:70px;
 
 }
 
-.wc-politicas-info{
-    flex:1;
+.privacidad-hero .hero-content{
+
+    max-width:650px;
+
 }
 
-.wc-politicas-etiqueta{
+.privacidad-hero .hero-badge{
 
     display:inline-block;
 
-    background:rgba(255,255,255,.15);
+    background:rgba(255,255,255,.18);
 
-    padding:10px 22px;
+    padding:8px 18px;
 
     border-radius:50px;
 
     font-size:.85rem;
 
-    font-weight:700;
-
-    letter-spacing:1px;
-
-    margin-bottom:25px;
-
-    color:white;
+    font-weight:600;
 
 }
 
-.wc-politicas-banner h1{
+.privacidad-hero h1{
 
-    color:white;
+    font-size:3rem;
 
-    font-size:58px;
+    margin:20px 0 15px;
 
-    font-weight:800;
+}
 
-    line-height:1.05;
+.privacidad-hero p{
+
+    font-size:1.05rem;
+
+    line-height:1.8;
+
+}
+
+.privacidad-hero .hero-icon{
+
+    color:#fff;
+
+}
+
+/*================ TITULOS ================*/
+
+.privacidad-section{
+
+    margin-top:80px;
+
+}
+
+.privacidad-section h2{
+
+    text-align:center;
+
+    color:#123B8E;
+
+    font-size:2rem;
+
+    margin-bottom:12px;
+
+}
+
+.privacidad-section .subtitle{
+
+    text-align:center;
+
+    color:#666;
+
+    margin-bottom:45px;
+
+}
+
+/*================ GRID ================*/
+
+.cards-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+
+    gap:25px;
+
+}
+
+.info-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:35px 25px;
+
+    text-align:center;
+
+    border-top:5px solid #123B8E;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+.info-card:hover{
+
+    transform:translateY(-8px);
+
+    border-top-color:#E53935;
+
+}
+
+.info-card .icon{
+
+    width:52px;
+
+    height:52px;
+
+    color:#123B8E;
 
     margin-bottom:18px;
 
 }
 
-.wc-politicas-banner p{
+.info-card h3{
 
-    color:#EDF1FA;
+    color:#123B8E;
 
-    font-size:22px;
-
-    line-height:1.6;
+    margin-bottom:10px;
 
 }
 
-.wc-politicas-logo-contenedor{
+.info-card p{
+
+    color:#555;
+
+    line-height:1.7;
+
+}
+
+/*================ IMPORTANTE ================*/
+
+.warning-box{
+
+    margin-top:55px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:30px;
+
+    padding:35px;
+
+    border-radius:18px;
+
+    border-left:8px solid #E53935;
+
+    background:#fff;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.warning-icon{
+
+    min-width:80px;
+
+    width:80px;
+
+    height:80px;
+
+    border-radius:50%;
+
+    background:#E53935;
+
+    color:#fff;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:2rem;
+
+    font-weight:bold;
+
+}
+
+.warning-box h2{
+
+    color:#E53935;
+
+    margin-bottom:10px;
+
+}
+
+.warning-box p{
+
+    color:#444;
+
+    line-height:1.8;
+
+}
+
+/*================ COOKIES ================*/
+
+.cookies-card{
+
+    margin-top:45px;
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:50px;
+
+    text-align:center;
+
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+}
+
+.cookies-card svg{
+
+    color:#123B8E;
+
+    margin-bottom:25px;
+
+}
+
+.cookies-card p{
+
+    max-width:900px;
+
+    margin:18px auto;
+
+    color:#555;
+
+    line-height:1.9;
+
+}
+
+/*================ SEGURIDAD ================*/
+
+.security-box{
+
+    margin:90px 0;
+
+    background:linear-gradient(135deg,#123B8E,#2C64D8);
+
+    color:#fff;
+
+    border-radius:24px;
+
+    padding:55px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:35px;
+
+}
+
+.security-box svg{
+
+    min-width:70px;
+
+}
+
+.security-box h2{
+
+    margin-bottom:15px;
+
+}
+
+.security-box p{
+
+    line-height:1.9;
+
+}
+
+/*================ CONTACTO ================*/
+
+.thanks-section{
+
+    margin-top:90px;
+
+    background:#fff;
+
+    border-radius:24px;
+
+    padding:55px;
+
+    text-align:center;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.thanks-icon{
+
+    width:90px;
+
+    height:90px;
+
+    margin:0 auto 25px;
+
+    background:#123B8E;
+
+    color:#fff;
+
+    border-radius:50%;
 
     display:flex;
 
@@ -3322,301 +3569,152 @@ background:#03164C;
 
 }
 
-.wc-politicas-logo{
+.thanks-section h2{
 
-    width:240px;
+    color:#123B8E;
 
-    height:auto;
-
-    transition:.30s;
+    margin-bottom:18px;
 
 }
 
-.wc-politicas-logo:hover{
+.thanks-section p{
 
-    transform:scale(1.05);
+    max-width:800px;
 
-}
+    margin:0 auto 25px;
 
-/* ================================================= */
-/*                    TARJETAS                       */
-/* ================================================= */
-
-.wc-politicas-tarjeta{
-
-    max-width:1200px;
-
-    margin:0 auto 35px;
-
-    background:#FFF;
-
-    border-radius:22px;
-
-    padding:40px;
-
-    border-top:6px solid var(--azul-principal);
-
-    box-shadow:0 10px 35px rgba(0,0,0,.08);
-
-    transition:.30s;
-
-}
-
-.wc-politicas-tarjeta:hover{
-
-    transform:translateY(-5px);
-
-    box-shadow:0 20px 45px rgba(0,0,0,.12);
-
-}
-
-/* ================================================= */
-/*                  TITULOS                          */
-/* ================================================= */
-
-.wc-politicas-tarjeta h2{
-
-    color:var(--azul-principal);
-
-    font-size:34px;
-
-    font-weight:700;
-
-    margin-bottom:28px;
-
-    padding-bottom:12px;
-
-    border-bottom:4px solid var(--azul-principal);
-
-    display:inline-block;
-
-}
-
-/* ================================================= */
-/*                 PARRAFOS                          */
-/* ================================================= */
-
-.wc-politicas-tarjeta p{
-
-    color:var(--texto-principal);
-
-    font-size:17px;
+    color:#555;
 
     line-height:1.9;
+
+}
+
+.thanks-section strong{
+
+    display:block;
+
+    color:#123B8E;
+
+    margin-top:10px;
+
+    font-size:1.05rem;
+
+}
+
+/*================ ACTUALIZACION ================*/
+
+.update-card{
+
+    margin:70px auto 0;
+
+    max-width:450px;
+
+    text-align:center;
+
+    background:#fff;
+
+    padding:35px;
+
+    border-radius:18px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.update-card svg{
+
+    color:#123B8E;
 
     margin-bottom:15px;
 
 }
 
-/* ================================================= */
-/*                   LISTAS                          */
-/* ================================================= */
+.update-card h3{
 
-.wc-politicas-tarjeta ul{
+    color:#123B8E;
 
-    margin-top:15px;
-
-    padding-left:28px;
+    margin-bottom:10px;
 
 }
 
-.wc-politicas-tarjeta li{
+.update-card p{
 
-    color:var(--texto-principal);
-
-    font-size:16px;
-
-    line-height:1.9;
-
-    margin-bottom:15px;
+    color:#666;
 
 }
 
-/* ================================================= */
-/*                 RESPONSIVE                        */
-/* ================================================= */
+/*================ RESPONSIVE ================*/
 
-@media(max-width:900px){
+@media(max-width:992px){
 
-.wc-politicas-banner{
+.privacidad-hero{
 
-flex-direction:column;
+    flex-direction:column;
 
-text-align:center;
-
-padding:40px 30px;
+    text-align:center;
 
 }
 
-.wc-politicas-banner h1{
+.security-box{
 
-font-size:42px;
+    flex-direction:column;
 
-}
-
-.wc-politicas-banner p{
-
-font-size:18px;
+    text-align:center;
 
 }
 
-.wc-politicas-logo{
+.warning-box{
 
-width:180px;
+    flex-direction:column;
 
-}
-
-.wc-politicas-tarjeta{
-
-padding:30px;
+    text-align:center;
 
 }
 
 }
 
-@media(max-width:600px){
+@media(max-width:768px){
 
-.wc-politicas-page{
+.privacidad-container{
 
-padding:20px 12px 60px;
-
-}
-
-.wc-politicas-banner{
-
-padding:30px 20px;
+    padding:35px 18px 60px;
 
 }
 
-.wc-politicas-banner h1{
+.privacidad-hero{
 
-font-size:32px;
-
-}
-
-.wc-politicas-banner p{
-
-font-size:16px;
+    padding:35px;
 
 }
 
-.wc-politicas-tarjeta{
+.privacidad-hero h1{
 
-padding:24px;
-
-}
-
-.wc-politicas-tarjeta h2{
-
-font-size:28px;
+    font-size:2.2rem;
 
 }
 
-.wc-politicas-tarjeta p,
-.wc-politicas-tarjeta li{
+.cards-grid{
 
-font-size:15px;
+    grid-template-columns:1fr;
+
+}
+
+.cookies-card{
+
+    padding:35px 25px;
+
+}
+
+.security-box{
+
+    padding:35px 25px;
+
+}
+
+.thanks-section{
+
+    padding:35px 25px;
 
 }
 
 }
-
-/* ===========================
-   FORZAR ESTILOS POLÍTICAS
-=========================== */
-
-.wc-politicas-page *{
-    box-sizing:border-box;
-}
-
-.wc-politicas-page h1{
-    color:#FFFFFF !important;
-    font-size:58px !important;
-    font-weight:800 !important;
-    line-height:1.1 !important;
-}
-
-.wc-politicas-page h2{
-    color:#022C96 !important;
-    font-size:34px !important;
-    font-weight:700 !important;
-}
-
-.wc-politicas-page p{
-    color:#12141A !important;
-    font-size:17px !important;
-    line-height:1.8 !important;
-}
-
-.wc-politicas-page li{
-    color:#12141A !important;
-    font-size:16px !important;
-    line-height:1.9 !important;
-}
-
-.wc-politicas-banner p{
-    color:#EDF1FA !important;
-}
-
-.wc-politicas-etiqueta{
-    color:white !important;
-}
-
-.wc-politicas-banner{
-    background:linear-gradient(
-        135deg,
-        #022C96,
-        #0F46AF
-    ) !important;
-}
-
-
-.topbar {
-  background-color: #0a2472; /* mismo azul del header actual */
-  padding: 8px 24px;
-}
-
-.topbar-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.topbar-buttons {
-  display: flex;
-  gap: 10px;
-}
-
-.topbar-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #1e5fd9; /* azul más claro, combina bien con el fondo */
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 20px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.2s ease;
-}
-
-.topbar-btn:hover {
-  background-color: #ffffff;
-  color: #0a2472;
-}
-
-.topbar-links {
-  display: flex;
-  gap: 24px;
-}
-
-.topbar-links a {
-  color: white;
-  font-size: 13px;
-  text-decoration: underline;
-}
-

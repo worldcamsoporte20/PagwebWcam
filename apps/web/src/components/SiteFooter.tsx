@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, FileLock } from "lucide-react";
 
 export default function WarrantyBar() {
   return (
@@ -10,13 +10,22 @@ export default function WarrantyBar() {
       <div className="warranty-content">
 
         <p className="warranty-text">
-          ¿Necesitas realizar una devolución o solicitar una garantía?
+          ¿Necesitas ayuda con una garantía, devolución o privacidad?
         </p>
 
-        <Link href="/poli_garantia" className="warranty-btn">
-          <RotateCcw size={20} />
-          Ver políticas de Garantías y Devoluciones
-        </Link>
+        <div className="warranty-buttons">
+
+          <Link href="/poli_garantia" className="warranty-btn">
+            <RotateCcw size={18} />
+            <span>Garantías</span>
+          </Link>
+
+          <Link href="/avisosprivacidad" className="warranty-btn">
+            <FileLock size={18} />
+            <span>Privacidad</span>
+          </Link>
+
+        </div>
 
       </div>
 
