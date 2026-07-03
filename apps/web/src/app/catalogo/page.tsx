@@ -16,8 +16,10 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 import { addCartItem } from "../../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, addProductToSalesDraft, readSalesDraftItems, updateSalesDraftItemQty } from "../../lib/salesDraft";
+
 
 type CatalogProduct = {
   id?: number;
@@ -401,8 +403,9 @@ export default function CatalogoPage() {
   const salesDraftTotalQty = Object.values(salesDraftQtyByVariant).reduce((sum, qty) => sum + qty, 0);
 
   return (
-    <main className="min-h-screen bg-[#080d19] text-white">
+    <>
       <SiteHeader active="catalogo" />
+      <main className="min-h-screen bg-[#080d19] text-white">
 
       <section className="border-b border-white/10 bg-[#0b1020]">
         <div className="mx-auto max-w-[1800px] px-4 py-3 lg:px-6 lg:py-4">
@@ -745,6 +748,8 @@ export default function CatalogoPage() {
           ) : null}
         </a>
       ) : null}
-    </main>
+      </main>
+      <SiteFooter />
+    </>
   );
 }

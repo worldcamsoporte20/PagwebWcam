@@ -3,7 +3,8 @@
 import { Handshake } from "lucide-react";
 
 import { useState } from "react";
-
+import SiteHeader from "../../components/SiteHeader";
+  
 const VOLUMEN_OPCIONES = [
   "0 a $49,999.00",
   "$50,000.00 a $200,000.00",
@@ -83,7 +84,9 @@ export default function DistribuidorPage() {
   };
 
   return (
-    <div className="dist-page">
+    <>
+      <SiteHeader />
+      <div className="dist-page">
       {/* HERO */}
       <div className="dist-hero">
   <div className="dist-hero-decor-left" />
@@ -328,6 +331,7 @@ export default function DistribuidorPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

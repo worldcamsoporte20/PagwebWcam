@@ -28,6 +28,8 @@ import AntiGravityPtz from "../components/AntiGravityPtz";
 import BrandCarousel from "../components/BrandCarousel";
 import SiteHeader from "../components/SiteHeader";
 import TikTokVideos from "@/components/TikTokVideos";
+import SiteFooter from "@/components/SiteFooter";
+import SupportAdvisors from "@/components/SupportAdvisors";
 
 type CatalogProduct = {
   id?: number;
@@ -217,7 +219,7 @@ export default function Homeicon() {
   };
 
   return (
-    <main className="home-page min-h-screen bg-white text-black">
+    <main className="home-page min-h-screen bg-white text-black dark:bg-[#080d19] dark:text-white">
       <SiteHeader active="home" />
 
       <section className="bg-transparent">
@@ -520,6 +522,8 @@ export default function Homeicon() {
         </div>
       </section>
 
+      <SupportAdvisors />
+      <SiteFooter/>
       <a
         className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-blue-700 text-white shadow-soft"
         href="tel:2216531107"

@@ -91,12 +91,12 @@ export default function BrandCarousel() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-soft sm:px-6">
+      <div className="mb-4 rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-soft sm:px-6 dark:border-white/10 dark:bg-[#0d1223]">
         <div className="max-w-3xl">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.24em] text-coral">Marcas destacadas</p>
-            <h2 className="mt-1 text-3xl font-black text-gray-900">Nuestras marcas l&iacute;deres</h2>
-            <p className="mt-1 max-w-2xl text-sm text-gray-600">
+            <h2 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">Nuestras marcas l&iacute;deres</h2>
+            <p className="mt-1 max-w-2xl text-sm text-gray-600 dark:text-white/60">
               Descubre los principales fabricantes que distribuimos para soluciones de seguridad y redes.
             </p>
           </div>
@@ -120,9 +120,9 @@ export default function BrandCarousel() {
               <div
                 key={brand.name}
                 data-brand-card
-                className="group w-[210px] flex-shrink-0 rounded-xl border border-gray-200 bg-white px-4 py-4 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-soft sm:w-[240px]"
+                className="group w-[210px] flex-shrink-0 rounded-xl border border-gray-200 bg-white px-4 py-4 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-soft sm:w-[240px] dark:border-white/10 dark:bg-[#0d1223] dark:hover:border-blue-400/40"
               >
-                <div className="mx-auto mb-3 flex h-28 w-full items-center justify-center rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 transition group-hover:bg-white">
+                <div className="mx-auto mb-3 flex h-28 w-full items-center justify-center rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 transition group-hover:bg-white dark:border-white/10 dark:bg-white/5 dark:group-hover:bg-white/10">
                   <Image
                     src={brand.logo}
                     alt={`Logo de ${brand.name}`}
@@ -133,7 +133,7 @@ export default function BrandCarousel() {
                     priority={index < 4}
                   />
                 </div>
-                <h3 className="min-h-7 text-base font-black text-slate-900">{brand.name}</h3>
+                <h3 className="min-h-7 text-base font-black text-slate-900 dark:text-white">{brand.name}</h3>
               </div>
             ))}
           </div>
@@ -142,7 +142,7 @@ export default function BrandCarousel() {
         <button
           onClick={prev}
           aria-label="Anterior"
-          className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-slate-800 shadow-soft backdrop-blur transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2"
+          className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-slate-800 shadow-soft backdrop-blur transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2 dark:border-white/10 dark:bg-[#0d1223]/95 dark:text-white dark:hover:bg-white dark:hover:text-slate-900"
         >
           <ChevronLeft className="h-5 w-5" aria-hidden />
         </button>
@@ -150,7 +150,7 @@ export default function BrandCarousel() {
         <button
           onClick={next}
           aria-label="Siguiente"
-          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-slate-800 shadow-soft backdrop-blur transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2"
+          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-slate-800 shadow-soft backdrop-blur transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2 dark:border-white/10 dark:bg-[#0d1223]/95 dark:text-white dark:hover:bg-white dark:hover:text-slate-900"
         >
           <ChevronRight className="h-5 w-5" aria-hidden />
         </button>
@@ -160,7 +160,9 @@ export default function BrandCarousel() {
         {Array.from({ length: maxIndex + 1 }).map((_, index) => (
           <span
             key={`brand-indicator-${index}`}
-            className={`h-1.5 rounded-full transition-all ${activeIndex === index ? "w-8 bg-coral" : "w-1.5 bg-gray-300"}`}
+            className={`h-1.5 rounded-full transition-all ${
+              activeIndex === index ? "w-8 bg-coral" : "w-1.5 bg-gray-300 dark:bg-white/20"
+            }`}
           />
         ))}
       </div>
