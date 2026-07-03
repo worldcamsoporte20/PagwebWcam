@@ -28,6 +28,7 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartTotals, readCart } from "../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, readSalesDraftItems } from "../lib/salesDraft";
+import { SideMegaMenuButtonV2 } from "./SideMegaMenuButtonV2";
 
 type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas";
 type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cursos" | "cotizacion";
@@ -267,24 +268,19 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
 
         <div className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full">
           <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-1.5 sm:px-4 lg:px-6">
-            <a href="/catalogo" className="inline-flex h-12 items-center gap-2 rounded-full bg-[#F00922] px-3 text-sm font-black text-[#FCFCFD] shadow-sm transition hover:bg-[#D41020]">
-              <span className="flex h-6 w-6 flex-col items-center justify-center gap-1">
-                <span className="h-[2px] w-full rounded-full bg-[#FCFCFD]" />
-                <span className="h-[2px] w-full rounded-full bg-[#FCFCFD]" />
-                <span className="h-[2px] w-full rounded-full bg-[#FCFCFD]" />
-              </span>
-              Todas las categorias
-            </a>
-            <div className="flex flex-wrap items-center justify-center gap-1 overflow-x-auto pb-1">
+            <div className="w-64">
+              <SideMegaMenuButtonV2 />
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-1.5 overflow-x-auto pb-1">
               {categoryItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <a
                     key={item.label}
                     href={item.href}
-                    className="inline-flex h-12 min-w-[160px] items-center gap-1.5 rounded-full border border-[#1E49A2] bg-[#FCFCFD] px-3 text-sm font-black text-[#012477] transition hover:border-[#2D70CF] hover:bg-[#2D70CF]/10"
+                    className="group relative inline-flex h-12 min-w-[160px] items-center justify-center gap-1.5 overflow-hidden rounded-full border border-[#1E49A2]/55 bg-[#FCFCFD] px-3 text-sm font-black text-[#012477] shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:border-[#2D70CF] hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:text-white hover:shadow-[0_14px_30px_rgba(2,44,150,0.24),0_0_0_4px_rgba(45,112,207,0.12)] hover:before:left-[115%] hover:before:opacity-100"
                   >
-                    <Icon className="h-5 w-5 text-[#012477]" aria-hidden />
+                    <Icon className="h-5 w-5 text-[#012477] transition-colors duration-300 group-hover:text-white" aria-hidden />
                     {item.label}
                   </a>
                 );
