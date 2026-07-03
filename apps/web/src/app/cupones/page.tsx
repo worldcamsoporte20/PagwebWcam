@@ -2,6 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
+import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 
 const cupones = [
   {
@@ -69,22 +71,8 @@ const cupones = [
 export default function Cupones() {
   return (
     <>
-      {/* Barra Superior */}
-      <div className="topbar">
-        <div className="topbar-content">
-          <Image
-            src="/images/logo/logo.png"
-            alt="WorldCam"
-            width={42}
-            height={42}
-            className="topbar-logo"
-          />
+      <SiteHeader active="home" />
 
-          <span>WorldCam</span>
-        </div>
-      </div>
-
-      {/* Contenido */}
       <div className="cupones-page">
         <div className="cupones-header">
           <h1>Cupones WorldCam</h1>
@@ -95,7 +83,7 @@ export default function Cupones() {
               placeholder="Ingresar código de cupón"
             />
 
-            <button>Agregar cupón</button>
+            <button type="button">Agregar cupón</button>
           </div>
         </div>
 
@@ -137,6 +125,8 @@ export default function Cupones() {
           ))}
         </div>
       </div>
+
+      <SiteFooter />
     </>
   );
 }

@@ -1230,7 +1230,7 @@ select {
   gap: 28px;
   align-items: start;
 }
-
+.suc-card-info {}
 .suc-card-name {
   font-size: 20px;
   font-weight: 800;
@@ -1337,7 +1337,6 @@ select {
   border-top: 1px solid #D3DDF0;
   margin: 32px 0;
 }
-
 
 
 
@@ -1535,7 +1534,119 @@ background:#03164C;
 }
 
 .cupon-card-top{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    padding:22px;
 }
+
+.cupon-icon{
+
+    width:70px;
+
+    height:70px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:white;
+
+    border:2px solid var(--bordes);
+
+    flex-shrink:0;
+}
+
+.logo-cupon{
+
+    width:55px;
+
+    height:55px;
+
+    object-fit:contain;
+}
+
+.cupon-info{
+
+    flex:1;
+}
+
+.cupon-info h2{
+
+    color:var(--azul-oscuro);
+
+    font-size:24px;
+
+    margin-bottom:8px;
+}
+
+.cupon-info p{
+
+    color:var(--texto-secundario);
+
+    margin-bottom:6px;
+}
+
+.cupon-info span{
+
+    color:var(--rojo-principal);
+
+    font-weight:bold;
+}
+
+.ticket-line{
+
+    border-top:2px dashed #d9d9d9;
+}
+
+.cupon-footer{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px 22px;
+}
+
+.cupon-footer small{
+
+    color:#777;
+}
+
+.btn-aplicar{
+
+    background:var(--azul-principal);
+
+    color:white;
+
+    border:none;
+
+    padding:10px 22px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.btn-aplicar:hover{
+
+    background:var(--azul-boton);
+
+    transform:scale(1.05);
+}
+
 /*=========================================================
                     FACTURACIÓN
 =========================================================*/
@@ -2263,13 +2374,11 @@ background:#03164C;
 
 .process-item{
 
-
     display:flex;
 
     align-items:center;
 
     gap:18px;
-
 
     padding:22px;
 }
@@ -2281,7 +2390,6 @@ background:#03164C;
     height:70px;
 
     border-radius:50%;
-
 
 }
 
@@ -2501,64 +2609,11 @@ background:#03164C;
 
     color:#123B8E;
 
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
-
-
-    background:white;
-
-    border:2px solid var(--bordes);
-
-    flex-shrink:0;
-}
-
-.logo-cupon{
-
-    width:55px;
-
-    height:55px;
-
-    object-fit:contain;
-}
-
-.cupon-info{
-
-    flex:1;
-}
-
-.cupon-info h2{
-
-    color:var(--azul-oscuro);
-
-    font-size:24px;
-
-    margin-bottom:8px;
-}
-
-.cupon-info p{
-
-    color:var(--texto-secundario);
-
-    margin-bottom:6px;
-}
-
-.cupon-info span{
-
-    color:var(--rojo-principal);
-
-    font-weight:bold;
-}
-
-.ticket-line{
-
-    border-top:2px dashed #d9d9d9;
-}
-
-.cupon-footer{
 }
 
 
@@ -2610,44 +2665,6 @@ background:#03164C;
 
 .faq-grid summary{
 
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-
-    padding:18px 22px;
-}
-
-.cupon-footer small{
-
-    color:#777;
-}
-
-.btn-aplicar{
-
-    background:var(--azul-principal);
-
-    color:white;
-
-    border:none;
-
-    padding:10px 22px;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-    transition:.3s;
-}
-
-.btn-aplicar:hover{
-
-    background:var(--azul-boton);
-
-    transform:scale(1.05);
     cursor:pointer;
 
     list-style:none;
@@ -3046,44 +3063,81 @@ background:#03164C;
 =========================================================*/
 
 
-
-
 .topbar {
   background-color: #0a2472; /* mismo azul del header actual */
   padding: 8px 24px;
 }
 
-.topbar-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.warranty-content{
+
+    max-width:1200px;
+    margin:auto;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:35px;
+
 }
 
-.topbar-buttons {
-  display: flex;
-  gap: 10px;
+.warranty-text{
+
+    margin:0;
+
+    color:#fff;
+
+    font-size:1.1rem;
+
+    font-weight:600;
+
+    flex:1;
+
 }
 
-.topbar-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #1e5fd9; /* azul más claro, combina bien con el fondo */
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 20px;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.2s ease;
+.warranty-buttons{
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-shrink:0;
+
 }
 
-.topbar-btn:hover {
-  background-color: #ffffff;
-  color: #0a2472;
+.warranty-btn{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    padding:12px 22px;
+
+    background:#fff;
+
+    color:#123B8E;
+
+    border-radius:50px;
+
+    text-decoration:none;
+
+    font-weight:700;
+
+    transition:.30s;
+
+    white-space:nowrap;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.15);
+
+}
+
+.warranty-btn:hover{
+
+    background:#E53935;
+
+    color:#fff;
+
+    transform:translateY(-3px);
+
 }
 
 .topbar-links {
@@ -3096,7 +3150,6 @@ background:#03164C;
   font-size: 13px;
   text-decoration: underline;
 }
-
 /* ====== FORZAR COLORES DE CUPONES ====== */
 
 .cupones-page{
@@ -3136,326 +3189,340 @@ background:#03164C;
     color:white !important;
 }
 
+/*=========================================================
+                AVISO DE PRIVACIDAD
+=========================================================*/
 
-/* ================================================= */
-/*      POLITICAS DE GARANTIA - WORLDCAM             */
-/* ================================================= */
-
-/* ---------- CONTENEDOR GENERAL ---------- */
-
-.wc-politicas-page{
-    background: #caf6fc;
-    min-height:100vh;
-    padding:50px 20px 80px;
-}
-/* ================================================= */
-/*                     BANNER                        */
-/* ================================================= */
-
-.wc-politicas-banner{
-
+.privacidad-container{
     max-width:1200px;
-    margin:0 auto 45px;
+    margin:auto;
+    padding:60px 20px 80px;
+}
 
-    background:linear-gradient(
-        135deg,
-        var(--azul-principal),
-        var(--azul-boton)
-    );
+/*================ HERO ================*/
 
-    border-radius:28px;
+.privacidad-hero{
+
+    background:linear-gradient(135deg,#123B8E,#2C64D8);
+
+    color:#fff;
+
+    border-radius:25px;
 
     padding:60px;
 
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
-    gap:50px;
 
-    color:white;
+    gap:40px;
 
-    box-shadow:0 20px 45px rgba(2,44,150,.20);
+    margin-bottom:70px;
 
 }
 
-.wc-politicas-info{
-    flex:1;
+.privacidad-hero .hero-content{
+
+    max-width:650px;
+
 }
 
-.wc-politicas-etiqueta{
+.privacidad-hero .hero-badge{
 
     display:inline-block;
 
-    background:rgba(255,255,255,.15);
+    background:rgba(255,255,255,.18);
 
-    padding:10px 22px;
+    padding:8px 18px;
 
     border-radius:50px;
 
     font-size:.85rem;
 
-    font-weight:700;
-
-    letter-spacing:1px;
-
-    margin-bottom:25px;
-
-    color:white;
+    font-weight:600;
 
 }
 
-.wc-politicas-banner h1{
+.privacidad-hero h1{
 
-    color:white;
+    font-size:3rem;
 
-    font-size:58px;
+    margin:20px 0 15px;
 
-    font-weight:800;
+}
 
-    line-height:1.05;
+.privacidad-hero p{
+
+    font-size:1.05rem;
+
+    line-height:1.8;
+
+}
+
+.privacidad-hero .hero-icon{
+
+    color:#fff;
+
+}
+
+/*================ TITULOS ================*/
+
+.privacidad-section{
+
+    margin-top:80px;
+
+}
+
+.privacidad-section h2{
+
+    text-align:center;
+
+    color:#123B8E;
+
+    font-size:2rem;
+
+    margin-bottom:12px;
+
+}
+
+.privacidad-section .subtitle{
+
+    text-align:center;
+
+    color:#666;
+
+    margin-bottom:45px;
+
+}
+
+/*================ GRID ================*/
+
+.cards-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+
+    gap:25px;
+
+}
+
+.info-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:35px 25px;
+
+    text-align:center;
+
+    border-top:5px solid #123B8E;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+    transition:.3s;
+
+}
+
+.info-card:hover{
+
+    transform:translateY(-8px);
+
+    border-top-color:#E53935;
+
+}
+
+.info-card .icon{
+
+    width:52px;
+
+    height:52px;
+
+    color:#123B8E;
 
     margin-bottom:18px;
 
 }
 
-.wc-politicas-banner p{
+.info-card h3{
 
-    color:#EDF1FA;
+    color:#123B8E;
 
-    font-size:22px;
-
-    line-height:1.6;
+    margin-bottom:10px;
 
 }
 
-.wc-politicas-logo-contenedor{
+.info-card p{
+
+    color:#555;
+
+    line-height:1.7;
+
+}
+
+/*================ IMPORTANTE ================*/
+
+.warning-box{
+
+    margin-top:55px;
 
     display:flex;
 
-    justify-content:center;
+    align-items:center;
+
+    gap:30px;
+
+    padding:35px;
+
+    border-radius:18px;
+
+    border-left:8px solid #E53935;
+
+    background:#fff;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
+}
+
+.warning-icon{
+
+    min-width:80px;
+
+    width:80px;
+
+    height:80px;
+
+    border-radius:50%;
+
+    background:#E53935;
+
+    color:#fff;
+
+    display:flex;
 
     align-items:center;
 
-}
+    justify-content:center;
 
-.wc-politicas-logo{
+    font-size:2rem;
 
-    width:240px;
-
-    height:auto;
-
-    transition:.30s;
+    font-weight:bold;
 
 }
 
-.wc-politicas-logo:hover{
+.warning-box h2{
 
-    transform:scale(1.05);
+    color:#E53935;
+
+    margin-bottom:10px;
 
 }
 
-/* ================================================= */
-/*                    TARJETAS                       */
-/* ================================================= */
+.warning-box p{
 
-.wc-politicas-tarjeta{
+    color:#444;
 
-    max-width:1200px;
+    line-height:1.8;
 
-    margin:0 auto 35px;
+}
 
-    background:#FFF;
+/*================ COOKIES ================*/
+
+.cookies-card{
+
+    margin-top:45px;
+
+    background:#fff;
 
     border-radius:22px;
 
-    padding:40px;
+    padding:50px;
 
-    border-top:6px solid var(--azul-principal);
+    text-align:center;
 
-    box-shadow:0 10px 35px rgba(0,0,0,.08);
-
-    transition:.30s;
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
 
 }
 
-.wc-politicas-tarjeta:hover{
+.cookies-card svg{
 
-    transform:translateY(-5px);
+    color:#123B8E;
 
-    box-shadow:0 20px 45px rgba(0,0,0,.12);
-
-}
-
-/* ================================================= */
-/*                  TITULOS                          */
-/* ================================================= */
-
-.wc-politicas-tarjeta h2{
-
-    color:var(--azul-principal);
-
-    font-size:34px;
-
-    font-weight:700;
-
-    margin-bottom:28px;
-
-    padding-bottom:12px;
-
-    border-bottom:4px solid var(--azul-principal);
-
-    display:inline-block;
+    margin-bottom:25px;
 
 }
 
-/* ================================================= */
-/*                 PARRAFOS                          */
-/* ================================================= */
+.cookies-card p{
 
-.wc-politicas-tarjeta p{
+    max-width:900px;
 
-    color:var(--texto-principal);
+    margin:18px auto;
 
-    font-size:17px;
+    color:#555;
 
     line-height:1.9;
+
+}
+
+/*================ SEGURIDAD ================*/
+
+.security-box{
+
+    margin:90px 0;
+
+    background:linear-gradient(135deg,#123B8E,#2C64D8);
+
+    color:#fff;
+
+    border-radius:24px;
+
+    padding:55px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:35px;
+
+}
+
+.security-box svg{
+
+    min-width:70px;
+
+}
+
+.security-box h2{
 
     margin-bottom:15px;
 
 }
 
-/* ================================================= */
-/*                   LISTAS                          */
-/* ================================================= */
-
-.wc-politicas-tarjeta ul{
-
-    margin-top:15px;
-
-    padding-left:28px;
-
-}
-
-.wc-politicas-tarjeta li{
-
-    color:var(--texto-principal);
-
-    font-size:16px;
+.security-box p{
 
     line-height:1.9;
 
-    margin-bottom:15px;
-
 }
 
-/* ================================================= */
-/*                 RESPONSIVE                        */
-/* ================================================= */
+/*================ CONTACTO ================*/
 
-@media(max-width:900px){
+.thanks-section{
 
-.wc-politicas-banner{
+    margin-top:90px;
 
-flex-direction:column;
+    background:#fff;
 
-text-align:center;
+    border-radius:24px;
 
-padding:40px 30px;
+    padding:55px;
 
-}
+    text-align:center;
 
-.wc-politicas-banner h1{
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 
-font-size:42px;
-
-}
-
-.wc-politicas-banner p{
-
-font-size:18px;
-
-}
-
-.wc-politicas-logo{
-
-width:180px;
-
-}
-
-.wc-politicas-tarjeta{
-
-padding:30px;
-
-}
-
-}
-
-@media(max-width:600px){
-
-.wc-politicas-page{
-
-padding:20px 12px 60px;
-
-}
-
-.wc-politicas-banner{
-
-padding:30px 20px;
-
-}
-
-.wc-politicas-banner h1{
-
-font-size:32px;
-
-}
-
-.wc-politicas-banner p{
-
-font-size:16px;
-
-}
-
-.wc-politicas-tarjeta{
-
-padding:24px;
-
-}
-
-.wc-politicas-tarjeta h2{
-
-font-size:28px;
-
-}
-
-.wc-politicas-tarjeta p,
-.wc-politicas-tarjeta li{
-
-font-size:15px;
-
-}
-
-}
-
-/* ===========================
-   FORZAR ESTILOS POLÍTICAS
-=========================== */
-
-.wc-politicas-page *{
-    box-sizing:border-box;
-}
-
-.wc-politicas-page h1{
-    color:#FFFFFF !important;
-    font-size:58px !important;
-    font-weight:800 !important;
-    line-height:1.1 !important;
-}
-
-.wc-politicas-page h2{
-    color:#022C96 !important;
-    font-size:34px !important;
-    font-weight:700 !important;
 }
 
 .wc-politicas-page p{
@@ -3485,60 +3552,81 @@ font-size:15px;
         #0F46AF
     ) !important;
 }
-
 .warranty-bar{
     width:100%;
     background:linear-gradient(135deg,#123B8E,#0a2472);
     padding:18px 20px;
 }
 
-.warranty-content{
-    max-width:1200px;
-    margin:auto;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
+.thanks-section p{
+
+    max-width:800px;
+
+    margin:0 auto 25px;
+
+    color:#555;
+
+    line-height:1.9;
+
 }
 
-.warranty-text{
-    color:#fff;
-    font-size:1rem;
-    font-weight:500;
-    margin:0;
-}
+.thanks-section strong{
 
-.warranty-btn{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    background:#fff;
+    display:block;
+
     color:#123B8E;
-    text-decoration:none;
-    font-weight:700;
-    padding:12px 22px;
-    border-radius:50px;
-    transition:.3s;
-    box-shadow:0 8px 20px rgba(240, 239, 239, 0.18);
+
+    margin-top:10px;
+
+    font-size:1.05rem;
+
 }
 
-.warranty-btn:hover{
-    background:#E53935;
-    color:#fff;
-    transform:translateY(-2px);
+/*================ ACTUALIZACION ================*/
+
+.update-card{
+
+    margin:70px auto 0;
+
+    max-width:450px;
+
+    text-align:center;
+
+    background:#fff;
+
+    padding:35px;
+
+    border-radius:18px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+
 }
 
-.warranty-btn svg{
-    transition:.3s;
+.update-card svg{
+
+    color:#123B8E;
+
+    margin-bottom:15px;
+
 }
 
-.warranty-btn:hover svg{
-    transform:rotate(-20deg);
+.update-card h3{
+
+    color:#123B8E;
+
+    margin-bottom:10px;
+
+}
+
+.update-card p{
+
+    color:#666;
+
 }
 
 /*================ RESPONSIVE ================*/
 
-@media(max-width:768px){
+@media(max-width:992px){
 
     .warranty-content{
         flex-direction:column;
@@ -3561,142 +3649,4 @@ font-size:15px;
 }
 .warranty-bar p{
     color:#fff;
-}
-
-/* ============================================================
-   DARK MODE — páginas con CSS propio (no Tailwind)
-   ============================================================ */
-
-/* Fondos de página completos */
-html.dark .dist-page,
-html.dark .suc-page,
-html.dark .cupones-page,
-html.dark .wc-politicas-page {
-  background: #0B0D12;
-}
-
-html.dark .facturacion-container,
-html.dark .garantia-container {
-  color: #F8FAFC;
-}
-
-/* Tarjetas / contenedores blancos → oscuros */
-html.dark .dist-container,
-html.dark .dist-input,
-html.dark .dist-select,
-html.dark .dist-textarea,
-html.dark .dist-volumen-card,
-html.dark .dist-upload-box,
-html.dark .dist-radio-option,
-html.dark .suc-horarios-banner,
-html.dark .suc-card,
-html.dark .suc-card-img,
-html.dark .suc-card-map,
-html.dark .cupon-card,
-html.dark .cupon-input input,
-html.dark .info-card,
-html.dark .step-card,
-html.dark .contact-card,
-html.dark .faq details,
-html.dark .faq-grid details,
-html.dark .thanks-section,
-html.dark .warning-box,
-html.dark .important-card,
-html.dark .policy-card,
-html.dark .large-card,
-html.dark .wc-politicas-tarjeta,
-html.dark .stat-card {
-  background: #12141A !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-/* Texto principal dentro de esas tarjetas (color heredado) */
-html.dark .dist-container,
-html.dark .suc-card,
-html.dark .cupon-card,
-html.dark .info-card,
-html.dark .step-card,
-html.dark .contact-card,
-html.dark .faq,
-html.dark .faq-grid,
-html.dark .thanks-section,
-html.dark .warning-box,
-html.dark .important-card,
-html.dark .policy-card,
-html.dark .large-card,
-html.dark .wc-politicas-tarjeta,
-html.dark .stat-card {
-  color: #F8FAFC;
-}
-
-/* Títulos con color de marca — se dejan legibles en oscuro */
-html.dark .cupones-page h1,
-html.dark .cupones-page h2,
-html.dark .wc-politicas-page h2,
-html.dark .facturacion-section h2,
-html.dark .garantia-section h2,
-html.dark .info-card h3,
-html.dark .step-card h3,
-html.dark .contact-card h3,
-html.dark .faq summary,
-html.dark .large-card h2,
-html.dark .card-header h2,
-html.dark .policy-card h3,
-html.dark .suc-card-name,
-html.dark .suc-horarios-title,
-html.dark .dist-section-title {
-  color: #7CA6F0 !important;
-}
-
-/* Párrafos y texto secundario (gris) */
-html.dark .cupones-page p,
-html.dark .wc-politicas-page p,
-html.dark .wc-politicas-page li,
-html.dark .info-card p,
-html.dark .step-card p,
-html.dark .contact-card p,
-html.dark .faq p,
-html.dark .faq-grid p,
-html.dark .facturacion-section .subtitle,
-html.dark .garantia-section .subtitle,
-html.dark .check-list li,
-html.dark .important-card p,
-html.dark .warning-box p,
-html.dark .dist-label,
-html.dark .dist-upload-hint,
-html.dark .suc-card-address,
-html.dark .suc-horario-cerrado,
-html.dark .cupones-page small {
-  color: #9CA3AF !important;
-}
-
-/* Inputs y bordes de formularios */
-html.dark .dist-input,
-html.dark .dist-select,
-html.dark .dist-textarea,
-html.dark .dist-hr,
-html.dark .suc-hr,
-html.dark .cupon-input input {
-  border-color: rgba(255, 255, 255, 0.14) !important;
-  color: #F8FAFC !important;
-  background: #12141A !important;
-}
-
-html.dark .dist-radio-option.active {
-  background: rgba(2, 44, 150, 0.3) !important;
-  color: #93C5FD !important;
-}
-
-/* Sección TikTok */
-html.dark .tiktok-heading h2 {
-  color: #F8FAFC !important;
-}
-
-html.dark .tiktok-heading p {
-  color: #9CA3AF !important;
-}
-
-html.dark .tiktok-label {
-  background: rgba(239, 68, 68, 0.15) !important;
-  color: #fca5a5 !important;
 }

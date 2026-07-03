@@ -2,6 +2,7 @@
 
 import { MapPin, Phone, Clock, Building2, Share2 } from "lucide-react";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
 
 const SUCURSALES = [
   {
@@ -254,6 +255,7 @@ export default function SucursalesPage() {
         ))}
       </div>
       </div>
+      <SiteFooter />
     </>
   );
 }
