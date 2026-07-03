@@ -174,10 +174,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             })}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 text-xs">
-            <a href="/ayuda" className="underline decoration-white/70 hover:text-white">Ayuda</a>
-            <a href="/rastrea-tu-pedido" className="underline decoration-white/70 hover:text-white">Rastrea tu pedido</a>
-          </div>
+          
         </div>
       </div>
 

@@ -98,13 +98,6 @@ label {
   overflow-wrap: anywhere;
 }
 
-@media (prefers-color-scheme: dark) {
-  html:not(.dark) body,
-  body:not(.dark) {
-    background: #ffffff;
-    color: #e8edf5;
-  }
-}
 
 button,
 input,
@@ -581,60 +574,7 @@ select {
   }
 }
 
-@media (prefers-color-scheme: light) {
-  .home-page {
-    background: #020202;
-    color: #17202a;
-  }
 
-  .home-page header {
-    background: rgba(10, 10, 10, 0.96);
-    border-color: rgba(23, 32, 42, 0.12);
-  }
-
-  .home-page header a,
-  .home-page header button,
-  .home-page header p {
-    color: #17202a;
-  }
-
-  .home-page header input {
-    color: #17202a;
-  }
-
-  .home-page header label,
-  .home-page header button,
-  .home-page header a {
-    border-color: rgba(37, 99, 235, 0.18);
-  }
-
-  .home-page section {
-    background-color: #f6f8fb;
-  }
-
-  .home-page article,
-  .home-page aside {
-    background-color: #ffffff;
-    border-color: rgba(23, 32, 42, 0.12);
-    color: #17202a;
-  }
-
-  .home-page h1,
-  .home-page h2,
-  .home-page h3,
-  .home-page p {
-    color: inherit;
-  }
-
-  .home-page .text-blue-100\/65,
-  .home-page .text-blue-100\/70,
-  .home-page .text-blue-100\/75,
-  .home-page .text-blue-100\/80,
-  .home-page .text-white\/60,
-  .home-page .text-white\/70 {
-    color: rgba(23, 32, 42, 0.68);
-  }
-}
 
 .scan-frame::before,
 .scan-frame::after {
@@ -1596,7 +1536,7 @@ background:#03164C;
 }
 
 .cupon-card-top{
-
+}
 /*=========================================================
                     FACTURACIÓN
 =========================================================*/
@@ -3623,4 +3563,141 @@ font-size:15px;
 .warranty-bar p{
     color:#fff;
 }
+
+/* ============================================================
+   DARK MODE — páginas con CSS propio (no Tailwind)
+   ============================================================ */
+
+/* Fondos de página completos */
+html.dark .dist-page,
+html.dark .suc-page,
+html.dark .cupones-page,
+html.dark .wc-politicas-page {
+  background: #0B0D12;
+}
+
+html.dark .facturacion-container,
+html.dark .garantia-container {
+  color: #F8FAFC;
+}
+
+/* Tarjetas / contenedores blancos → oscuros */
+html.dark .dist-container,
+html.dark .dist-input,
+html.dark .dist-select,
+html.dark .dist-textarea,
+html.dark .dist-volumen-card,
+html.dark .dist-upload-box,
+html.dark .dist-radio-option,
+html.dark .suc-horarios-banner,
+html.dark .suc-card,
+html.dark .suc-card-img,
+html.dark .suc-card-map,
+html.dark .cupon-card,
+html.dark .cupon-input input,
+html.dark .info-card,
+html.dark .step-card,
+html.dark .contact-card,
+html.dark .faq details,
+html.dark .faq-grid details,
+html.dark .thanks-section,
+html.dark .warning-box,
+html.dark .important-card,
+html.dark .policy-card,
+html.dark .large-card,
+html.dark .wc-politicas-tarjeta,
+html.dark .stat-card {
+  background: #12141A !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Texto principal dentro de esas tarjetas (color heredado) */
+html.dark .dist-container,
+html.dark .suc-card,
+html.dark .cupon-card,
+html.dark .info-card,
+html.dark .step-card,
+html.dark .contact-card,
+html.dark .faq,
+html.dark .faq-grid,
+html.dark .thanks-section,
+html.dark .warning-box,
+html.dark .important-card,
+html.dark .policy-card,
+html.dark .large-card,
+html.dark .wc-politicas-tarjeta,
+html.dark .stat-card {
+  color: #F8FAFC;
+}
+
+/* Títulos con color de marca — se dejan legibles en oscuro */
+html.dark .cupones-page h1,
+html.dark .cupones-page h2,
+html.dark .wc-politicas-page h2,
+html.dark .facturacion-section h2,
+html.dark .garantia-section h2,
+html.dark .info-card h3,
+html.dark .step-card h3,
+html.dark .contact-card h3,
+html.dark .faq summary,
+html.dark .large-card h2,
+html.dark .card-header h2,
+html.dark .policy-card h3,
+html.dark .suc-card-name,
+html.dark .suc-horarios-title,
+html.dark .dist-section-title {
+  color: #7CA6F0 !important;
+}
+
+/* Párrafos y texto secundario (gris) */
+html.dark .cupones-page p,
+html.dark .wc-politicas-page p,
+html.dark .wc-politicas-page li,
+html.dark .info-card p,
+html.dark .step-card p,
+html.dark .contact-card p,
+html.dark .faq p,
+html.dark .faq-grid p,
+html.dark .facturacion-section .subtitle,
+html.dark .garantia-section .subtitle,
+html.dark .check-list li,
+html.dark .important-card p,
+html.dark .warning-box p,
+html.dark .dist-label,
+html.dark .dist-upload-hint,
+html.dark .suc-card-address,
+html.dark .suc-horario-cerrado,
+html.dark .cupones-page small {
+  color: #9CA3AF !important;
+}
+
+/* Inputs y bordes de formularios */
+html.dark .dist-input,
+html.dark .dist-select,
+html.dark .dist-textarea,
+html.dark .dist-hr,
+html.dark .suc-hr,
+html.dark .cupon-input input {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #F8FAFC !important;
+  background: #12141A !important;
+}
+
+html.dark .dist-radio-option.active {
+  background: rgba(2, 44, 150, 0.3) !important;
+  color: #93C5FD !important;
+}
+
+/* Sección TikTok */
+html.dark .tiktok-heading h2 {
+  color: #F8FAFC !important;
+}
+
+html.dark .tiktok-heading p {
+  color: #9CA3AF !important;
+}
+
+html.dark .tiktok-label {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #fca5a5 !important;
 }
