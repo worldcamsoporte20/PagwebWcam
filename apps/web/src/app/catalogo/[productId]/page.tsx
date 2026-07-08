@@ -37,6 +37,19 @@ type CatalogProduct = {
   internalNotesHtml?: string;
 };
 
+type WarehouseAvailability = {
+  id: "wcam" | "tvc" | "syscom";
+  label: string;
+  stock: number | null;
+  status: "active" | "pending" | "unconfigured" | "error";
+  message?: string;
+};
+
+type CatalogPageResponse = {
+  products: CatalogProduct[];
+  total: number;
+};
+
 const currency = new Intl.NumberFormat("es-MX", {
   style: "currency",
   currency: "MXN",
@@ -105,25 +118,6 @@ function pickProductHighlights(product: CatalogProduct) {
   return highlights.filter((item) => item.match).slice(0, 6);
 }
 
-function relatedScore(current: CatalogProduct, candidate: CatalogProduct) {
-  if (productKey(current) === productKey(candidate)) return -1;
-
-  const currentTokens = new Set(searchTokens(`${current.name} ${current.description ?? ""} ${current.category} ${current.brand}`));
-  const candidateText = productText(candidate);
-  let score = 0;
-
-  if (current.brand && candidate.brand === current.brand) score += 40;
-  if (current.category && candidate.category === current.category) score += 55;
-  if (candidate.stock > 0) score += 8;
-  if (candidate.image) score += 5;
-
-  for (const token of currentTokens) {
-    if (candidateText.includes(token)) score += token.length > 4 ? 10 : 4;
-  }
-
-  return score;
-}
-
 function buildRelatedSearch(product: CatalogProduct) {
   const category = normalizeSearch(product.category);
   if (category.includes("camara") || category.includes("videovigilancia")) {
@@ -135,7 +129,9 @@ function buildRelatedSearch(product: CatalogProduct) {
 export default function ProductDetailPage() {
   const params = useParams<{ productId: string }>();
   const productId = decodeURIComponent(String(params.productId ?? ""));
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<CatalogProduct[]>([]);
+  const [productDetail, setProductDetail] = useState<CatalogProduct | null>(null);
+  const [warehouses, setWarehouses] = useState<WarehouseAvailability[]>([]);
   const [source, setSource] = useState<"loading" | "odoo" | "error">("loading");
   const [addedId, setAddedId] = useState<string | null>(null);
 
@@ -145,22 +141,56 @@ export default function ProductDetailPage() {
 
     async function loadProducts() {
       setSource("loading");
+      setProductDetail(null);
+      setRelatedProducts([]);
+      setWarehouses([]);
 
       try {
-        const response = await fetch(`${apiBaseUrl}/api/catalog/products`, {
-          signal: controller.signal,
-        });
+        const [detailResponse, warehousesResponse] = await Promise.all([
+          fetch(`${apiBaseUrl}/api/catalog/products/${encodeURIComponent(productId)}`, {
+            signal: controller.signal,
+          }),
+          fetch(`${apiBaseUrl}/api/catalog/products/${encodeURIComponent(productId)}/warehouses`, {
+            signal: controller.signal,
+          }),
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`Catalog request failed: ${response.status}`);
+        if (!detailResponse.ok) throw new Error(`Product request failed: ${detailResponse.status}`);
+
+        const detail = (await detailResponse.json()) as CatalogProduct | null;
+        const nextProduct = detail && typeof detail === "object" ? detail : null;
+        setProductDetail(nextProduct);
+
+        if (warehousesResponse.ok) {
+          const warehouseRows = (await warehousesResponse.json()) as WarehouseAvailability[];
+          setWarehouses(Array.isArray(warehouseRows) ? warehouseRows : []);
         }
 
-        const odooProducts = (await response.json()) as CatalogProduct[];
-        setProducts(Array.isArray(odooProducts) ? odooProducts : []);
+        if (nextProduct) {
+          const relatedParams = new URLSearchParams({
+            search: buildRelatedSearch(nextProduct),
+            limit: "8",
+            offset: "0",
+          });
+          const relatedResponse = await fetch(`${apiBaseUrl}/api/catalog/products-page?${relatedParams}`, {
+            signal: controller.signal,
+          });
+          if (relatedResponse.ok) {
+            const relatedPage = (await relatedResponse.json()) as CatalogPageResponse;
+            setRelatedProducts(
+              Array.isArray(relatedPage.products)
+                ? relatedPage.products.filter((item) => productKey(item) !== productKey(nextProduct)).slice(0, 8)
+                : [],
+            );
+          }
+        }
+
         setSource("odoo");
       } catch {
         if (!controller.signal.aborted) {
-          setProducts([]);
+          setRelatedProducts([]);
+          setProductDetail(null);
+          setWarehouses([]);
           setSource("error");
         }
       }
@@ -168,23 +198,9 @@ export default function ProductDetailPage() {
 
     loadProducts();
     return () => controller.abort();
-  }, []);
+  }, [productId]);
 
-  const product = useMemo(() => {
-    return products.find((item) => {
-      return productKey(item) === productId || String(item.id) === productId || item.sku === productId || item.clave === productId;
-    });
-  }, [productId, products]);
-
-  const relatedProducts = useMemo(() => {
-    if (!product) return [];
-    return products
-      .map((item) => ({ product: item, score: relatedScore(product, item) }))
-      .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score || b.product.stock - a.product.stock)
-      .slice(0, 8)
-      .map((item) => item.product);
-  }, [product, products]);
+  const product = productDetail;
 
   const highlights = useMemo(() => (product ? pickProductHighlights(product) : []), [product]);
   const relatedSearch = product ? buildRelatedSearch(product) : "";
@@ -342,7 +358,7 @@ export default function ProductDetailPage() {
               title="Informacion de Odoo"
               text="Descripcion, notas internas, precio, existencia, SKU y foto vienen sincronizados del ERP."
             />
-            <InventoryPanel wcamStock={product.stock} />
+            <InventoryPanel wcamStock={product.stock} warehouses={warehouses} />
             <InfoPanel
               icon={<ShieldCheck className="h-7 w-7 text-coral" aria-hidden />}
               title="Venta segura"
@@ -424,30 +440,72 @@ function InfoPanel({ icon, title, text }: { icon: ReactNode; title: string; text
   );
 }
 
-function InventoryPanel({ wcamStock }: { wcamStock: number }) {
+function InventoryPanel({ wcamStock, warehouses }: { wcamStock: number; warehouses: WarehouseAvailability[] }) {
+  const fallbackRows: WarehouseAvailability[] = [
+    {
+      id: "wcam",
+      label: "Almacen Wcam",
+      stock: wcamStock,
+      status: "active",
+      message: `${wcamStock} unidades disponibles de este producto.`,
+    },
+    {
+      id: "tvc",
+      label: "Almacen TVC",
+      stock: null,
+      status: "pending",
+      message: "Pendiente por conectar.",
+    },
+    {
+      id: "syscom",
+      label: "Almacen Syscom",
+      stock: null,
+      status: "pending",
+      message: "Pendiente por conectar.",
+    },
+  ];
+  const rows =
+    warehouses.length > 0
+      ? warehouses
+      : fallbackRows;
+  const total = rows.reduce((sum, row) => sum + (typeof row.stock === "number" ? row.stock : 0), 0);
+
   return (
     <article className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
       <Warehouse className="h-7 w-7 text-blue-300" aria-hidden />
       <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
         <h2 className="text-lg font-black">Inventario</h2>
         <span className="rounded bg-blue-500/15 px-2 py-1 text-xs font-black uppercase text-blue-200">
-          Total {wcamStock} unidades
+          Total {total} unidades
         </span>
       </div>
       <div className="mt-4 grid gap-2">
-        <InventoryRow label="Almacen Wcam" value={`${wcamStock} unidades`} active />
-        <InventoryRow label="Almacen TVC" value="Pendiente" />
-        <InventoryRow label="Almacen Syscom" value="Pendiente" />
+        {rows.map((row) => (
+          <InventoryRow key={row.id} row={row} />
+        ))}
       </div>
     </article>
   );
 }
 
-function InventoryRow({ label, value, active = false }: { label: string; value: string; active?: boolean }) {
+function inventoryValue(row: WarehouseAvailability) {
+  if (typeof row.stock === "number") return `${row.stock} unidades`;
+  if (row.status === "unconfigured") return "Sin conectar";
+  if (row.status === "error") return "Error";
+  return "Pendiente";
+}
+
+function InventoryRow({ row }: { row: WarehouseAvailability }) {
+  const active = row.status === "active";
   return (
     <div className="flex min-h-10 items-center justify-between gap-3 rounded-lg border border-white/10 bg-[#080d19] px-3 py-2">
-      <span className="text-sm font-black text-blue-100">{label}</span>
-      <span className={`text-sm font-black ${active ? "text-white" : "text-blue-100/45"}`}>{value}</span>
+      <div>
+        <span className="text-sm font-black text-blue-100">{row.label}</span>
+        {row.message ? <p className="mt-0.5 text-xs font-semibold text-blue-100/45">{row.message}</p> : null}
+      </div>
+      <span className={`shrink-0 text-sm font-black ${active ? "text-white" : row.status === "error" ? "text-coral" : "text-blue-100/45"}`}>
+        {inventoryValue(row)}
+      </span>
     </div>
   );
 }
