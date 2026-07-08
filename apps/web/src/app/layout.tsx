@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+// Suppress missing type declarations for side-effect CSS import
+// @ts-ignore
 import "./globals.css";
 
 export const metadata: Metadata = {

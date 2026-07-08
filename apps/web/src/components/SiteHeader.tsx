@@ -1,20 +1,67 @@
 "use client";
-
-import { BarChart3, FileText, Flame, GraduationCap, Home, Menu, Search, ShoppingCart, Sparkles, Tag, UserRound } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  Cpu,
+  FileText,
+  Flame,
+  Gamepad2,
+  GraduationCap,
+  Heart,
+  Home as HomeIcon,
+  LayoutGrid,
+  Monitor,
+  Moon,        // nuevo
+  Percent,
+  Phone,
+  Search,
+  ShieldCheck,
+  ShoppingCart,
+  Sparkles,
+  Sun,         // nuevo
+  Tag,
+  Truck,
+  UserRound,
+  Wifi,
+} from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartTotals, readCart } from "../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, readSalesDraftItems } from "../lib/salesDraft";
+import { SideMegaMenuButtonV2 } from "./SideMegaMenuButtonV2";
 
 type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas";
+type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cursos" | "cotizacion";
 type AuthState = { email: string; initials: string; role: string } | null;
 
-const navItems = [
-  { label: "Inicio", href: "/", icon: Home, key: "home" },
-  { label: "Productos", href: "/catalogo", icon: Menu, key: "catalogo" },
+type NavItem = {
+  label: string;
+  href: string;
+  icon: typeof HomeIcon;
+  key: NavItemKey;
+};
+
+const navItems: NavItem[] = [
+  { label: "Inicio", href: "/", icon: HomeIcon, key: "home" },
+  { label: "Productos", href: "/catalogo", icon: LayoutGrid, key: "catalogo" },
   { label: "Nuevos", href: "/#nuevos", icon: Flame, key: "nuevos" },
   { label: "Para ti", href: "/#para-ti", icon: Sparkles, key: "para-ti" },
   { label: "Cursos", href: "/#eventos", icon: GraduationCap, key: "cursos" },
   { label: "Promociones", href: "/promociones", icon: Tag, key: "promociones" },
+];
+
+const categoryItems = [
+  { label: "Seguridad", href: "/catalogo?categoria=seguridad", icon: ShieldCheck },
+  { label: "Redes", href: "/catalogo?categoria=redes", icon: Wifi },
+  { label: "Tecnología LED", href: "/catalogo?categoria=tecnologia-led", icon: Monitor },
+  { label: "Computación", href: "/catalogo?categoria=computacion", icon: Cpu },
+  { label: "Audio y Video", href: "/catalogo?categoria=audio-video", icon: Monitor },
+  { label: "Telefonía", href: "/catalogo?categoria=telefonia", icon: Phone },
+];
+
+const topbarActions = [
+  { label: "Quiero ser distribuidor", href: "/distribuidor", icon: Truck },
+  { label: "Sucursales", href: "/sucursales", icon: HomeIcon },
+  { label: "Facturación", href: "/facturacion", icon: FileText },
 ];
 
 export default function SiteHeader({ active = "home" }: { active?: ActivePage }) {
@@ -23,6 +70,24 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
   const [auth, setAuth] = useState<AuthState>(null);
   const [cartQty, setCartQty] = useState(0);
   const [salesDraftQty, setSalesDraftQty] = useState(0);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("wc-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialDark = savedTheme ? savedTheme === "dark" : prefersDark;
+
+    setIsDark(initialDark);
+    document.documentElement.classList.toggle("dark", initialDark);
+    document.documentElement.style.colorScheme = initialDark ? "dark" : "light";
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+    document.body.classList.toggle("dark", isDark);
+    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    window.localStorage.setItem("wc-theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -91,123 +156,202 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b1020]/95 text-white backdrop-blur">
-      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr] items-center gap-3 px-3 py-3 sm:px-4 md:grid-cols-[auto_1fr_auto] lg:grid-cols-[200px_1fr_auto] lg:gap-4 lg:px-8 lg:py-4">
-        <a href="/" aria-label="Ir a inicio">
-          <img src="/images/logo/logo.png" alt="Worldcam" className="h-11 w-auto sm:h-14 lg:h-24" />
-        </a>
+    <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
+      <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
+        <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-3 py-2.5 text-xs sm:px-4 lg:px-6">
+          <div className="flex flex-wrap items-center gap-2">
+            {topbarActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <a
+                  key={action.label}
+                  href={action.href}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                  {action.label}
+                </a>
+              );
+            })}
+          </div>
 
-        <form
-          onSubmit={handleSearch}
-          className="order-3 col-span-2 flex h-10 min-w-0 items-center overflow-hidden rounded-lg border border-blue-400/30 bg-white/[0.04] text-blue-100 focus-within:border-coral focus-within:ring-2 focus-within:ring-coral/25 md:order-none md:col-span-1 lg:h-12"
-        >
-          <Search className="ml-3 h-4 w-4 shrink-0 text-blue-200 lg:ml-4 lg:h-5 lg:w-5" aria-hidden />
-          <input
-            className="h-full min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-blue-200/55 lg:px-3 lg:text-base"
-            placeholder="Buscar PTZ, NVR, camaras..."
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </form>
-
-        <div className="flex items-center justify-end gap-2">
-          {auth ? (
-            <a
-              href="/cuenta"
-              aria-label="Mi cuenta"
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-400/30 bg-blue-500/10 text-sm font-black text-blue-100 hover:bg-blue-500/20 md:hidden"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-black text-white">
-                {auth.initials}
-              </span>
-            </a>
-          ) : (
-            <a
-              href="/login"
-              aria-label="Iniciar sesion"
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-blue-100 hover:bg-white/10 md:hidden"
-            >
-              <UserRound className="h-5 w-5" aria-hidden />
-            </a>
-          )}
-          {auth ? (
-            <a
-              href="/cuenta"
-              className="hidden h-10 items-center gap-2 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 text-sm font-black text-blue-300 hover:bg-blue-500/20 md:flex lg:h-11 lg:px-4"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-black text-white">
-                {auth.initials}
-              </span>
-              <span className="hidden max-w-[100px] truncate lg:inline">{auth.email.split("@")[0]}</span>
-            </a>
-          ) : (
-            <a
-              className="hidden h-10 items-center gap-2 rounded-lg border border-white/10 px-3 text-sm font-black text-blue-100 hover:bg-white/10 md:flex lg:h-11 lg:px-4"
-              href="/login"
-            >
-              <UserRound className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span className="hidden lg:inline">Iniciar sesion</span>
-            </a>
-          )}
-          {isStaff ? (
-            <a
-              href="/ventas"
-              className="relative flex h-10 items-center gap-1.5 rounded-lg bg-coral px-3 text-sm font-black text-white hover:bg-coral/90 lg:h-11 lg:px-4"
-            >
-              <FileText className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span className="hidden sm:inline">Orden</span>
-              {salesDraftQty > 0 ? (
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-coral">
-                  {salesDraftQty}
-                </span>
-              ) : null}
-            </a>
-          ) : null}
-          {!isStaff ? (
-            <a className="relative flex h-10 items-center gap-1.5 rounded-lg bg-coral px-3 text-sm font-black text-white lg:h-11 lg:gap-2 lg:px-4" href="/carrito">
-              <ShoppingCart className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span className="hidden sm:inline">Carrito</span>
-              {cartQty > 0 ? (
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-black text-white">
-                  {cartQty}
-                </span>
-              ) : null}
-            </a>
-          ) : null}
+          
         </div>
       </div>
 
-      <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-3 pb-3 sm:px-4 lg:px-8 lg:pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {[
-          ...navItems,
-          ...(auth && !isStaff ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" }] : []),
-          ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" }] : []),
-        ].map((item) => {
-          const Icon = item.icon;
-          const isHashActive = active === "home" && currentHash && item.key === currentHash;
-          const isActive = isHashActive || (!currentHash && item.key === active);
+      <div className="bg-[#FCFCFD] shadow-sm dark:bg-[#0d1526] dark:text-white">
+        <div className="mx-auto flex w-full flex-wrap md:flex-nowrap items-center gap-3 justify-between px-3 py-1.5 sm:px-4 lg:px-6">
+          <a href="/" aria-label="Ir a inicio" className="flex items-center gap-3 flex-none">
+            <img src="/images/logo/logo.png" alt="Worldcam" className="h-24 w-auto sm:h-32 lg:h-36 xl:h-40" />
+          </a>
 
-          return (
-            <a
-              key={item.label}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-black transition sm:h-11 sm:px-4 ${
-                isActive
-                  ? "border border-blue-400/60 bg-blue-700/30 text-blue-100"
-                  : "text-white/85 hover:bg-white/10"
-              }`}
-              href={item.href}
+          <div className="order-2 flex w-full flex-1 min-w-[240px] justify-center md:order-none">
+            <form
+              onSubmit={handleSearch}
+              className="w-full max-w-3xl overflow-hidden rounded-full border border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] shadow-sm dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
             >
-              <Icon className="h-4 w-4" aria-hidden />
-              {item.label}
-              {item.key === "ventas" && salesDraftQty > 0 ? (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
-                  {salesDraftQty}
+              <div className="flex h-12 items-center gap-3 px-4">
+                <Search className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
+                <input
+                  className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base dark:text-white dark:placeholder:text-white/40"
+                  placeholder="Buscar productos, categorías o marcas..."
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </div>
+            </form>
+          </div>
+
+          <div className="order-3 flex items-center gap-2 md:ml-0 lg:ml-auto">
+            {auth ? (
+              <a
+                href="/cuenta"
+                aria-label="Mi cuenta"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
+                  {auth.initials}
                 </span>
-              ) : null}
+              </a>
+            ) : (
+              <a
+                href="/login"
+                aria-label="Iniciar sesion"
+                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              >
+                <UserRound className="h-5 w-5" aria-hidden />
+              </a>
+            )}
+            {auth ? (
+              <a
+                href="/cuenta"
+                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
+                  {auth.initials}
+                </span>
+                <span className="hidden max-w-[120px] truncate lg:inline">{auth.email.split("@")[0]}</span>
+              </a>
+            ) : (
+              <a
+                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                href="/login"
+              >
+                <UserRound className="h-5 w-5" aria-hidden />
+                <span className="hidden lg:inline">Ingresar</span>
+              </a>
+            )}
+            <a
+              href="/favoritos"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              aria-label="Favoritos"
+            >
+              <Heart className="h-6 w-6 text-[#1E49A2] dark:text-white" aria-hidden />
             </a>
-          );
-        })}
-      </nav>
+            <a
+              href="/favoritos"
+              className="hidden h-11 items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+            >
+              <Heart className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
+              <span className="hidden lg:inline">Favoritos</span>
+            </a>
+            {isStaff ? (
+              <a
+                href="/ventas"
+                className="relative hidden items-center gap-1.5 rounded-2xl bg-[#1E49A2] px-4 py-3 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF] lg:flex"
+              >
+                <FileText className="h-5 w-5" aria-hidden />
+                <span>Orden</span>
+                {salesDraftQty > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#FCFCFD] px-1 text-[11px] font-black text-[#1E49A2]">
+                    {salesDraftQty}
+                  </span>
+                ) : null}
+              </a>
+            ) : null}
+            
+            {!isStaff ? (
+              <a
+                className="relative flex h-11 items-center gap-2 rounded-2xl bg-[#022C96] px-4 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF]"
+                href="/carrito"
+              >
+                <ShoppingCart className="h-5 w-5" aria-hidden />
+                <span className="hidden sm:inline">Carrito</span>
+                {cartQty > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-[#1E49A2]">
+                    {cartQty}
+                  </span>
+                ) : null}
+              </a>
+            ) : null}
+          </div>
+            <button
+              type="button"
+              onClick={() => setIsDark((value) => !value)}
+              className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+              aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+            >
+              {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+              <span className="hidden sm:inline">{isDark ? "Claro" : "Oscuro"}</span>
+            </button>
+
+        </div>
+        
+        <div className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full">
+          <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-1.5 sm:px-4 lg:px-6">
+            <div className="w-64">
+              <SideMegaMenuButtonV2 />
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-1.5 overflow-x-auto pb-1">
+              {categoryItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="group relative inline-flex h-12 min-w-[160px] items-center justify-center gap-1.5 overflow-hidden rounded-full border border-[#1E49A2]/55 bg-[#FCFCFD] px-3 text-sm font-black text-[#012477] shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:border-[#2D70CF] hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:text-white hover:shadow-[0_14px_30px_rgba(2,44,150,0.24),0_0_0_4px_rgba(45,112,207,0.12)] hover:before:left-[115%] hover:before:opacity-100"
+                  >
+                    <Icon className="h-5 w-5 text-[#012477] transition-colors duration-300 group-hover:text-white" aria-hidden />
+                    {item.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {active !== "home" ? (
+        <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-3 pb-3 sm:px-4 lg:px-8 lg:pb-4">
+          {[
+            ...navItems,
+            ...(auth && !isStaff ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" }] : []),
+            ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" }] : []),
+          ].map((item) => {
+            const Icon = item.icon;
+            const isHashActive = currentHash && item.key === currentHash;
+            const isActive = isHashActive || (!currentHash && item.key === active);
+
+            return (
+              <a
+                key={item.label}
+                className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-black transition sm:h-11 sm:px-4 ${
+                  isActive ? "border border-[#1E49A2] bg-[#2D70CF]/10 text-[#012477]" : "text-[#12141A] hover:bg-[#CBC9D4]/50"
+                }`}
+                href={item.href}
+              >
+                <Icon className="h-4 w-4" aria-hidden />
+                {item.label}
+                {item.key === "ventas" && salesDraftQty > 0 ? (
+                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
+                    {salesDraftQty}
+                  </span>
+                ) : null}
+              </a>
+            );
+          })}
+        </nav>
+      ) : null}
     </header>
   );
 }
