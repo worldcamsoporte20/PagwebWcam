@@ -1,6 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { promises as fs } from "fs";
+import * as path from "path";
 import { CacheService } from "../common/cache.service";
 import { OdooProduct, OdooService } from "../odoo/odoo.service";
+import { SyscomCatalogProduct, SyscomService } from "../syscom/syscom.service";
 
 type AdvisorProduct = {
   name: string;
@@ -19,13 +22,59 @@ export type CatalogProductsResult = {
   message?: string;
 };
 
+export type CatalogProductResult = {
+  product: OdooProduct | null;
+  status: "odoo" | "unavailable";
+  message?: string;
+};
+
+export type CatalogProductsPageQuery = {
+  search?: string;
+  brand?: string;
+  category?: string;
+  onlyStock?: boolean;
+  sort?: "price-asc" | "price-desc" | "name-asc" | "stock-desc";
+  limit?: number;
+  offset?: number;
+};
+
+export type CatalogProductsPageResult = CatalogProductsResult & {
+  total: number;
+  brands: string[];
+  categories: string[];
+};
+
+export type CatalogWarehouseAvailability = {
+  id: "wcam" | "tvc" | "syscom";
+  label: string;
+  stock: number | null;
+  status: "active" | "pending" | "unconfigured" | "error";
+  price?: number | null;
+  externalId?: string;
+  matchedModel?: string;
+  message?: string;
+};
+
+type CatalogProductSource = OdooProduct & {
+  source?: "odoo" | "syscom" | "merged";
+  syscomId?: string;
+  syscomModel?: string;
+  syscomStock?: number;
+  wcamStock?: number;
+};
+
 @Injectable()
 export class CatalogService {
   private readonly logger = new Logger(CatalogService.name);
+  private fullCatalogBuild?: Promise<void>;
+  private fullCatalogMemory: CatalogProductSource[] | null = null;
+  private readonly pageCache = new Map<string, { expiresAt: number; result: CatalogProductsPageResult }>();
+  private readonly cameraPriorityCache = new Map<string, number>();
 
   constructor(
     private readonly cache: CacheService,
     private readonly odoo: OdooService,
+    private readonly syscom: SyscomService,
   ) {}
 
   async findProducts(): Promise<OdooProduct[]> {
@@ -34,17 +83,48 @@ export class CatalogService {
   }
 
   async findProductsResult(): Promise<CatalogProductsResult> {
-    const cacheKey = "catalog:products:all:v6";
-    const cached = await this.cache.getJson<OdooProduct[]>(cacheKey);
+    const cacheKey = "catalog:products:all:v13";
+    if (this.fullCatalogMemory) {
+      return { products: this.fullCatalogMemory, status: "odoo" };
+    }
+
+    const cached = await this.cache.getJson<CatalogProductSource[]>(cacheKey);
 
     if (cached) {
+      this.fullCatalogMemory = cached;
       return { products: cached, status: "odoo" };
     }
 
+    const fileCached = await this.readFullCatalogFile();
+    if (fileCached) {
+      this.fullCatalogMemory = fileCached;
+      await this.cache.setJson(cacheKey, fileCached, 24 * 60 * 60);
+      return { products: fileCached, status: "odoo" };
+    }
+
     try {
-      const products = await this.odoo.getProducts();
-      await this.cache.setJson(cacheKey, products, 60);
-      return { products, status: "odoo" };
+      const baseCacheKey = "catalog:products:odoo-base:v13";
+      const cachedBase = await this.cache.getJson<CatalogProductSource[]>(baseCacheKey);
+      const lightweightProducts =
+        cachedBase ??
+        (await this.odoo.getProducts()).map((product) => ({
+          ...product,
+          image: `/api/catalog/products/${product.id}/image`,
+          source: "odoo" as const,
+          wcamStock: product.stock,
+          syscomStock: 0,
+        }));
+
+      if (!cachedBase) {
+        await this.cache.setJson(baseCacheKey, lightweightProducts, 900);
+      }
+
+      this.startFullCatalogBuild(lightweightProducts, cacheKey);
+      return {
+        products: lightweightProducts,
+        status: "odoo",
+        message: "Catalogo Syscom completo cargandose en segundo plano.",
+      };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Odoo catalog unavailable";
       this.logger.warn(`Catalog products unavailable: ${message}`);
@@ -52,8 +132,442 @@ export class CatalogService {
     }
   }
 
+  async findProductsPageResult(query: CatalogProductsPageQuery): Promise<CatalogProductsPageResult> {
+    const pageCacheKey = JSON.stringify({
+      search: query.search?.trim() ?? "",
+      brand: query.brand ?? "",
+      category: query.category ?? "",
+      onlyStock: Boolean(query.onlyStock),
+      sort: query.sort ?? "price-asc",
+      limit: Math.min(Math.max(Number(query.limit ?? 60), 1), 120),
+      offset: Math.max(Number(query.offset ?? 0), 0),
+    });
+    const pageCached = this.pageCache.get(pageCacheKey);
+    if (pageCached && pageCached.expiresAt > Date.now()) {
+      return pageCached.result;
+    }
+
+    const result = await this.findProductsResult();
+    const products = result.products as CatalogProductSource[];
+    const search = query.search?.trim() ?? "";
+    const brand = query.brand && query.brand !== "Todas" ? query.brand : "";
+    const category = query.category && query.category !== "Todas" ? query.category : "";
+    const sort = query.sort ?? "price-asc";
+    const limit = Math.min(Math.max(Number(query.limit ?? 60), 1), 120);
+    const offset = Math.max(Number(query.offset ?? 0), 0);
+    const hasSearch = this.searchTokens(search).length > 0;
+
+    const brands = ["Todas", ...Array.from(new Set(products.map((product) => product.brand || "Worldcam"))).sort()];
+    const categories = ["Todas", ...Array.from(new Set(products.map((product) => product.category || "Sin categoria"))).sort()];
+
+    const scoredProducts = products.flatMap((product) => {
+      if (brand && product.brand !== brand) return [];
+      if (category && product.category !== category) return [];
+      if (query.onlyStock && Number(product.stock ?? 0) <= 0) return [];
+
+      const score = this.productSearchScore(product, search);
+      if (hasSearch && score <= 0) return [];
+      return [{
+        product,
+        score,
+        cameraPriority: hasSearch ? 0 : this.cachedCameraPriority(product),
+        hasImage: Number(Boolean(product.image)),
+        price: Number(product.price ?? 0),
+        stock: Number(product.stock ?? 0),
+      }];
+    });
+
+    scoredProducts.sort((a, b) => {
+      if (hasSearch && b.score !== a.score) return b.score - a.score;
+      if (!hasSearch) {
+        const cameraSort = b.cameraPriority - a.cameraPriority;
+        if (cameraSort !== 0) return cameraSort;
+
+        const imagePriority = b.hasImage - a.hasImage;
+        if (imagePriority !== 0) return imagePriority;
+      }
+      if (sort === "price-desc") return b.price - a.price;
+      if (sort === "name-asc") return a.product.name.localeCompare(b.product.name);
+      if (sort === "stock-desc") return b.stock - a.stock;
+      return a.price - b.price;
+    });
+
+    const pageResult = {
+      products: scoredProducts.slice(offset, offset + limit).map((item) => item.product),
+      total: scoredProducts.length,
+      brands,
+      categories,
+      status: result.status,
+      message: result.message,
+    };
+    this.pageCache.set(pageCacheKey, { expiresAt: Date.now() + 60_000, result: pageResult });
+    return pageResult;
+  }
+
+  private searchTokens(value: string) {
+    return this.normalizeSearch(value)
+      .split(" ")
+      .map((token) => this.normalizeSearchToken(token))
+      .filter((token) => token.length > 1);
+  }
+
+  private normalizeSearch(value: string) {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  private normalizeSearchToken(token: string) {
+    const aliases: Record<string, string> = {
+      cam: "camara",
+      cams: "camara",
+      camera: "camara",
+      cameras: "camara",
+      camar: "camara",
+      camaras: "camara",
+      hik: "hikvision",
+      hikvison: "hikvision",
+      hicvision: "hikvision",
+      hickvision: "hikvision",
+      hkv: "hikvision",
+      dahu: "dahua",
+      dehua: "dahua",
+    };
+    return aliases[token] ?? token;
+  }
+
+  private productSearchScore(product: CatalogProductSource, query: string) {
+    const tokens = this.searchTokens(query);
+    if (!tokens.length) return 1;
+
+    const name = this.normalizeSearch(product.name);
+    const category = this.normalizeSearch(product.category);
+    const brand = this.normalizeSearch(product.brand);
+    const sku = this.normalizeSearch(product.sku);
+    const clave = this.normalizeSearch(product.clave);
+    const text = `${name} ${category} ${brand} ${sku} ${clave}`;
+    let score = 0;
+
+    for (const token of tokens) {
+      const candidates = this.expandSearchToken(token);
+      const matched = candidates.some((candidate) => text.includes(candidate));
+      if (!matched) return -1;
+
+      for (const candidate of candidates) {
+        if (sku === candidate || clave === candidate) score += 120;
+        else if (sku.includes(candidate) || clave.includes(candidate)) score += 80;
+        if (name.startsWith(candidate)) score += 70;
+        else if (name.includes(candidate)) score += 45;
+        if (category.includes(candidate)) score += 28;
+        if (brand.includes(candidate)) score += 24;
+      }
+    }
+
+    if (tokens.includes("camara")) score += this.cameraPriority(product) * 45;
+    if (Number(product.stock ?? 0) > 0) score += 4;
+    return score;
+  }
+
+  private expandSearchToken(token: string) {
+    const synonyms: Record<string, string[]> = {
+      camara: ["camara", "camera", "camaras", "ipc", "ptz", "bullet", "domo", "dome", "turret", "cctv", "videovigilancia"],
+      fuente: ["fuente", "power", "adaptador", "cargador"],
+      hikvision: ["hikvision", "hik", "hik connect", "hikconnect", "hilook"],
+      nvr: ["nvr", "grabador", "recorder"],
+      dvr: ["dvr", "grabador", "recorder"],
+    };
+    return synonyms[token] ?? [token];
+  }
+
+  private cameraPriority(product: CatalogProductSource) {
+    const name = this.normalizeSearch(product.name);
+    const category = this.normalizeSearch(product.category);
+    const nonCameraProduct =
+      /\b(gps|localizador|rastreador|dvr|nvr|xvr|servidor|server|switch|fuente|power|adaptador|cargador|cable|conector|conectores|conexion|conexiones|jack|divisor|bracket|soporte|montaje|base|brazo|caja|cajas|compatible|disco|hdd|ssd|monitor|teclado|mouse|microfono|sirena|sensor|control|ups|gabinete|rack)\b/.test(name);
+    if (nonCameraProduct) return 0;
+
+    const cameraName = /^(camara|camera|camaras)\b/.test(name);
+    const cameraModel = /\b(dh ?ipc|ipc|ez ?ipc|ds ?2c|ds ?2d|ptz|bullet|domo|dome|turret|eyeball)\b/.test(name);
+    const cameraFormFactor = /\b(lente|mp|megapixel|wizcolor|colorvu|acuface|acusense|ir)\b/.test(name);
+    const cameraCategory = /\b(videovigilancia|cctv|camara|camaras)\b/.test(category);
+
+    if (cameraName && cameraModel) return 5;
+    if (cameraName) return 4;
+    if (cameraModel) return 3;
+    if (cameraCategory && cameraFormFactor) return 2;
+    return 0;
+  }
+
+  private cachedCameraPriority(product: CatalogProductSource) {
+    const key = String(product.variantId ?? product.id ?? product.sku ?? product.name);
+    const cached = this.cameraPriorityCache.get(key);
+    if (cached !== undefined) return cached;
+
+    const priority = this.cameraPriority(product);
+    this.cameraPriorityCache.set(key, priority);
+    return priority;
+  }
+
+  private startFullCatalogBuild(baseProducts: CatalogProductSource[], cacheKey: string) {
+    if (this.fullCatalogBuild) return;
+
+    this.fullCatalogBuild = (async () => {
+      const startedAt = Date.now();
+      try {
+        this.logger.log("Building full catalog with Syscom products...");
+        const syscomProducts = await this.syscom.getCatalogProducts();
+        const mergedProducts = this.mergeSyscomCatalog(baseProducts, syscomProducts);
+        this.fullCatalogMemory = mergedProducts;
+        await this.cache.setJson(cacheKey, mergedProducts, 24 * 60 * 60);
+        await this.writeFullCatalogFile(mergedProducts);
+        this.logger.log(`Full catalog ready: ${mergedProducts.length} products in ${Date.now() - startedAt}ms`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Syscom catalog build failed";
+        this.logger.warn(`Full catalog build failed: ${message}`);
+      } finally {
+        this.fullCatalogBuild = undefined;
+      }
+    })();
+  }
+
+  private fullCatalogFilePath() {
+    return path.join(process.cwd(), ".cache", "catalog-products-all-v13.json");
+  }
+
+  private async readFullCatalogFile() {
+    try {
+      const raw = await fs.readFile(this.fullCatalogFilePath(), "utf8");
+      const products = JSON.parse(raw) as CatalogProductSource[];
+      return Array.isArray(products) && products.length > 0 ? products : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async writeFullCatalogFile(products: CatalogProductSource[]) {
+    try {
+      const filePath = this.fullCatalogFilePath();
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, JSON.stringify(products), "utf8");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "File cache unavailable";
+      this.logger.warn(`Full catalog file cache unavailable: ${message}`);
+    }
+  }
+
+  private mergeSyscomCatalog(odooProducts: OdooProduct[], syscomProducts: SyscomCatalogProduct[]): CatalogProductSource[] {
+    const products: CatalogProductSource[] = odooProducts.map((product) => ({
+      ...product,
+      source: "odoo" as const,
+      wcamStock: product.stock,
+      syscomStock: 0,
+    }));
+    const byModel = new Map<string, CatalogProductSource>();
+
+    for (const product of products) {
+      for (const key of this.productModelKeys(product)) {
+        if (!byModel.has(key)) byModel.set(key, product);
+      }
+    }
+
+    for (const syscomProduct of syscomProducts) {
+      const syscomKey = this.normalizeModelKey(syscomProduct.model);
+      if (!syscomKey) continue;
+
+      const existing = byModel.get(syscomKey);
+      if (existing) {
+        existing.stock = Number(existing.stock ?? 0) + syscomProduct.stock;
+        existing.source = "merged";
+        existing.syscomId = syscomProduct.id;
+        existing.syscomModel = syscomProduct.model;
+        existing.syscomStock = syscomProduct.stock;
+        if (!existing.price && syscomProduct.price) existing.price = syscomProduct.price;
+        continue;
+      }
+
+      products.push({
+        id: -Number(syscomProduct.id || products.length + 1),
+        variantId: -Number(syscomProduct.id || products.length + 1),
+        sku: syscomProduct.model || syscomProduct.id,
+        clave: syscomProduct.model || syscomProduct.id,
+        name: `${syscomProduct.brand} ${syscomProduct.model} ${syscomProduct.title}`.replace(/\s+/g, " ").trim(),
+        stock: syscomProduct.stock,
+        price: syscomProduct.price,
+        category: syscomProduct.category,
+        brand: syscomProduct.brand || "Syscom",
+        image: syscomProduct.image,
+        description: syscomProduct.title,
+        source: "syscom",
+        syscomId: syscomProduct.id,
+        syscomModel: syscomProduct.model,
+        syscomStock: syscomProduct.stock,
+        wcamStock: 0,
+      });
+    }
+
+    return products;
+  }
+
+  private productModelKeys(product: Pick<OdooProduct, "name" | "sku" | "clave">) {
+    const values = [product.clave, product.sku, ...this.extractModelCandidates(product.name)];
+    return values.map((value) => this.normalizeModelKey(value)).filter(Boolean);
+  }
+
+  private extractModelCandidates(value: string) {
+    return value.match(/\b[A-Z0-9]{2,}(?:[-_/][A-Z0-9()]+){1,}\b/gi) ?? [];
+  }
+
+  private normalizeModelKey(value?: string) {
+    return (value ?? "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");
+  }
+
+  async findProductResult(productId: string): Promise<CatalogProductResult> {
+    try {
+      const products = await this.findProducts();
+      const summary = products.find((product) => {
+        const catalogProduct = product as CatalogProductSource;
+        const syscomId = catalogProduct.syscomId ? String(catalogProduct.syscomId) : "";
+        const normalizedProductId = productId.replace(/^-/, "");
+        return (
+          String(product.id) === productId ||
+          String(Math.abs(Number(product.id))) === normalizedProductId ||
+          String(product.variantId) === productId ||
+          syscomId === normalizedProductId ||
+          product.sku === productId ||
+          product.clave === productId
+        );
+      });
+
+      if (!summary?.id) {
+        const numericProductId = Number(productId);
+        if (Number.isFinite(numericProductId) && numericProductId > 0) {
+          const directProduct = await this.odoo.getProductDetail(numericProductId);
+          if (directProduct) {
+            return { product: directProduct, status: "odoo" };
+          }
+        }
+        return { product: null, status: "odoo", message: "Product not found" };
+      }
+
+      const catalogSummary = summary as CatalogProductSource;
+      if (catalogSummary.source === "syscom") {
+        return { product: catalogSummary, status: "odoo" };
+      }
+
+      const cacheKey = `catalog:products:detail:v3:${summary.id}`;
+      const cached = await this.cache.getJson<OdooProduct>(cacheKey);
+      if (cached) {
+        return { product: cached, status: "odoo" };
+      }
+
+      const product = await this.odoo.getProductDetail(summary.id);
+      if (!product) {
+        return { product: null, status: "odoo", message: "Product not found" };
+      }
+      await this.cache.setJson(cacheKey, product, 900);
+      return { product, status: "odoo" };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Odoo product unavailable";
+      this.logger.warn(`Catalog product unavailable: ${message}`);
+      return { product: null, status: "unavailable", message };
+    }
+  }
+
+  async findProductImage(productId: string): Promise<Buffer | null> {
+    const numericProductId = Number(productId);
+    if (!Number.isFinite(numericProductId)) return null;
+
+    const cacheKey = `catalog:products:image:v1:${numericProductId}`;
+    const cached = await this.cache.getJson<string>(cacheKey);
+    if (cached) {
+      return Buffer.from(cached, "base64");
+    }
+
+    const image = await this.odoo.getProductImage(numericProductId);
+    if (!image) return null;
+
+    await this.cache.setJson(cacheKey, image.toString("base64"), 3600);
+    return image;
+  }
+
   async getOdooStatus() {
     return this.odoo.getConnectionStatus();
+  }
+
+  async getSyscomStatus() {
+    return this.syscom.getConnectionStatus();
+  }
+
+  async findWarehouseAvailability(productId: string): Promise<CatalogWarehouseAvailability[]> {
+    const productResult = await this.findProductResult(productId);
+    const product = productResult.product as CatalogProductSource | null;
+    const wcamStock = product?.wcamStock ?? product?.stock ?? 0;
+    const syscomMatch = product
+      ? product.source === "syscom" || product.source === "merged"
+        ? {
+            status: "matched" as const,
+            product: {
+              id: product.syscomId ?? "",
+              model: product.syscomModel ?? product.clave,
+              brand: product.brand,
+              title: product.description ?? product.name,
+              stock: product.syscomStock ?? 0,
+              price: product.source === "syscom" ? product.price : null,
+              score: 120,
+            },
+          }
+        : { status: "not_found" as const, message: "Este producto no esta combinado con Syscom en el catalogo actual." }
+      : { status: "not_found" as const, message: "Producto no encontrado en Odoo." };
+
+    return [
+      {
+        id: "wcam",
+        label: "Almacen Wcam",
+        stock: wcamStock,
+        status: "active",
+        message: `${wcamStock} unidades disponibles de este producto.`,
+      },
+      {
+        id: "tvc",
+        label: "Almacen TVC",
+        stock: null,
+        status: "pending",
+        message: "Pendiente por conectar.",
+      },
+      this.toSyscomWarehouse(syscomMatch),
+    ];
+  }
+
+  private toSyscomWarehouse(syscomMatch: Awaited<ReturnType<SyscomService["findMatchingProduct"]>>): CatalogWarehouseAvailability {
+    if (syscomMatch.status === "matched" && syscomMatch.product) {
+      const product = syscomMatch.product;
+      const priceLabel = product.price !== null ? ` Precio Syscom: $${product.price.toFixed(2)} USD.` : "";
+      return {
+        id: "syscom",
+        label: "Almacen Syscom",
+        stock: product.stock,
+        status: "active",
+        price: product.price,
+        externalId: product.id,
+        matchedModel: product.model,
+        message: `Coincide con ${product.brand} ${product.model}.${priceLabel}`,
+      };
+    }
+
+    return {
+      id: "syscom",
+      label: "Almacen Syscom",
+      stock: null,
+      status: syscomMatch.status === "unconfigured" ? "unconfigured" : syscomMatch.status === "error" ? "error" : "pending",
+      message: syscomMatch.message,
+    };
   }
 
   async answerAdvisorChat(message: string, contextProducts?: unknown[]) {
