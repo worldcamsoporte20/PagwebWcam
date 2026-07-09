@@ -357,7 +357,7 @@ export function SideMegaMenuButtonV2() {
   return (
     <div 
       ref={containerRef}
-      className="relative z-40 w-full max-w-72"
+      className="relative z-40 w-full max-w-full md:max-w-72"
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
@@ -365,7 +365,7 @@ export function SideMegaMenuButtonV2() {
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="group relative inline-flex h-12 items-center gap-2 overflow-hidden rounded-full bg-[#F00922] px-4 text-sm font-black text-white shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:shadow-[0_14px_30px_rgba(2,44,150,0.26),0_0_0_4px_rgba(45,112,207,0.14)] hover:before:left-[115%] hover:before:opacity-100"
+        className="group relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[#F00922] px-4 text-sm font-black text-white shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:shadow-[0_14px_30px_rgba(2,44,150,0.26),0_0_0_4px_rgba(45,112,207,0.14)] hover:before:left-[115%] hover:before:opacity-100 md:h-12"
         aria-expanded={isOpen}
         aria-controls="side-mega-menu-button-v2"
       >
@@ -381,9 +381,9 @@ export function SideMegaMenuButtonV2() {
         <div
           ref={menuRef}
           id="side-mega-menu-button-v2"
-          className="absolute top-full left-0 mt-2 z-[9999] flex w-[max(1300px,100vw-2rem)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+          className="absolute left-1/2 top-full z-[9999] mt-2 flex max-h-[72vh] w-[calc(100vw-1.5rem)] -translate-x-1/2 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl md:left-0 md:w-[min(1300px,calc(100vw-2rem))] md:translate-x-0 md:flex-row"
         >
-          <nav className="w-56 shrink-0 border-r border-slate-100 bg-white overflow-y-auto max-h-[600px]">
+          <nav className="flex max-h-48 w-full shrink-0 gap-1 overflow-x-auto border-b border-slate-100 bg-white p-2 md:max-h-[600px] md:w-56 md:flex-col md:overflow-x-hidden md:overflow-y-auto md:border-b-0 md:border-r md:p-0">
             {menuSections.map((section) => {
               const SectionIcon = section.icon;
               return (
@@ -393,23 +393,23 @@ export function SideMegaMenuButtonV2() {
                   onClick={() => setActiveSection(section)}
                   onMouseEnter={() => setActiveSection(section)}
                   onFocus={() => setActiveSection(section)}
-                  className={`group flex w-full items-center gap-4 px-5 py-4 text-left transition-all duration-200 ${
+                  className={`group flex min-w-[178px] items-center gap-2 rounded-lg px-3 py-3 text-left transition-all duration-200 md:min-w-0 md:w-full md:gap-4 md:rounded-none md:px-5 md:py-4 ${
                     activeSection.title === section.title
                       ? "border-l-4 border-l-[#1E49A2] bg-blue-50 text-[#012477] shadow-[inset_18px_0_28px_rgba(45,112,207,0.08)]"
                       : "border-l-4 border-l-transparent text-slate-600 hover:border-l-[#2D70CF] hover:bg-[#2D70CF]/10 hover:text-[#012477]"
                   }`}
                 >
                   <SectionIcon className="h-5 w-5 shrink-0 text-[#1E49A2] opacity-70 transition-all duration-200 group-hover:scale-110 group-hover:opacity-100" />
-                  <span className="text-sm font-medium flex-1">{section.title}</span>
-                  <span className="text-slate-400 text-lg transition-all duration-200 group-hover:translate-x-1 group-hover:text-[#1E49A2]">&gt;</span>
+                  <span className="flex-1 text-sm font-medium">{section.title}</span>
+                  <span className="hidden text-lg text-slate-400 transition-all duration-200 group-hover:translate-x-1 group-hover:text-[#1E49A2] md:inline">&gt;</span>
                 </button>
               );
             })}
           </nav>
 
-          <div className="max-h-[600px] flex-1 overflow-y-auto p-8 bg-white">
-            <h2 className="mb-8 text-2xl font-bold text-slate-900">{activeSection.title}</h2>
-            <div className="grid gap-8 grid-cols-3">
+          <div className="flex-1 overflow-y-auto bg-white p-4 md:max-h-[600px] md:p-8">
+            <h2 className="mb-4 text-xl font-bold text-slate-900 md:mb-8 md:text-2xl">{activeSection.title}</h2>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 md:gap-8">
               {activeSection.groups.map((group) => {
                 return (
                   <div key={group.title} className="space-y-4">

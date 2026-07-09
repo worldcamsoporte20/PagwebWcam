@@ -159,14 +159,14 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
     <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
       <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-3 py-2.5 text-xs sm:px-4 lg:px-6">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full items-center gap-2 overflow-x-auto pb-0.5 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0">
             {topbarActions.map((action) => {
               const Icon = action.icon;
               return (
                 <a
                   key={action.label}
                   href={action.href}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
                 >
                   <Icon className="h-3.5 w-3.5" aria-hidden />
                   {action.label}
@@ -174,23 +174,21 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               );
             })}
           </div>
-
-          
         </div>
       </div>
 
       <div className="bg-[#FCFCFD] shadow-sm dark:bg-[#0d1526] dark:text-white">
-        <div className="mx-auto flex w-full flex-wrap md:flex-nowrap items-center gap-3 justify-between px-3 py-1.5 sm:px-4 lg:px-6">
+        <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 md:flex-nowrap lg:px-6">
           <a href="/" aria-label="Ir a inicio" className="flex items-center gap-3 flex-none">
-            <img src="/images/logo/logo.png" alt="Worldcam" className="h-24 w-auto sm:h-32 lg:h-36 xl:h-40" />
+            <img src="/images/logo/logo.png" alt="Worldcam" className="h-16 w-auto sm:h-28 lg:h-36 xl:h-40" />
           </a>
 
-          <div className="order-2 flex w-full flex-1 min-w-[240px] justify-center md:order-none">
+          <div className="order-2 flex w-full min-w-0 flex-1 justify-center md:order-none md:min-w-[240px]">
             <form
               onSubmit={handleSearch}
               className="w-full max-w-3xl overflow-hidden rounded-full border border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] shadow-sm dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
             >
-              <div className="flex h-12 items-center gap-3 px-4">
+              <div className="flex h-11 items-center gap-2 px-3 sm:h-12 sm:gap-3 sm:px-4">
                 <Search className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
                 <input
                   className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base dark:text-white dark:placeholder:text-white/40"
@@ -202,7 +200,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             </form>
           </div>
 
-          <div className="order-3 flex items-center gap-2 md:ml-0 lg:ml-auto">
+          <div className="order-3 flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2 md:ml-0 md:flex-none lg:ml-auto">
             {auth ? (
               <a
                 href="/cuenta"
@@ -272,7 +270,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             
             {!isStaff ? (
               <a
-                className="relative flex h-11 items-center gap-2 rounded-2xl bg-[#022C96] px-4 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF]"
+                className="relative flex h-11 shrink-0 items-center gap-2 rounded-2xl bg-[#022C96] px-3 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF] sm:px-4"
                 href="/carrito"
               >
                 <ShoppingCart className="h-5 w-5" aria-hidden />
@@ -288,7 +286,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             <button
               type="button"
               onClick={() => setIsDark((value) => !value)}
-              className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+              className="order-3 flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
               aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
             >
               {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
@@ -297,19 +295,19 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
 
         </div>
         
-        <div className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full">
-          <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-1.5 sm:px-4 lg:px-6">
-            <div className="w-64">
+        <div className="bg-[#FCFCFD] w-full">
+          <div className="mx-auto flex w-full max-w-[1400px] flex-col items-stretch gap-2 px-3 py-2 sm:px-4 md:flex-row md:items-center md:justify-center lg:px-6">
+            <div className="w-full md:w-64">
               <SideMegaMenuButtonV2 />
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-1.5 overflow-x-auto pb-1">
+            <div className="flex w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto pb-1 md:flex-wrap md:justify-center md:overflow-visible">
               {categoryItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <a
                     key={item.label}
                     href={item.href}
-                    className="group relative inline-flex h-12 min-w-[160px] items-center justify-center gap-1.5 overflow-hidden rounded-full border border-[#1E49A2]/55 bg-[#FCFCFD] px-3 text-sm font-black text-[#012477] shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:border-[#2D70CF] hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:text-white hover:shadow-[0_14px_30px_rgba(2,44,150,0.24),0_0_0_4px_rgba(45,112,207,0.12)] hover:before:left-[115%] hover:before:opacity-100"
+                    className="group relative inline-flex h-11 min-w-[132px] shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full border border-[#1E49A2]/55 bg-[#FCFCFD] px-3 text-xs font-black text-[#012477] shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:border-[#2D70CF] hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:text-white hover:shadow-[0_14px_30px_rgba(2,44,150,0.24),0_0_0_4px_rgba(45,112,207,0.12)] hover:before:left-[115%] hover:before:opacity-100 sm:text-sm md:h-12 md:min-w-[160px]"
                   >
                     <Icon className="h-5 w-5 text-[#012477] transition-colors duration-300 group-hover:text-white" aria-hidden />
                     {item.label}
