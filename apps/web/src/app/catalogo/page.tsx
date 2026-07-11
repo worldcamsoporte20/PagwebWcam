@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
+import { fetchWithRetry } from "../../lib/fetchWithRetry";
 import { addCartItem } from "../../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, addProductToSalesDraft, readSalesDraftItems, updateSalesDraftItemQty } from "../../lib/salesDraft";
 
@@ -36,6 +37,8 @@ type CatalogProduct = {
   source?: "odoo" | "syscom" | "merged";
   syscomStock?: number;
   wcamStock?: number;
+  syscomId?: string;
+  priceCurrency?: "MXN" | "USD";
 };
 
 type AuthState = { email: string; role: string } | null;
@@ -51,11 +54,11 @@ type CatalogPageResponse = {
   message?: string;
 };
 
-const currency = new Intl.NumberFormat("es-MX", {
-  style: "currency",
-  currency: "MXN",
-  maximumFractionDigits: 2,
-});
+const currency = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 2 });
+
+function formatPrice(product: CatalogProduct) {
+  return currency.format(product.price);
+}
 
 const DISPLAY_STEP = 60;
 
@@ -250,9 +253,15 @@ function cameraPriority(product: CatalogProduct) {
 }
 
 function ProductImage({ product }: { product: CatalogProduct }) {
-  const [failed, setFailed] = useState(false);
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const fallback = product.syscomId
+    ? `${apiBaseUrl}/api/catalog/syscom-products/${encodeURIComponent(product.syscomId)}/image`
+    : undefined;
+  const sources = [product.image, fallback].filter((source, index, values): source is string => Boolean(source) && values.indexOf(source) === index);
+  const [sourceIndex, setSourceIndex] = useState(0);
+  const source = sources[sourceIndex];
 
-  if (!product.image || failed) {
+  if (!source) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center rounded bg-white/[0.03] text-blue-100/30">
         <PackageSearch className="h-14 w-14" aria-hidden />
@@ -264,11 +273,11 @@ function ProductImage({ product }: { product: CatalogProduct }) {
   return (
     <img
       className="h-full w-full object-contain transition duration-200 group-hover:scale-[1.02]"
-      src={product.image}
+      src={source}
       alt={product.name}
       loading="lazy"
       decoding="async"
-      onError={() => setFailed(true)}
+      onError={() => setSourceIndex((current) => current + 1)}
     />
   );
 }
@@ -323,7 +332,7 @@ export default function CatalogoPage() {
           limit: String(DISPLAY_STEP),
           offset: "0",
         });
-        const response = await fetch(`${apiBaseUrl}/api/catalog/products-page?${params}`, {
+        const response = await fetchWithRetry(`${apiBaseUrl}/api/catalog/products-page?${params}`, {
           signal: controller.signal,
         });
 
@@ -411,7 +420,7 @@ export default function CatalogoPage() {
 
     setIsLoadingMore(true);
     try {
-      const response = await fetch(`${apiBaseUrl}/api/catalog/products-page?${params}`);
+      const response = await fetchWithRetry(`${apiBaseUrl}/api/catalog/products-page?${params}`);
       if (!response.ok) throw new Error(`Catalog request failed: ${response.status}`);
       const catalogPage = (await response.json()) as CatalogPageResponse;
       setProducts((current) => [...current, ...(Array.isArray(catalogPage.products) ? catalogPage.products : [])]);
@@ -748,10 +757,14 @@ export default function CatalogoPage() {
                     </div>
 
                     <div className="mt-auto pt-2 sm:pt-4">
-                      <p className="text-xl font-black text-white sm:text-2xl">{currency.format(product.price)}</p>
+                      <p className="text-xl font-black text-white sm:text-2xl">{formatPrice(product)}</p>
                       <p className="mt-1 inline-flex items-center gap-1 rounded bg-blue-500/15 px-2 py-1 text-[10px] font-black uppercase text-blue-200 sm:text-xs">
                         <Tag className="h-3 w-3" aria-hidden />
-                        {product.source === "syscom" ? "Precio Syscom" : product.source === "merged" ? "Precio catalogo" : "Precio Odoo"}
+                        {product.source === "syscom"
+                          ? "Precio Syscom · MXN"
+                          : product.source === "merged"
+                            ? `Precio catalogo · ${product.priceCurrency ?? "MXN"}`
+                            : "Precio Odoo · MXN"}
                       </p>
                     </div>
 

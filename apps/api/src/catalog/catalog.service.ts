@@ -61,6 +61,10 @@ type CatalogProductSource = OdooProduct & {
   syscomModel?: string;
   syscomStock?: number;
   wcamStock?: number;
+  syscomCharacteristics?: string[];
+  syscomTechnicalImages?: string[];
+  syscomTechnicalHtml?: string;
+  priceCurrency?: "MXN" | "USD";
 };
 
 @Injectable()
@@ -83,7 +87,7 @@ export class CatalogService {
   }
 
   async findProductsResult(): Promise<CatalogProductsResult> {
-    const cacheKey = "catalog:products:all:v13";
+    const cacheKey = "catalog:products:all:v15";
     if (this.fullCatalogMemory) {
       return { products: this.fullCatalogMemory, status: "odoo" };
     }
@@ -102,8 +106,29 @@ export class CatalogService {
       return { products: fileCached, status: "odoo" };
     }
 
+    const legacyCatalog = await this.cache.getJson<CatalogProductSource[]>("catalog:products:all:v14");
+    if (legacyCatalog?.length) {
+      const exchangeRate = await this.syscom.getMxnExchangeRate();
+      const migratedCatalog = legacyCatalog.map((product) => {
+        const needsConversion = product.source === "syscom" || product.priceCurrency === "USD";
+        return {
+          ...product,
+          price: needsConversion ? Math.round(Number(product.price ?? 0) * exchangeRate * 100) / 100 : product.price,
+          priceCurrency: "MXN" as const,
+        };
+      });
+
+      this.fullCatalogMemory = migratedCatalog;
+      await Promise.all([
+        this.cache.setJson(cacheKey, migratedCatalog, 24 * 60 * 60),
+        this.writeFullCatalogFile(migratedCatalog),
+      ]);
+      this.logger.log(`Migrated ${migratedCatalog.length} cached products to MXN`);
+      return { products: migratedCatalog, status: "odoo" };
+    }
+
     try {
-      const baseCacheKey = "catalog:products:odoo-base:v13";
+      const baseCacheKey = "catalog:products:odoo-base:v15";
       const cachedBase = await this.cache.getJson<CatalogProductSource[]>(baseCacheKey);
       const lightweightProducts =
         cachedBase ??
@@ -334,7 +359,7 @@ export class CatalogService {
   }
 
   private fullCatalogFilePath() {
-    return path.join(process.cwd(), ".cache", "catalog-products-all-v13.json");
+    return path.join(process.cwd(), ".cache", "catalog-products-all-v15.json");
   }
 
   private async readFullCatalogFile() {
@@ -364,6 +389,7 @@ export class CatalogService {
       source: "odoo" as const,
       wcamStock: product.stock,
       syscomStock: 0,
+      priceCurrency: "MXN" as const,
     }));
     const byModel = new Map<string, CatalogProductSource>();
 
@@ -384,7 +410,10 @@ export class CatalogService {
         existing.syscomId = syscomProduct.id;
         existing.syscomModel = syscomProduct.model;
         existing.syscomStock = syscomProduct.stock;
-        if (!existing.price && syscomProduct.price) existing.price = syscomProduct.price;
+        if (!existing.price && syscomProduct.price) {
+          existing.price = syscomProduct.price;
+          existing.priceCurrency = "MXN";
+        }
         continue;
       }
 
@@ -401,6 +430,7 @@ export class CatalogService {
         image: syscomProduct.image,
         description: syscomProduct.title,
         source: "syscom",
+        priceCurrency: "MXN",
         syscomId: syscomProduct.id,
         syscomModel: syscomProduct.model,
         syscomStock: syscomProduct.stock,
@@ -458,7 +488,21 @@ export class CatalogService {
 
       const catalogSummary = summary as CatalogProductSource;
       if (catalogSummary.source === "syscom") {
-        return { product: catalogSummary, status: "odoo" };
+        const cacheKey = `catalog:products:syscom-detail:v7:${catalogSummary.syscomId}`;
+        const cached = await this.cache.getJson<CatalogProductSource>(cacheKey);
+        if (cached) return { product: cached, status: "odoo" };
+
+        const detail = await this.syscom.getProductDetail(catalogSummary.syscomId ?? "");
+        const product = {
+          ...catalogSummary,
+          image: detail?.image ?? catalogSummary.image,
+          description: detail?.description || catalogSummary.description,
+          syscomCharacteristics: detail?.characteristics ?? [],
+          syscomTechnicalImages: detail?.technicalImages ?? [],
+          syscomTechnicalHtml: detail?.technicalHtml ?? "",
+        };
+        await this.cache.setJson(cacheKey, product, 3600);
+        return { product, status: "odoo" };
       }
 
       const cacheKey = `catalog:products:detail:v3:${summary.id}`;
@@ -494,6 +538,24 @@ export class CatalogService {
     if (!image) return null;
 
     await this.cache.setJson(cacheKey, image.toString("base64"), 3600);
+    return image;
+  }
+
+  async findSyscomProductImage(productId: string): Promise<{ data: Buffer; contentType: string } | null> {
+    const cacheKey = `catalog:products:syscom-image:v1:${productId}`;
+    const cached = await this.cache.getJson<{ data: string; contentType: string }>(cacheKey);
+    if (cached?.data) {
+      return { data: Buffer.from(cached.data, "base64"), contentType: cached.contentType };
+    }
+
+    const image = await this.syscom.getProductImage(productId);
+    if (!image) return null;
+
+    await this.cache.setJson(
+      cacheKey,
+      { data: image.data.toString("base64"), contentType: image.contentType },
+      24 * 60 * 60,
+    );
     return image;
   }
 
@@ -548,7 +610,7 @@ export class CatalogService {
   private toSyscomWarehouse(syscomMatch: Awaited<ReturnType<SyscomService["findMatchingProduct"]>>): CatalogWarehouseAvailability {
     if (syscomMatch.status === "matched" && syscomMatch.product) {
       const product = syscomMatch.product;
-      const priceLabel = product.price !== null ? ` Precio Syscom: $${product.price.toFixed(2)} USD.` : "";
+      const priceLabel = product.price !== null ? ` Precio Syscom: $${product.price.toFixed(2)} MXN.` : "";
       return {
         id: "syscom",
         label: "Almacen Syscom",

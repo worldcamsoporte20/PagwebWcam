@@ -19,6 +19,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "../../../components/SiteHeader";
 import { addCartItem } from "../../../lib/cart";
+import { fetchWithRetry } from "../../../lib/fetchWithRetry";
 
 type CatalogProduct = {
   id?: number;
@@ -35,6 +36,11 @@ type CatalogProduct = {
   image?: string;
   description?: string;
   internalNotesHtml?: string;
+  source?: "odoo" | "syscom" | "merged";
+  syscomCharacteristics?: string[];
+  syscomTechnicalImages?: string[];
+  syscomTechnicalHtml?: string;
+  priceCurrency?: "MXN" | "USD";
 };
 
 type WarehouseAvailability = {
@@ -50,11 +56,7 @@ type CatalogPageResponse = {
   total: number;
 };
 
-const currency = new Intl.NumberFormat("es-MX", {
-  style: "currency",
-  currency: "MXN",
-  maximumFractionDigits: 2,
-});
+const currency = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 2 });
 
 function productKey(product: CatalogProduct) {
   return String(product.variantId ?? product.id ?? product.sku);
@@ -62,6 +64,15 @@ function productKey(product: CatalogProduct) {
 
 function compactName(value: string) {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function compactSummary(value: string, maxLength = 320) {
+  const text = compactName(value);
+  if (text.length <= maxLength) return text;
+
+  const shortened = text.slice(0, maxLength);
+  const sentenceEnd = Math.max(shortened.lastIndexOf(". "), shortened.lastIndexOf("; "));
+  return `${shortened.slice(0, sentenceEnd > 150 ? sentenceEnd + 1 : maxLength).trim()}...`;
 }
 
 function productDisplayTitle(product: CatalogProduct) {
@@ -147,10 +158,10 @@ export default function ProductDetailPage() {
 
       try {
         const [detailResponse, warehousesResponse] = await Promise.all([
-          fetch(`${apiBaseUrl}/api/catalog/products/${encodeURIComponent(productId)}`, {
+          fetchWithRetry(`${apiBaseUrl}/api/catalog/products/${encodeURIComponent(productId)}`, {
             signal: controller.signal,
           }),
-          fetch(`${apiBaseUrl}/api/catalog/products/${encodeURIComponent(productId)}/warehouses`, {
+          fetchWithRetry(`${apiBaseUrl}/api/catalog/products/${encodeURIComponent(productId)}/warehouses`, {
             signal: controller.signal,
           }),
         ]);
@@ -172,7 +183,7 @@ export default function ProductDetailPage() {
             limit: "8",
             offset: "0",
           });
-          const relatedResponse = await fetch(`${apiBaseUrl}/api/catalog/products-page?${relatedParams}`, {
+          const relatedResponse = await fetchWithRetry(`${apiBaseUrl}/api/catalog/products-page?${relatedParams}`, {
             signal: controller.signal,
           });
           if (relatedResponse.ok) {
@@ -301,7 +312,7 @@ export default function ProductDetailPage() {
                 </p>
               ) : product.description ? (
                 <p className="mt-4 max-w-4xl text-base font-semibold leading-7 text-blue-100/75">
-                  {product.description}
+                  {compactSummary(product.description)}
                 </p>
               ) : (
                 <p className="mt-4 max-w-4xl text-base font-semibold leading-7 text-blue-100/60">
@@ -322,10 +333,14 @@ export default function ProductDetailPage() {
               <div className="mt-5 grid gap-3 lg:grid-cols-[0.85fr_1.15fr]">
                 <div className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
                   <p className="text-xs font-black uppercase text-blue-100/55">Precio de venta</p>
-                  <p className="mt-2 text-4xl font-black text-coral">{money(product.price)}</p>
+                  <p className="mt-2 text-4xl font-black text-coral">
+                    {money(product.price)}
+                  </p>
                   <p className="mt-2 inline-flex items-center gap-1 rounded bg-blue-500/15 px-2 py-1 text-xs font-black uppercase text-blue-200">
                     <Tag className="h-3 w-3" aria-hidden />
-                    Precio Odoo
+                    {product.source === "syscom"
+                      ? "Precio Syscom · MXN"
+                      : `Precio ${product.source === "merged" ? "catalogo" : "Odoo"} · ${product.priceCurrency ?? "MXN"}`}
                   </p>
                 </div>
 
@@ -355,8 +370,12 @@ export default function ProductDetailPage() {
           <section className="mx-auto grid max-w-[1500px] gap-4 px-4 pb-5 lg:grid-cols-3 lg:px-6">
             <InfoPanel
               icon={<BadgeCheck className="h-7 w-7 text-mint" aria-hidden />}
-              title="Informacion de Odoo"
-              text="Descripcion, notas internas, precio, existencia, SKU y foto vienen sincronizados del ERP."
+              title={product.source === "syscom" ? "Informacion de Syscom" : "Informacion de Odoo"}
+              text={
+                product.source === "syscom"
+                  ? "Descripcion, caracteristicas, precio, existencia, SKU y foto vienen sincronizados desde Syscom."
+                  : "Descripcion, notas internas, precio, existencia, SKU y foto vienen sincronizados del ERP."
+              }
             />
             <InventoryPanel wcamStock={product.stock} warehouses={warehouses} />
             <InfoPanel
@@ -384,6 +403,51 @@ export default function ProductDetailPage() {
                     dangerouslySetInnerHTML={{ __html: product.internalNotesHtml }}
                   />
                 </div>
+              </div>
+            </section>
+          ) : null}
+
+          {product.source === "syscom" && (product.syscomTechnicalHtml || product.syscomCharacteristics?.length) ? (
+            <section className="mx-auto max-w-[1500px] px-4 pb-8 lg:px-6">
+              <div className="rounded-lg border border-blue-300/20 bg-[#0d1324] p-4 md:p-5">
+                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-mint">Ficha técnica</p>
+                    <h2 className="mt-1 text-2xl font-black">Características de Syscom</h2>
+                  </div>
+                  <span className="rounded bg-blue-500/15 px-2.5 py-1 text-xs font-black uppercase text-blue-200">
+                    Ficha sincronizada
+                  </span>
+                </div>
+                {product.syscomTechnicalHtml ? (
+                  <div
+                    className="overflow-hidden rounded-lg border border-white/10 bg-[#050914] p-4 text-sm font-medium leading-7 text-blue-100 md:p-6 [&_*]:box-border [&_div]:min-w-0 [&_div]:max-w-full [&_h1]:my-5 [&_h1]:text-3xl [&_h1]:font-black [&_h2]:my-4 [&_h2]:border-b [&_h2]:border-white/20 [&_h2]:pb-2 [&_h2]:text-2xl [&_h2]:font-black [&_h3]:my-3 [&_h3]:text-xl [&_h3]:font-black [&_hr]:my-5 [&_hr]:border-white/15 [&_img]:mx-auto [&_img]:my-5 [&_img]:h-auto [&_img]:max-h-[680px] [&_img]:max-w-full [&_img]:rounded-md [&_li]:my-1 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-3 [&_p]:min-w-0 [&_strong]:font-black [&_strong]:text-white [&_table]:my-5 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-white/15 [&_td]:p-3 [&_th]:border [&_th]:border-white/15 [&_th]:bg-white/10 [&_th]:p-3 [&_ul]:list-disc [&_ul]:pl-6"
+                    dangerouslySetInnerHTML={{ __html: product.syscomTechnicalHtml }}
+                  />
+                ) : (
+                  <ul className="grid gap-2 rounded-lg border border-white/10 bg-[#050914] p-5 text-sm font-semibold leading-6 text-blue-100 md:grid-cols-2">
+                    {product.syscomCharacteristics?.map((characteristic, index) => (
+                      <li key={`${index}-${characteristic}`} className="flex gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-mint" aria-hidden />
+                        <span>{characteristic}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {!product.syscomTechnicalHtml && product.syscomTechnicalImages?.length ? (
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {product.syscomTechnicalImages.map((image, index) => (
+                      <div key={image} className="overflow-hidden rounded-lg border border-white/10 bg-white">
+                        <img
+                          src={image}
+                          alt={`${product.name} - imagen técnica ${index + 1}`}
+                          className="h-auto max-h-[560px] w-full object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </section>
           ) : null}

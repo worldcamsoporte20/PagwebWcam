@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import sanitizeHtml = require("sanitize-html");
 
 export type SyscomConnectionStatus = {
   configured: boolean;
@@ -42,6 +43,13 @@ type SyscomApiProduct = {
   img_portada?: string;
   link_privado?: string;
   categorias?: SyscomCategory[];
+  descripcion?: string;
+  caracteristicas?: string[];
+  imagenes?: Array<{
+    orden?: number;
+    url?: string;
+    imagen?: string;
+  }>;
 };
 
 export type SyscomProductLookupInput = {
@@ -73,6 +81,17 @@ export type SyscomCatalogProduct = {
   image?: string;
 };
 
+type SyscomExchangeRateResponse = {
+  normal?: string | number;
+};
+
+export type SyscomProductDetail = SyscomCatalogProduct & {
+  description: string;
+  characteristics: string[];
+  technicalImages: string[];
+  technicalHtml: string;
+};
+
 export type SyscomProductMatchResult = {
   status: "matched" | "not_found" | "unconfigured" | "error";
   product?: SyscomMatchedProduct;
@@ -84,6 +103,8 @@ export class SyscomService {
   private readonly logger = new Logger(SyscomService.name);
   private accessToken: string | null = null;
   private accessTokenExpiresAt = 0;
+  private usdToMxnRate = 1;
+  private exchangeRateExpiresAt = 0;
   private readonly productMatchCache = new Map<string, { expiresAt: number; result: SyscomProductMatchResult }>();
 
   constructor(private readonly config: ConfigService) {}
@@ -115,6 +136,63 @@ export class SyscomService {
     }
   }
 
+  async getMxnExchangeRate() {
+    return this.refreshExchangeRate();
+  }
+
+  async getProductDetail(productId: string): Promise<SyscomProductDetail | null> {
+    if (!this.isConfigured() || !productId) return null;
+
+    await this.refreshExchangeRate();
+    const product = await this.request<SyscomApiProduct>(`productos/${encodeURIComponent(productId)}`);
+    if (!product?.producto_id) return null;
+
+    const summary = this.mapCatalogProduct(product);
+    const characteristics = (product.caracteristicas ?? [])
+      .map((value) => this.cleanDescription(value))
+      .filter(Boolean);
+    const galleryImages = [...(product.imagenes ?? [])]
+      .sort((a, b) => Number(a.orden ?? 0) - Number(b.orden ?? 0))
+      .map((image) => image.imagen ?? image.url ?? "");
+    const descriptionImages = [...(product.descripcion ?? "").matchAll(/<img\b[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi)]
+      .map((match) => match[1]);
+    const technicalImages = [...new Set([...galleryImages, ...descriptionImages].map((image) => this.normalizeMediaUrl(image)).filter(Boolean))]
+      .slice(0, 10);
+
+    return {
+      ...summary,
+      image: summary.image ?? technicalImages[0],
+      description: this.cleanDescription(product.descripcion ?? product.titulo ?? ""),
+      characteristics,
+      technicalImages,
+      technicalHtml: this.cleanTechnicalHtml(product.descripcion ?? ""),
+    };
+  }
+
+  async getProductImage(productId: string): Promise<{ data: Buffer; contentType: string } | null> {
+    const detail = await this.getProductDetail(productId);
+    const imageUrl = detail?.image ?? detail?.technicalImages[0];
+    if (!imageUrl) return null;
+
+    const url = new URL(imageUrl);
+    if (url.protocol !== "https:" || !url.hostname.toLowerCase().endsWith("syscom.mx")) return null;
+
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+        if (!response.ok) continue;
+
+        const contentType = response.headers.get("content-type") ?? "image/jpeg";
+        if (!contentType.startsWith("image/")) return null;
+        return { data: Buffer.from(await response.arrayBuffer()), contentType };
+      } catch {
+        if (attempt === 0) await this.sleep(400);
+      }
+    }
+
+    return null;
+  }
+
   async findMatchingProduct(input: SyscomProductLookupInput): Promise<SyscomProductMatchResult> {
     if (!this.isConfigured()) {
       return {
@@ -138,6 +216,7 @@ export class SyscomService {
     }
 
     try {
+      await this.refreshExchangeRate();
       let best: SyscomMatchedProduct | null = null;
       for (const term of terms.slice(0, 4)) {
         const response = await this.request<SyscomProductSearchResponse>(`productos?busqueda=${encodeURIComponent(term)}`);
@@ -176,6 +255,7 @@ export class SyscomService {
   async getCatalogProducts(): Promise<SyscomCatalogProduct[]> {
     if (!this.isConfigured()) return [];
 
+    await this.refreshExchangeRate();
     const categoryIds = this.getCatalogCategoryIds();
     const maxRequests = this.getCatalogMaxRequests();
     const productsById = new Map<string, SyscomCatalogProduct>();
@@ -451,7 +531,28 @@ export class SyscomService {
     const value = product.precios?.precio_descuento ?? product.precios?.precio_especial ?? product.precios?.precio_1 ?? product.precios?.precio_lista;
     if (!value) return null;
     const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed : null;
+    return Number.isFinite(parsed) ? Math.round(parsed * this.usdToMxnRate * 100) / 100 : null;
+  }
+
+  private async refreshExchangeRate() {
+    if (this.exchangeRateExpiresAt > Date.now() && this.usdToMxnRate > 1) return this.usdToMxnRate;
+
+    try {
+      const response = await this.request<SyscomExchangeRateResponse>("tipocambio");
+      const rate = Number(response.normal);
+      if (!Number.isFinite(rate) || rate <= 1) throw new Error("Syscom returned an invalid exchange rate");
+
+      this.usdToMxnRate = rate;
+      this.exchangeRateExpiresAt = Date.now() + 60 * 60 * 1000;
+      return rate;
+    } catch (error) {
+      const fallback = Number(this.config.get<string>("SYSCOM_USD_MXN_FALLBACK") ?? 18);
+      if (this.usdToMxnRate <= 1) this.usdToMxnRate = Number.isFinite(fallback) && fallback > 1 ? fallback : 18;
+      this.exchangeRateExpiresAt = Date.now() + 5 * 60 * 1000;
+      const message = error instanceof Error ? error.message : "Exchange rate unavailable";
+      this.logger.warn(`Syscom exchange rate unavailable, using ${this.usdToMxnRate} MXN/USD: ${message}`);
+      return this.usdToMxnRate;
+    }
   }
 
   private pickImage(product: SyscomApiProduct) {
@@ -459,6 +560,89 @@ export class SyscomService {
     if (!image) return undefined;
     if (image.startsWith("http")) return image;
     return `https://www.syscom.mx/${image.replace(/^\//, "")}`;
+  }
+
+  private cleanDescription(value: string) {
+    return value
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, "\"")
+      .replace(/&#39;/gi, "'")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n\s+/g, "\n")
+      .trim();
+  }
+
+  private cleanTechnicalHtml(value: string) {
+    const withoutLinkedActions = value.replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, "");
+
+    return sanitizeHtml(withoutLinkedActions, {
+      allowedTags: [
+        "section", "article", "div", "span", "p", "br", "hr",
+        "h1", "h2", "h3", "h4", "h5",
+        "strong", "b", "em", "i", "small",
+        "ul", "ol", "li",
+        "table", "thead", "tbody", "tr", "th", "td",
+        "figure", "figcaption", "img",
+      ],
+      allowedAttributes: {
+        "*": ["class", "style"],
+        img: ["src", "alt", "title", "width", "height", "loading"],
+        td: ["colspan", "rowspan"],
+        th: ["colspan", "rowspan"],
+      },
+      allowedSchemes: ["https", "http"],
+      allowedStyles: {
+        "*": {
+          color: [/^#[0-9a-f]{3,8}$/i, /^rgb\(/i, /^[a-z]+$/i],
+          "background-color": [/^#[0-9a-f]{3,8}$/i, /^rgba?\(/i, /^transparent$/i],
+          "text-align": [/^(left|right|center|justify)$/],
+          "font-size": [/^\d+(\.\d+)?(px|rem|em|%)$/],
+          "font-weight": [/^(normal|bold|[1-9]00)$/],
+          width: [/^\d+(\.\d+)?(px|%|rem|em|vw)$/],
+          "max-width": [/^\d+(\.\d+)?(px|%|rem|em|vw)$/],
+          height: [/^\d+(\.\d+)?(px|%|rem|em|vh|auto)$/],
+          margin: [/^[\d.\s%-]+(px|rem|em|%)?$/],
+          padding: [/^[\d.\s%-]+(px|rem|em|%)?$/],
+          border: [/^[\w\s#(),.%/-]+$/],
+          "border-radius": [/^\d+(\.\d+)?(px|rem|em|%)$/],
+          display: [/^(block|inline|inline-block|flex|grid)$/],
+          "flex-direction": [/^(row|row-reverse|column|column-reverse)$/],
+          "flex-wrap": [/^(nowrap|wrap|wrap-reverse)$/],
+          "align-items": [/^(stretch|center|flex-start|flex-end|baseline)$/],
+          "align-content": [/^(stretch|center|flex-start|flex-end|space-between|space-around|space-evenly)$/],
+          "justify-content": [/^(center|flex-start|flex-end|space-between|space-around|space-evenly)$/],
+          "line-height": [/^(normal|\d+(\.\d+)?(px|rem|em|%)?)$/],
+          "box-sizing": [/^border-box$/],
+          gap: [/^\d+(\.\d+)?(px|rem|em)$/],
+          "grid-template-columns": [/^[\w\s().,%/-]+$/],
+        },
+      },
+      transformTags: {
+        img: (_tagName, attributes) => ({
+          tagName: "img",
+          attribs: {
+            ...attributes,
+            src: this.normalizeMediaUrl(attributes.src ?? ""),
+            loading: "lazy",
+          },
+        }),
+      },
+      exclusiveFilter: (frame) =>
+        frame.tag === "img" && !frame.attribs.src,
+    });
+  }
+
+  private normalizeMediaUrl(value: string) {
+    const clean = value.trim();
+    if (!clean || /\.(mp4|webm|mov|avi)(?:\?|$)/i.test(clean) || /(?:youtube|youtu\.be|vimeo)/i.test(clean)) return "";
+    if (clean.startsWith("//")) return `https:${clean}`;
+    if (clean.startsWith("http://")) return `https://${clean.slice(7)}`;
+    if (clean.startsWith("/")) return `https://www.syscom.mx${clean}`;
+    return clean;
   }
 
   private cleanTerm(value?: string) {

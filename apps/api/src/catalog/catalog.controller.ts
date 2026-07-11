@@ -66,6 +66,19 @@ export class CatalogController {
     response.send(image);
   }
 
+  @Get("syscom-products/:productId/image")
+  async getSyscomProductImage(@Param("productId") productId: string, @Res() response: any) {
+    const image = await this.catalog.findSyscomProductImage(productId);
+    if (!image) {
+      response.status(404).send();
+      return;
+    }
+
+    response.setHeader("Content-Type", image.contentType);
+    response.setHeader("Cache-Control", "public, max-age=86400");
+    response.send(image.data);
+  }
+
   @Get("products/:productId/warehouses")
   getProductWarehouses(@Param("productId") productId: string) {
     return this.catalog.findWarehouseAvailability(productId);
