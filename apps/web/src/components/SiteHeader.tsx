@@ -2,34 +2,28 @@
 import {
   ArrowRight,
   BarChart3,
-  Cpu,
   FileText,
   Flame,
-  Gamepad2,
   GraduationCap,
   Heart,
   Home as HomeIcon,
   LayoutGrid,
-  Monitor,
-  Moon,        // nuevo
-  Percent,
+  Moon,
   Phone,
   Search,
-  ShieldCheck,
   ShoppingCart,
   Sparkles,
-  Sun,         // nuevo
+  Sun,
   Tag,
   Truck,
   UserRound,
-  Wifi,
 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartTotals, readCart } from "../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, readSalesDraftItems } from "../lib/salesDraft";
 
-type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas";
-type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cursos" | "cotizacion";
+type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas" | "cursos";
+type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cotizacion";
 type AuthState = { email: string; initials: string; role: string } | null;
 
 type NavItem = {
@@ -44,17 +38,8 @@ const navItems: NavItem[] = [
   { label: "Productos", href: "/catalogo", icon: LayoutGrid, key: "catalogo" },
   { label: "Nuevos", href: "/#nuevos", icon: Flame, key: "nuevos" },
   { label: "Para ti", href: "/#para-ti", icon: Sparkles, key: "para-ti" },
-  { label: "Cursos", href: "/#eventos", icon: GraduationCap, key: "cursos" },
+  { label: "Cursos", href: "/cursos", icon: GraduationCap, key: "cursos" },
   { label: "Promociones", href: "/promociones", icon: Tag, key: "promociones" },
-];
-
-const categoryItems = [
-  { label: "Seguridad", href: "/catalogo?categoria=seguridad", icon: ShieldCheck },
-  { label: "Redes", href: "/catalogo?categoria=redes", icon: Wifi },
-  { label: "Tecnología LED", href: "/catalogo?categoria=tecnologia-led", icon: Monitor },
-  { label: "Computación", href: "/catalogo?categoria=computacion", icon: Cpu },
-  { label: "Audio y Video", href: "/catalogo?categoria=audio-video", icon: Monitor },
-  { label: "Telefonía", href: "/catalogo?categoria=telefonia", icon: Phone },
 ];
 
 const topbarActions = [
@@ -154,6 +139,14 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
 
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
 
+  const fullNavItems = [
+    ...navItems,
+    ...(auth && !isStaff
+      ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" as NavItemKey }]
+      : []),
+    ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" as NavItemKey }] : []),
+  ];
+
   return (
     <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
       <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
@@ -173,8 +166,6 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               );
             })}
           </div>
-
-          
         </div>
       </div>
 
@@ -268,7 +259,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
                 ) : null}
               </a>
             ) : null}
-            
+
             {!isStaff ? (
               <a
                 className="relative flex h-11 items-center gap-2 rounded-2xl bg-[#022C96] px-4 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF]"
@@ -284,78 +275,48 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : null}
           </div>
-            <button
-              type="button"
-              onClick={() => setIsDark((value) => !value)}
-              className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
-              aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
-            >
-              {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
-              <span className="hidden sm:inline">{isDark ? "Claro" : "Oscuro"}</span>
-            </button>
-
+          <button
+            type="button"
+            onClick={() => setIsDark((value) => !value)}
+            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+            aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+          >
+            {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
+            <span className="hidden sm:inline">{isDark ? "Claro" : "Oscuro"}</span>
+          </button>
         </div>
-        
-        <div className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full">
-          <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-1.5 sm:px-4 lg:px-6">
-            <a href="/catalogo" className="inline-flex h-12 items-center gap-2 rounded-full bg-[#F00922] px-3 text-sm font-black text-[#FCFCFD] shadow-sm transition hover:bg-[#D41020]">
-              <span className="flex h-6 w-6 flex-col items-center justify-center gap-1">
-                <span className="h-[2px] w-full rounded-full bg-[#FCFCFD]" />
-                <span className="h-[2px] w-full rounded-full bg-[#FCFCFD]" />
-                <span className="h-[2px] w-full rounded-full bg-[#FCFCFD]" />
-              </span>
-              Todas las categorias
-            </a>
-            <div className="flex flex-wrap items-center justify-center gap-1 overflow-x-auto pb-1">
-              {categoryItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="inline-flex h-12 min-w-[160px] items-center gap-1.5 rounded-full border border-[#1E49A2] bg-[#FCFCFD] px-3 text-sm font-black text-[#012477] transition hover:border-[#2D70CF] hover:bg-[#2D70CF]/10"
-                  >
-                    <Icon className="h-5 w-5 text-[#012477]" aria-hidden />
-                    {item.label}
-                  </a>
-                );
-              })}
-            </div>
+
+        {/* Nav principal: Inicio, Productos, Nuevos, Para ti, Cursos, Promociones */}
+        <nav className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full dark:border-white/10 dark:bg-[#0d1526]">
+          <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-2 sm:px-4 lg:px-6">
+            {fullNavItems.map((item) => {
+              const Icon = item.icon;
+              const isHashActive = currentHash && item.key === currentHash;
+              const isActive = isHashActive || (!currentHash && item.key === active);
+
+              return (
+                <a
+                  key={item.label}
+                  className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-black transition ${
+                    isActive
+                      ? "border-[#1E49A2] bg-[#2D70CF]/10 text-[#012477]"
+                      : "border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30"
+                  }`}
+                  href={item.href}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                  {item.label}
+                  {item.key === "ventas" && salesDraftQty > 0 ? (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
+                      {salesDraftQty}
+                    </span>
+                  ) : null}
+                </a>
+              );
+            })}
           </div>
-        </div>
-      </div>
-
-      {active !== "home" ? (
-        <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-3 pb-3 sm:px-4 lg:px-8 lg:pb-4">
-          {[
-            ...navItems,
-            ...(auth && !isStaff ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" }] : []),
-            ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" }] : []),
-          ].map((item) => {
-            const Icon = item.icon;
-            const isHashActive = currentHash && item.key === currentHash;
-            const isActive = isHashActive || (!currentHash && item.key === active);
-
-            return (
-              <a
-                key={item.label}
-                className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-black transition sm:h-11 sm:px-4 ${
-                  isActive ? "border border-[#1E49A2] bg-[#2D70CF]/10 text-[#012477]" : "text-[#12141A] hover:bg-[#CBC9D4]/50"
-                }`}
-                href={item.href}
-              >
-                <Icon className="h-4 w-4" aria-hidden />
-                {item.label}
-                {item.key === "ventas" && salesDraftQty > 0 ? (
-                  <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
-                    {salesDraftQty}
-                  </span>
-                ) : null}
-              </a>
-            );
-          })}
         </nav>
-      ) : null}
+      </div>
     </header>
   );
 }
