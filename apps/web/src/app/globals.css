@@ -3701,3 +3701,411 @@ html.dark .tiktok-label {
   background: rgba(239, 68, 68, 0.15) !important;
   color: #fca5a5 !important;
 }
+
+/* =======================================================
+   PANEL ADMINISTRADOR
+======================================================= */
+
+.panelAdminContenedor {
+  min-height: 100vh;
+  background: #f4f7fc;
+}
+
+.panelAdminEncabezado {
+  width: 100%;
+  background: linear-gradient(90deg, #022C96, #0F46AF);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 4px solid #ffffff;
+}
+
+.panelAdminLogo {
+  display: flex;
+  align-items: center;
+}
+
+.panelAdminTitulo {
+  text-align: center;
+  flex: 1;
+}
+
+.panelAdminTitulo h1 {
+  color: white;
+  font-size: 34px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.panelAdminTitulo p {
+  color: #dce8ff;
+  font-size: 15px;
+}
+
+.panelAdminUsuario {
+  background: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  color: #022C96;
+  border: 2px solid #dce6ff;
+}
+
+.panelAdminContenido {
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+  padding: 50px 30px;
+}
+
+.panelAdminGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+.panelAdminTarjeta {
+  background: white;
+  border: 2px solid #dbe6fb;
+  border-radius: 18px;
+  padding: 35px 20px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .05);
+  transition: .2s;
+}
+
+.panelAdminTarjeta:hover {
+  border-color: #0F46AF;
+  background: #f8fbff;
+}
+
+.panelAdminIcono {
+  width: 75px;
+  height: 75px;
+  margin: auto;
+  margin-bottom: 20px;
+  background: #edf4ff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #022C96;
+}
+
+.panelAdminNombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: #12141A;
+  line-height: 1.4;
+}
+
+@media (max-width: 1100px) {
+  .panelAdminGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .panelAdminTitulo h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .panelAdminEncabezado {
+    flex-direction: column;
+    gap: 20px;
+    padding: 25px;
+  }
+
+  .panelAdminTitulo {
+    order: 2;
+  }
+
+  .panelAdminUsuario {
+    order: 3;
+  }
+
+  .panelAdminGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .panelAdminTarjeta {
+    padding: 25px 15px;
+  }
+
+  .panelAdminIcono {
+    width: 65px;
+    height: 65px;
+  }
+
+  .panelAdminNombre {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 500px) {
+  .panelAdminGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .panelAdminTitulo h1 {
+    font-size: 24px;
+  }
+
+  .panelAdminTitulo p {
+    font-size: 14px;
+  }
+}
+
+/* =======================================================
+   LOGIN ADMINISTRADOR
+======================================================= */
+
+.loginAdminContenedor {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #0057d8, #1f8cff, #edf5ff);
+}
+
+.loginAdminTarjeta {
+  width: 1100px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 25px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .18);
+}
+
+.loginAdminLadoLogo {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+  background: #ffffff;
+}
+
+.loginAdminImagenLogo {
+  width: 320px;
+  height: auto;
+}
+
+.loginAdminTituloEmpresa {
+  margin-top: 35px;
+  font-size: 30px;
+  color: #0057d8;
+  font-weight: 700;
+}
+
+.loginAdminDescripcionEmpresa {
+  margin-top: 15px;
+  font-size: 17px;
+  color: #666;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.loginAdminLadoFormulario {
+  width: 50%;
+  background: #f7fbff;
+  padding: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.loginAdminTitulo {
+  font-size: 40px;
+  color: #0057d8;
+  margin-bottom: 10px;
+}
+
+.loginAdminSubtitulo {
+  color: #777;
+  margin-bottom: 40px;
+  font-size: 17px;
+}
+
+.loginAdminFormulario {
+  width: 100%;
+}
+
+.loginAdminGrupoCampo {
+  margin-bottom: 25px;
+}
+
+.loginAdminEtiqueta {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #0047b3;
+}
+
+.loginAdminCampoTexto {
+  width: 100%;
+  padding: 18px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 2px solid #d8e7fb;
+  outline: none;
+  transition: .3s;
+  background: #fff;
+}
+
+.loginAdminCampoTexto:focus {
+  border-color: #0077ff;
+  box-shadow: 0 0 12px rgba(0, 119, 255, .2);
+}
+
+.loginAdminBoton {
+  width: 100%;
+  margin-top: 10px;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  background: #0077ff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.loginAdminBoton:hover {
+  background: #005fd0;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 102, 255, .3);
+}
+
+.loginAdminOlvido {
+  margin-top: 25px;
+  text-align: center;
+  text-decoration: none;
+  color: #0077ff;
+  font-weight: 500;
+}
+
+.loginAdminOlvido:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .loginAdminTarjeta {
+    flex-direction: column;
+  }
+
+  .loginAdminLadoLogo {
+    width: 100%;
+    padding: 40px;
+  }
+
+  .loginAdminLadoFormulario {
+    width: 100%;
+    padding: 40px;
+  }
+
+  .loginAdminImagenLogo {
+    width: 220px;
+  }
+
+  .loginAdminTitulo {
+    font-size: 32px;
+  }
+}
+
+/* ===========================
+   CAMBIAR IMAGEN DE INICIO
+=========================== */
+
+.cambiarBannerContenedor {
+  min-height: 100vh;
+  background: #EDF1FA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.cambiarBannerTarjeta {
+  width: 700px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 35px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .12);
+}
+
+.cambiarBannerTitulo {
+  color: #143D8D;
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.cambiarBannerTexto {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.cambiarBannerPreview {
+  width: 100%;
+  height: 320px;
+  border: 3px dashed #D6DCEB;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #F8FAFD;
+  color: #888;
+  margin-bottom: 25px;
+}
+
+.cambiarBannerImagen {
+  object-fit: contain;
+}
+
+.cambiarBannerInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  cursor: pointer;
+}
+
+.cambiarBannerBoton {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #143D8D;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.cambiarBannerBoton:hover {
+  background: #0F3274;
+}
+
+.cambiarBannerBoton:disabled {
+  background: #8EA7D9;
+  cursor: not-allowed;
+}
+
+.cambiarBannerMensaje {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
