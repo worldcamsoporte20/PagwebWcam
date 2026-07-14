@@ -357,7 +357,7 @@ export function SideMegaMenuButtonV2() {
   return (
     <div 
       ref={containerRef}
-      className="relative z-40 w-full max-w-full md:max-w-72"
+      className="relative z-40 w-full max-w-full md:max-w-64"
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
@@ -365,16 +365,16 @@ export function SideMegaMenuButtonV2() {
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="group relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[#F00922] px-4 text-sm font-black text-white shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:shadow-[0_14px_30px_rgba(2,44,150,0.26),0_0_0_4px_rgba(45,112,207,0.14)] hover:before:left-[115%] hover:before:opacity-100 md:h-12"
+        className="group inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#F00922] px-4 text-sm font-black text-white transition hover:bg-[#D41020]"
         aria-expanded={isOpen}
         aria-controls="side-mega-menu-button-v2"
       >
-        <span className="relative flex h-6 w-6 flex-col items-center justify-center gap-1 transition-transform duration-300 group-hover:scale-110">
+        <span className="flex h-5 w-5 flex-col items-center justify-center gap-1">
           <span className="h-[2px] w-full rounded-full bg-white" />
           <span className="h-[2px] w-full rounded-full bg-white" />
           <span className="h-[2px] w-full rounded-full bg-white" />
         </span>
-        <span className="relative">Todas las categorias</span>
+        <span>Todas las categorias</span>
       </button>
 
       {isOpen ? (

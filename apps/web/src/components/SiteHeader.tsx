@@ -2,7 +2,6 @@
 import {
   ArrowRight,
   BarChart3,
-  Cpu,
   FileText,
   Flame,
   Gamepad2,
@@ -10,19 +9,15 @@ import {
   Heart,
   Home as HomeIcon,
   LayoutGrid,
-  Monitor,
   Moon,        // nuevo
   Percent,
-  Phone,
   Search,
-  ShieldCheck,
   ShoppingCart,
   Sparkles,
   Sun,         // nuevo
   Tag,
   Truck,
   UserRound,
-  Wifi,
 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartTotals, readCart } from "../lib/cart";
@@ -50,12 +45,11 @@ const navItems: NavItem[] = [
 ];
 
 const categoryItems = [
-  { label: "Seguridad", href: "/catalogo?categoria=seguridad", icon: ShieldCheck },
-  { label: "Redes", href: "/catalogo?categoria=redes", icon: Wifi },
-  { label: "Tecnología LED", href: "/catalogo?categoria=tecnologia-led", icon: Monitor },
-  { label: "Computación", href: "/catalogo?categoria=computacion", icon: Cpu },
-  { label: "Audio y Video", href: "/catalogo?categoria=audio-video", icon: Monitor },
-  { label: "Telefonía", href: "/catalogo?categoria=telefonia", icon: Phone },
+  { label: "TODO", href: "/catalogo", icon: LayoutGrid },
+  { label: "Nuevos", href: "/#nuevos", icon: Flame },
+  { label: "Cupones", href: "/cupones", icon: Percent },
+  { label: "Cursos", href: "/#eventos", icon: GraduationCap },
+  { label: "Promociones", href: "/promociones", icon: Tag },
 ];
 
 const topbarActions = [
@@ -177,22 +171,22 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
         </div>
       </div>
 
-      <div className="bg-[#FCFCFD] shadow-sm dark:bg-[#0d1526] dark:text-white">
-        <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 md:flex-nowrap lg:px-6">
-          <a href="/" aria-label="Ir a inicio" className="flex items-center gap-3 flex-none">
-            <img src="/images/logo/logo.png" alt="Worldcam" className="h-16 w-auto sm:h-28 lg:h-36 xl:h-40" />
+      <div className="bg-white shadow-[0_1px_0_rgba(2,44,150,0.08)] dark:bg-[#0d1526] dark:text-white">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 md:flex-nowrap lg:px-8">
+          <a href="/" aria-label="Ir a inicio" className="flex h-14 flex-none items-center lg:h-20">
+            <img src="/images/logo/logo.png" alt="Worldcam" className="h-11 w-auto object-contain sm:h-12 lg:h-20" />
           </a>
 
-          <div className="order-2 flex w-full min-w-0 flex-1 justify-center md:order-none md:min-w-[240px]">
+          <div className="order-2 flex w-full min-w-0 flex-1 justify-center md:order-none md:min-w-[340px]">
             <form
               onSubmit={handleSearch}
-              className="w-full max-w-3xl overflow-hidden rounded-full border border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] shadow-sm dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
+              className="w-full max-w-[760px] overflow-hidden rounded-full border border-[#CCD8F2] bg-[#F8FAFF] text-[#12141A] transition focus-within:border-[#1E49A2] focus-within:bg-white dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
             >
-              <div className="flex h-11 items-center gap-2 px-3 sm:h-12 sm:gap-3 sm:px-4">
+              <div className="flex h-10 items-center gap-2 px-4 sm:h-11 sm:gap-3 sm:px-5">
                 <Search className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
                 <input
                   className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base dark:text-white dark:placeholder:text-white/40"
-                  placeholder="Buscar productos, categorías o marcas..."
+                  placeholder="Buscar productos, categorias o marcas..."
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
@@ -200,12 +194,12 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             </form>
           </div>
 
-          <div className="order-3 flex min-w-0 flex-1 items-center justify-end gap-1.5 sm:gap-2 md:ml-0 md:flex-none lg:ml-auto">
+          <div className="order-3 flex min-w-0 flex-1 items-center justify-end gap-1.5 md:ml-0 md:flex-none lg:ml-auto">
             {auth ? (
               <a
                 href="/cuenta"
                 aria-label="Mi cuenta"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
                   {auth.initials}
@@ -215,7 +209,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               <a
                 href="/login"
                 aria-label="Iniciar sesion"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
               >
                 <UserRound className="h-5 w-5" aria-hidden />
               </a>
@@ -223,7 +217,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             {auth ? (
               <a
                 href="/cuenta"
-                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
                   {auth.initials}
@@ -232,7 +226,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : (
               <a
-                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
                 href="/login"
               >
                 <UserRound className="h-5 w-5" aria-hidden />
@@ -241,14 +235,14 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             )}
             <a
               href="/favoritos"
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
               aria-label="Favoritos"
             >
               <Heart className="h-6 w-6 text-[#1E49A2] dark:text-white" aria-hidden />
             </a>
             <a
               href="/favoritos"
-              className="hidden h-11 items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
             >
               <Heart className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
               <span className="hidden lg:inline">Favoritos</span>
@@ -256,7 +250,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             {isStaff ? (
               <a
                 href="/ventas"
-                className="relative hidden items-center gap-1.5 rounded-2xl bg-[#1E49A2] px-4 py-3 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF] lg:flex"
+                className="relative hidden h-10 items-center gap-1.5 rounded-full bg-[#1E49A2] px-4 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] lg:flex"
               >
                 <FileText className="h-5 w-5" aria-hidden />
                 <span>Orden</span>
@@ -270,7 +264,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             
             {!isStaff ? (
               <a
-                className="relative flex h-11 shrink-0 items-center gap-2 rounded-2xl bg-[#022C96] px-3 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF] sm:px-4"
+                className="relative flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#022C96] px-3 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] sm:px-4"
                 href="/carrito"
               >
                 <ShoppingCart className="h-5 w-5" aria-hidden />
@@ -286,30 +280,43 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             <button
               type="button"
               onClick={() => setIsDark((value) => !value)}
-              className="order-3 flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+              className="order-3 flex h-10 shrink-0 items-center gap-2 rounded-full px-1.5 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] dark:text-white dark:hover:bg-white/10"
               aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+              aria-pressed={isDark}
             >
-              {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
-              <span className="hidden sm:inline">{isDark ? "Claro" : "Oscuro"}</span>
+              <span className="hidden sm:inline">{isDark ? "Oscuro" : "Claro"}</span>
+              <span
+                className={`relative inline-flex h-7 w-13 items-center rounded-full border p-0.5 transition ${
+                  isDark ? "border-[#1E49A2] bg-[#022C96]" : "border-[#CCD8F2] bg-[#EEF4FF]"
+                }`}
+              >
+                <span
+                  className={`absolute flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#1E49A2] shadow-sm transition ${
+                    isDark ? "translate-x-6" : "translate-x-0"
+                  }`}
+                >
+                  {isDark ? <Moon className="h-3.5 w-3.5" aria-hidden /> : <Sun className="h-3.5 w-3.5" aria-hidden />}
+                </span>
+              </span>
             </button>
 
         </div>
         
-        <div className="bg-[#FCFCFD] w-full">
-          <div className="mx-auto flex w-full max-w-[1400px] flex-col items-stretch gap-2 px-3 py-2 sm:px-4 md:flex-row md:items-center md:justify-center lg:px-6">
-            <div className="w-full md:w-64">
+        <div className="w-full border-t border-[#E8EEF9] bg-white">
+          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-stretch gap-3 px-4 py-2 sm:px-6 md:flex-row md:items-center md:justify-start lg:px-8">
+            <div className="w-full md:w-52">
               <SideMegaMenuButtonV2 />
             </div>
-            <div className="flex w-full flex-nowrap items-center justify-start gap-1.5 overflow-x-auto pb-1 md:flex-wrap md:justify-center md:overflow-visible">
+            <div className="flex w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto pb-1 md:flex-1 md:overflow-visible md:pb-0">
               {categoryItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <a
                     key={item.label}
                     href={item.href}
-                    className="group relative inline-flex h-11 min-w-[132px] shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full border border-[#1E49A2]/55 bg-[#FCFCFD] px-3 text-xs font-black text-[#012477] shadow-sm transition-all duration-300 before:absolute before:inset-y-0 before:-left-10 before:w-8 before:skew-x-[-20deg] before:bg-white/35 before:opacity-0 before:transition-all before:duration-500 hover:-translate-y-1 hover:border-[#2D70CF] hover:bg-gradient-to-r hover:from-[#022C96] hover:via-[#1E49A2] hover:to-[#2D70CF] hover:text-white hover:shadow-[0_14px_30px_rgba(2,44,150,0.24),0_0_0_4px_rgba(45,112,207,0.12)] hover:before:left-[115%] hover:before:opacity-100 sm:text-sm md:h-12 md:min-w-[160px]"
+                    className="group inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-md px-3 text-xs font-black text-[#012477] transition hover:bg-[#F1F5FF] hover:text-[#0F46AF] sm:text-sm md:flex-1"
                   >
-                    <Icon className="h-5 w-5 text-[#012477] transition-colors duration-300 group-hover:text-white" aria-hidden />
+                    <Icon className="h-4 w-4 text-[#1E49A2]" aria-hidden />
                     {item.label}
                   </a>
                 );

@@ -2,8 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Alibaba Sans";
+  src: url("/fonts/alibaba-sans-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alibaba Sans";
+  src: url("/fonts/alibaba-sans-medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Alibaba Sans";
+  src: url("/fonts/alibaba-sans-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
+  --font-sans: "Alibaba Sans", "Segoe UI", sans-serif;
 }
 
 html.dark,
@@ -68,7 +93,21 @@ body {
   overflow-x: hidden;
   background: #ffffff;
   color: #000000;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.025em;
 }
 
 html.dark body {
@@ -663,7 +702,7 @@ select {
 .dist-page {
   background: #EDF1FA;        /* --fondo-secundario */
   min-height: 100vh;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   color: #12141A;             /* --texto-principal */
 }
 
@@ -1002,7 +1041,7 @@ select {
 .suc-page {
   background: #EDF1FA;
   min-height: 100vh;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   color: #12141A;
 }
 
@@ -2053,7 +2092,7 @@ background:#03164C;
 }
 
 .thanks-section strong{
-    color: red;
+    color: rgb(255, 0, 0);
 }
 
 @media (max-width: 768px){
@@ -3649,4 +3688,195 @@ background:#03164C;
 }
 .warranty-bar p{
     color:#fff;
+}
+
+/*=========================================================
+                         SITE FOOTER
+=========================================================*/
+
+.site-footer {
+  width: 100%;
+  color: #fff;
+  background: #071b4d;
+}
+
+.footer-main {
+  padding: 52px 24px 44px;
+}
+
+.footer-inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) 2fr;
+  gap: 72px;
+}
+
+.footer-brand p {
+  max-width: 320px;
+  margin: 16px 0 22px;
+  color: #c8d3ed;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.footer-logo {
+  color: #fff;
+  display: inline-block;
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 12px;
+}
+
+.footer-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 22px;
+}
+
+.footer-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer-contact a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.footer-contact .footer-whatsapp {
+  color: #55df83;
+}
+
+.footer-socials a {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.1rem;
+  transition: background-color .25s ease, border-color .25s ease, transform .25s ease;
+}
+
+.footer-socials a:hover {
+  background: #e53935;
+  border-color: #e53935;
+  transform: translateY(-3px);
+}
+
+.footer-socials a:focus-visible,
+.footer-links a:focus-visible,
+.footer-logo:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+.footer-sitemap {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr));
+  gap: 36px;
+}
+
+.footer-links h2 {
+  margin: 0 0 18px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.footer-links ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-links li + li {
+  margin-top: 11px;
+}
+
+.footer-links a {
+  color: #c8d3ed;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.footer-links a:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.footer-bottom {
+  padding: 18px 24px;
+  border-top: 1px solid rgba(255,255,255,.13);
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+  color: #aebddd;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 800px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .footer-brand {
+    text-align: center;
+  }
+
+  .footer-brand p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-socials {
+    justify-content: center;
+  }
+
+  .footer-contact {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .footer-main {
+    padding: 42px 20px 36px;
+  }
+
+  .footer-logo {
+    font-size: 1.9rem;
+  }
+
+  .footer-sitemap {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .warranty-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
 }

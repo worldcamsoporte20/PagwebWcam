@@ -16,8 +16,8 @@ import {
   PackageSearch,
   Phone,
   ShieldCheck,
+  ShoppingCart,
   Sparkles,
-  Star,
   Tag,
   Wifi,
 } from "lucide-react";
@@ -30,6 +30,7 @@ import SiteHeader from "../components/SiteHeader";
 import TikTokVideos from "@/components/TikTokVideos";
 import SiteFooter from "@/components/SiteFooter";
 import SupportAdvisors from "@/components/SupportAdvisors";
+import { addCartItem } from "../lib/cart";
 
 type CatalogProduct = {
   id?: number;
@@ -104,13 +105,50 @@ const navItems = [
 
 const quickCategories = ["Videovigilancia", "Acceso", "Alarmas", "Redes", "Cableado UTP", "Cerraduras"];
 
+const productRows = [
+  {
+    key: "cameras",
+    eyebrow: "Videovigilancia",
+    title: "Camaras mas vendidas",
+    description: "Camaras IP, HDCVI, domos, bullets y PTZ listas para tus instalaciones.",
+    search: "camara",
+    icon: Camera,
+    matches: ["camara", "camera", "ipc", "bullet", "domo", "dome", "turret", "ptz"],
+  },
+  {
+    key: "kits",
+    eyebrow: "Soluciones completas",
+    title: "Kits recomendados",
+    description: "Combos de videovigilancia para instalar con todos los componentes esenciales.",
+    search: "kit",
+    icon: PackageSearch,
+    matches: ["kit", "combo", "paquete"],
+  },
+  {
+    key: "networks",
+    eyebrow: "Conectividad",
+    title: "Redes y conectividad",
+    description: "Switches PoE, routers, cableado y accesorios para una red estable.",
+    search: "redes",
+    icon: Wifi,
+    matches: ["switch", "poe", "router", "access point", "utp", "ethernet", "redes", "network"],
+  },
+] as const;
+
 function money(value: number) {
   return value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 }
 
+function productKey(product: CatalogProduct) {
+  return String(product.variantId ?? product.id ?? product.sku);
+}
+
 export default function Homeicon() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [catalogHighlights, setCatalogHighlights] = useState<CatalogProduct[]>([]);
+  const [catalogRows, setCatalogRows] = useState<Record<string, CatalogProduct[]>>({});
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+  const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dragStartX = useRef<number | null>(null);
   const dragDeltaX = useRef(0);
   const didSwipe = useRef(false);
@@ -123,6 +161,28 @@ export default function Homeicon() {
 
   const goToNext = () => {
     setActiveSlide((current) => (current === promoSlides.length - 1 ? 0 : current + 1));
+  };
+
+  const moveProductCarousel = (rowKey: string, direction: -1 | 1) => {
+    carouselRefs.current[rowKey]?.scrollBy({ left: direction * 720, behavior: "smooth" });
+  };
+
+  const handleAddToCart = (product: CatalogProduct) => {
+    const id = productKey(product);
+    addCartItem({
+      id,
+      productId: product.id,
+      variantId: product.variantId,
+      sku: product.sku,
+      clave: product.clave || product.sku,
+      brand: product.brand || "Worldcam",
+      category: product.category || "Sin categoria",
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+    setLastAddedId(id);
+    window.setTimeout(() => setLastAddedId((current) => (current === id ? null : current)), 1400);
   };
 
   useEffect(() => {
@@ -143,21 +203,31 @@ export default function Homeicon() {
           .map((product: CatalogProduct) => ({
             ...product,
             model: product.model || product.clave || "",
-          }))
-          .filter((product: CatalogProduct) => {
-            const text = `${product.name} ${product.brand} ${product.category} ${product.model} ${product.sku}`.toLowerCase();
-            return text.includes("dahua") || text.includes("dh-") || text.includes("dhi-");
-          })
-          .sort((a: CatalogProduct, b: CatalogProduct) => {
-            const aScore = Number(Boolean(a.image)) * 20 + Number(a.stock > 0) * 10 + Math.min(a.stock, 20);
-            const bScore = Number(Boolean(b.image)) * 20 + Number(b.stock > 0) * 10 + Math.min(b.stock, 20);
-            return bScore - aScore;
-          })
-          .slice(0, 4);
+          }));
 
-        setCatalogHighlights(products);
+        const rows = Object.fromEntries(
+          productRows.map((row) => {
+            const matches = products
+              .filter((product: CatalogProduct) => {
+                const text = `${product.name} ${product.brand} ${product.category} ${product.model} ${product.sku}`.toLowerCase();
+                return row.matches.some((term) => text.includes(term));
+              })
+              .sort((a: CatalogProduct, b: CatalogProduct) => {
+                const aScore = Number(a.stock > 0) * 100 + Math.min(Math.max(a.stock, 0), 50) + Number(a.price > 0) * 10;
+                const bScore = Number(b.stock > 0) * 100 + Math.min(Math.max(b.stock, 0), 50) + Number(b.price > 0) * 10;
+                return bScore - aScore;
+              })
+              .slice(0, 8);
+
+            return [row.key, matches];
+          }),
+        );
+
+        setCatalogRows(rows);
       } catch {
-        setCatalogHighlights([]);
+        setCatalogRows({});
+      } finally {
+        if (active) setCatalogLoading(false);
       }
     }
 
@@ -291,6 +361,145 @@ export default function Homeicon() {
         })}
       </nav>
 
+      <section id="para-ti" className="scroll-mt-40 border-y border-slate-200 bg-slate-50/80 py-8 dark:border-white/10 dark:bg-[#0b1020] lg:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-coral">Lo mejor de Worldcam</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 dark:text-white md:text-4xl">Encuentra lo mas vendido por categoria</h2>
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-blue-100/65 md:text-base">
+                Productos seleccionados del inventario actual, organizados para que encuentres rapido lo que necesita cada proyecto.
+              </p>
+            </div>
+            <a className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 text-sm font-black text-white transition hover:bg-blue-600" href="/catalogo">
+              Ver catalogo completo
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </a>
+          </div>
+
+          <div className="mt-8 space-y-10">
+            {productRows.map((row) => {
+              const Icon = row.icon;
+              const products = catalogRows[row.key] ?? [];
+
+              return (
+                <div key={row.key}>
+                  <div className="mb-5 flex items-end justify-between gap-4">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-white shadow-sm">
+                        <Icon className="h-5 w-5" aria-hidden />
+                      </span>
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">{row.eyebrow}</p>
+                        <h3 className="mt-0.5 text-xl font-black text-slate-950 dark:text-white md:text-2xl">{row.title}</h3>
+                        <p className="mt-1 hidden text-sm text-slate-500 dark:text-blue-100/55 sm:block">{row.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        type="button"
+                        className="hidden h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-white dark:hover:bg-blue-500/15 sm:flex"
+                        onClick={() => moveProductCarousel(row.key, -1)}
+                        aria-label={`Ver productos anteriores de ${row.title}`}
+                      >
+                        <ChevronLeft className="h-5 w-5" aria-hidden />
+                      </button>
+                      <button
+                        type="button"
+                        className="hidden h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-800 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 dark:border-white/15 dark:bg-white/[0.05] dark:text-white dark:hover:bg-blue-500/15 sm:flex"
+                        onClick={() => moveProductCarousel(row.key, 1)}
+                        aria-label={`Ver mas productos de ${row.title}`}
+                      >
+                        <ChevronRight className="h-5 w-5" aria-hidden />
+                      </button>
+                      <a className="ml-1 hidden shrink-0 items-center gap-1 text-sm font-black text-blue-700 hover:text-blue-500 dark:text-blue-200 md:flex" href={`/catalogo?buscar=${encodeURIComponent(row.search)}`}>
+                        Ver todos
+                        <ArrowRight className="h-4 w-4" aria-hidden />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div
+                    ref={(element) => { carouselRefs.current[row.key] = element; }}
+                    className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                  >
+                    {products.map((product, index) => (
+                      <article key={`${row.key}-${product.id ?? product.sku}`} className="group flex w-[290px] shrink-0 snap-start flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl dark:border-white/10 dark:bg-[#121827] dark:hover:border-blue-400/50 sm:w-[330px] lg:w-[350px]">
+                        <a href={product.id ? `/catalogo/${product.id}` : `/catalogo?buscar=${encodeURIComponent(product.sku)}`} className="block">
+                          <div className="relative flex h-60 items-center justify-center bg-gradient-to-b from-white to-slate-50 p-6 sm:h-64">
+                            {product.image ? (
+                              <div className="relative h-full w-full">
+                                <PackageSearch className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 text-slate-200" aria-hidden />
+                                <Image
+                                  className="z-10 object-contain transition duration-300 group-hover:scale-105"
+                                  src={product.image}
+                                  alt={product.name}
+                                  fill
+                                  sizes="350px"
+                                  onError={(event) => { event.currentTarget.style.display = "none"; }}
+                                />
+                              </div>
+                            ) : (
+                              <PackageSearch className="h-20 w-20 text-slate-300" aria-hidden />
+                            )}
+                            {index < 3 ? (
+                              <span className="absolute left-4 top-4 rounded-full bg-coral px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white shadow-sm">Top {index + 1}</span>
+                            ) : null}
+                          </div>
+                          <div className="border-t border-slate-100 px-5 pb-3 pt-5 dark:border-white/10">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="truncate text-xs font-black uppercase tracking-wide text-blue-700 dark:text-blue-300">{product.brand || "Worldcam"}</span>
+                              <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black ${product.stock > 0 ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300" : "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"}`}>
+                                {product.stock > 0 ? "Disponible" : "Consultar"}
+                              </span>
+                            </div>
+                            <h4 className="mt-3 line-clamp-2 min-h-12 text-base font-black leading-6 text-slate-900 dark:text-white">{product.name}</h4>
+                            <p className="mt-2 truncate text-sm font-semibold text-slate-400">Modelo: {product.model || product.sku}</p>
+                            <div className="mt-4 flex items-end justify-between gap-3">
+                              <p className="text-2xl font-black text-slate-950 dark:text-white">{product.price > 0 ? money(product.price) : "Cotizar"}</p>
+                              <span className="text-xs font-bold text-slate-400">Stock {product.stock}</span>
+                            </div>
+                          </div>
+                        </a>
+                        <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 px-5 pb-5">
+                          <button
+                            type="button"
+                            className={`flex h-12 items-center justify-center gap-2 rounded-xl px-4 text-sm font-black text-white transition ${lastAddedId === productKey(product) ? "bg-emerald-600" : "bg-blue-700 hover:bg-blue-600"}`}
+                            onClick={() => handleAddToCart(product)}
+                          >
+                            <ShoppingCart className="h-5 w-5" aria-hidden />
+                            {lastAddedId === productKey(product) ? "Agregado" : "Agregar al carrito"}
+                          </button>
+                          <a
+                            href={product.id ? `/catalogo/${product.id}` : `/catalogo?buscar=${encodeURIComponent(product.sku)}`}
+                            className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:border-blue-400 hover:text-blue-700 dark:border-white/15 dark:text-white"
+                            aria-label={`Ver detalle de ${product.name}`}
+                          >
+                            <ArrowRight className="h-5 w-5" aria-hidden />
+                          </a>
+                        </div>
+                      </article>
+                    ))}
+
+                    {catalogLoading ? (
+                      Array.from({ length: 4 }).map((_, index) => (
+                        <div key={`${row.key}-loading-${index}`} className="h-[470px] w-[290px] shrink-0 animate-pulse rounded-3xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/[0.04] sm:w-[330px] lg:w-[350px]" />
+                      ))
+                    ) : null}
+
+                    {!catalogLoading && products.length === 0 ? (
+                      <div className="flex h-40 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 text-center text-sm font-semibold text-slate-500 dark:border-white/15 dark:bg-white/[0.03] dark:text-blue-100/60">
+                        No encontramos productos para esta categoria por el momento.
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section id="eventos" className="mx-auto max-w-7xl scroll-mt-40 px-4 py-6 lg:px-8 lg:py-8">
         <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
@@ -411,78 +620,6 @@ export default function Homeicon() {
           ))}
         </div>
       </section>
-
-      <section id="para-ti" className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-9">
-        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="text-sm font-black uppercase text-coral">Home / Para ti</p>
-            <h2 className="mt-2 text-2xl font-black md:text-4xl">Productos Dahua del catalogo</h2>
-            <p className="mt-2 text-gray-600 dark:text-blue-100/65">Seleccionados desde tu inventario para instaladores, negocios y proyectos de seguridad.</p>
-          </div>
-          <a className="flex h-11 items-center gap-2 rounded-lg border border-blue-300 px-4 font-black text-blue-600 dark:border-blue-400/40 dark:text-blue-100" href="/catalogo">
-            Ver catalogo
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </a>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {catalogHighlights.map((product, index) => (
-            <article key={`${product.sku}-${product.model}`} className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-white/10 dark:bg-[#121827]">
-              <div className="relative flex h-56 items-center justify-center bg-white p-5">
-                {product.image ? (
-                  <div className="relative h-44 w-full overflow-hidden rounded-xl bg-slate-50">
-                    <Image
-                      className="object-cover"
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-44 items-center justify-center text-sm font-black uppercase tracking-widest text-gray-400">Sin imagen</div>
-                )}
-                <span className="absolute left-3 top-3 flex items-center gap-1 rounded bg-blue-700 px-3 py-1 text-xs font-black uppercase">
-                  <Star className="h-3.5 w-3.5 fill-white" aria-hidden />
-                  Top {index + 1}
-                </span>
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-black uppercase text-green-600 dark:text-green-300">{product.brand || "Dahua"}</p>
-                  <span className="rounded bg-coral px-2 py-1 text-xs font-black">{product.stock > 0 ? "Disponible" : "Por confirmar"}</span>
-                </div>
-                <h3 className="mt-3 min-h-20 text-lg font-black leading-tight text-gray-800 dark:text-blue-100">{product.name}</h3>
-                <p className="mt-3 text-sm text-gray-500 dark:text-blue-100/60">{product.category || "Catalogo Worldcam"}</p>
-                <p className="mt-1 text-sm text-gray-500 dark:text-white/70">
-                  Modelo <strong>{product.model || "Sin modelo"}</strong>
-                </p>
-                <p className="mt-1 text-sm text-gray-500 dark:text-white/70">
-                  SKU <strong>{product.sku}</strong>
-                </p>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <p className="text-xl font-black text-mint">{money(product.price)}</p>
-                  <p className="text-xs font-bold text-gray-500 dark:text-blue-100/55">Stock: {product.stock}</p>
-                </div>
-                <a
-                  className="mt-4 flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 text-sm font-black uppercase text-white"
-                  href={`/catalogo?buscar=${encodeURIComponent(product.model || product.sku || product.name)}`}
-                >
-                  Ver producto
-                  <PackageSearch className="h-4 w-4" aria-hidden />
-                </a>
-              </div>
-            </article>
-          ))}
-          {catalogHighlights.length === 0 ? (
-            <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm font-semibold text-gray-600 dark:border-white/10 dark:bg-[#121827] dark:text-blue-100/65 md:col-span-2 xl:col-span-4">
-              Cargando productos destacados del catalogo...
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      
 
       <section id="nuevos" className="scroll-mt-40 border-t border-gray-200 bg-slate-50 dark:border-white/10 dark:bg-[#080d19]">
         <div className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
