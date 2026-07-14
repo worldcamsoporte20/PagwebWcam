@@ -3880,3 +3880,126 @@ background:#03164C;
     flex-direction: column;
   }
 }
+
+/* Administration pages integrated from the Dulio branch. */
+.panelAdminContenedor,
+.loginAdminContenedor,
+.cambiarBannerContenedor {
+  min-height: 100vh;
+  background: #edf1fa;
+  color: #12141a;
+}
+
+.panelAdminEncabezado {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 40px;
+  background: linear-gradient(135deg, #03164c, #0f46af);
+  color: #fff;
+}
+
+.panelAdminLogo { display: flex; align-items: center; }
+.panelAdminTitulo { flex: 1; text-align: center; }
+.panelAdminTitulo h1 { margin: 0; font-size: 2rem; font-weight: 800; }
+.panelAdminTitulo p { margin: 6px 0 0; color: #dce8ff; }
+.panelAdminUsuario {
+  border-radius: 10px;
+  background: #fff;
+  padding: 12px 20px;
+  color: #022c96;
+  font-weight: 700;
+}
+
+.panelAdminContenido { width: 100%; max-width: 1400px; margin: auto; padding: 48px 28px; }
+.panelAdminGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.panelAdminTarjeta {
+  display: flex;
+  min-height: 170px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border: 2px solid #dbe6fb;
+  border-radius: 18px;
+  background: #fff;
+  padding: 28px 20px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(3, 22, 76, 0.07);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.panelAdminTarjeta:hover { transform: translateY(-4px); border-color: #0f46af; box-shadow: 0 14px 30px rgba(3, 22, 76, .13); }
+.panelAdminIcono { display: grid; width: 70px; height: 70px; place-items: center; border-radius: 18px; background: #edf4ff; color: #0f46af; }
+.panelAdminNombre { margin: 0; color: #12141a; font-size: 1rem; font-weight: 700; }
+
+.loginAdminContenedor { display: grid; place-items: center; padding: 40px 24px; background: linear-gradient(135deg, #0057d8, #1f8cff, #edf5ff); }
+.loginAdminTarjeta { display: flex; width: min(1100px, 100%); overflow: hidden; border-radius: 25px; background: #fff; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+.loginAdminLadoLogo,
+.loginAdminLadoFormulario { width: 50%; padding: 56px; }
+.loginAdminLadoLogo { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #03164c; color: #fff; text-align: center; }
+.loginAdminImagenLogo { width: min(320px, 100%); height: auto; object-fit: contain; }
+.loginAdminTituloEmpresa { margin: 32px 0 0; font-size: 1.7rem; }
+.loginAdminDescripcionEmpresa { margin: 12px 0 0; color: #dce8ff; }
+.loginAdminLadoFormulario { display: flex; flex-direction: column; justify-content: center; }
+.loginAdminTitulo { margin: 0; color: #03164c; font-size: 2.4rem; }
+.loginAdminSubtitulo { margin: 10px 0 30px; color: #687083; }
+.loginAdminFormulario { width: 100%; }
+.loginAdminGrupoCampo { margin-bottom: 22px; }
+.loginAdminEtiqueta { display: block; margin-bottom: 8px; color: #12141a; font-weight: 700; }
+.loginAdminCampoTexto { width: 100%; border: 2px solid #d8e7fb; border-radius: 10px; padding: 14px 16px; outline: none; }
+.loginAdminCampoTexto:focus { border-color: #0f46af; box-shadow: 0 0 0 3px rgba(15,70,175,.12); }
+.loginAdminBoton,
+.cambiarBannerBoton { width: 100%; border: 0; border-radius: 10px; background: #0f46af; padding: 15px 20px; color: #fff; font-weight: 800; cursor: pointer; }
+.loginAdminBoton:hover,
+.cambiarBannerBoton:hover { background: #072f79; }
+.loginAdminOlvido { align-self: center; margin-top: 24px; color: #0f46af; font-weight: 700; }
+
+.cambiarBannerContenedor { display: flex; justify-content: center; padding: 48px 24px; }
+.cambiarBannerTarjeta { width: min(760px, 100%); border-radius: 20px; background: #fff; padding: 40px; box-shadow: 0 16px 42px rgba(3,22,76,.12); }
+.cambiarBannerTitulo { margin: 0; color: #143d8d; font-size: 2.1rem; }
+.cambiarBannerTexto { margin: 10px 0 0; color: #626b7d; line-height: 1.6; }
+.cambiarBannerSeccion { width: 100%; margin-top: 30px; }
+.cambiarBannerSubtitulo { margin: 0 0 14px; color: #03164c; font-size: 1.35rem; }
+.cambiarBannerPreview { position: relative; display: grid; width: 100%; height: 300px; place-items: center; overflow: hidden; border: 3px dashed #d6dceb; border-radius: 14px; background: #f7f9fd; color: #778096; }
+.cambiarBannerImagen,
+.cambiarBannerMiniaturaImagen { object-fit: contain; }
+.cambiarBannerInput { width: 100%; margin: 16px 0; border: 1px solid #d8deeb; border-radius: 9px; padding: 12px; }
+.cambiarBannerBoton:disabled { opacity: .55; cursor: not-allowed; }
+.cambiarBannerEncabezadoLista { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.cambiarBannerCantidad { margin: 4px 0 0; color: #687083; font-size: .875rem; }
+.cambiarBannerGaleria { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.cambiarBannerElemento { overflow: hidden; border: 1px solid #d3ddf0; border-radius: 14px; background: #fff; }
+.cambiarBannerMiniatura { position: relative; width: 100%; min-height: 170px; background: #edf1fa; }
+.cambiarBannerElementoInfo { padding: 14px; }
+.cambiarBannerNombre { margin: 0 0 12px; color: #12141a; font-weight: 700; }
+.cambiarBannerBotonEliminar,
+.cambiarBannerBotonEliminarTodos { border: 0; border-radius: 9px; background: #e5192c; padding: 12px 16px; color: #fff; font-weight: 700; cursor: pointer; }
+.cambiarBannerBotonEliminar { width: 100%; }
+.cambiarBannerBotonEliminar:hover,
+.cambiarBannerBotonEliminarTodos:hover { background: #bd1020; }
+.cambiarBannerBotonEliminar:disabled,
+.cambiarBannerBotonEliminarTodos:disabled { opacity: .55; cursor: not-allowed; }
+.cambiarBannerEstadoLista { border: 1px dashed #d3ddf0; border-radius: 12px; padding: 25px; color: #687083; text-align: center; }
+.cambiarBannerMensaje { margin: 20px 0 0; text-align: center; font-weight: 700; }
+
+@media (max-width: 1100px) {
+  .panelAdminGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .panelAdminEncabezado { flex-direction: column; padding: 25px; }
+  .panelAdminGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .loginAdminTarjeta { flex-direction: column; }
+  .loginAdminLadoLogo,
+  .loginAdminLadoFormulario { width: 100%; padding: 38px 28px; }
+  .loginAdminImagenLogo { width: 220px; }
+  .cambiarBannerTarjeta { padding: 28px 20px; }
+  .cambiarBannerGaleria { grid-template-columns: 1fr; }
+  .cambiarBannerEncabezadoLista { align-items: stretch; flex-direction: column; }
+  .cambiarBannerBotonEliminarTodos { width: 100%; }
+}
+
+@media (max-width: 520px) {
+  .panelAdminGrid { grid-template-columns: 1fr; }
+}

@@ -46,9 +46,14 @@ type CatalogProduct = {
   image?: string;
 };
 
+type Banner = {
+  title: string;
+  image: string;
+};
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-const promoSlides = [
+const defaultPromoSlides: Banner[] = [
   {
     title: "Camaras solares 4G",
     image: "/images/promos/camaras-solares-4g.png",
@@ -145,6 +150,7 @@ function productKey(product: CatalogProduct) {
 
 export default function Homeicon() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [promoSlides, setPromoSlides] = useState<Banner[]>(defaultPromoSlides);
   const [catalogRows, setCatalogRows] = useState<Record<string, CatalogProduct[]>>({});
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
@@ -156,10 +162,12 @@ export default function Homeicon() {
   const slide = promoSlides[activeSlide];
 
   const goToPrevious = () => {
+    if (promoSlides.length === 0) return;
     setActiveSlide((current) => (current === 0 ? promoSlides.length - 1 : current - 1));
   };
 
   const goToNext = () => {
+    if (promoSlides.length === 0) return;
     setActiveSlide((current) => (current === promoSlides.length - 1 ? 0 : current + 1));
   };
 
@@ -186,9 +194,46 @@ export default function Homeicon() {
   };
 
   useEffect(() => {
-    const timer = window.setInterval(goToNext, 7000);
+    if (promoSlides.length <= 1) return;
+
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current === promoSlides.length - 1 ? 0 : current + 1));
+    }, 7000);
     return () => window.clearInterval(timer);
+  }, [promoSlides.length]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadBanners() {
+      try {
+        const response = await fetch(
+          `${apiBaseUrl || "http://localhost:4000"}/api/banner`,
+          { cache: "no-store" },
+        );
+        if (!response.ok) throw new Error("No se pudieron cargar los banners.");
+
+        const data: Banner[] = await response.json();
+        if (!active || !Array.isArray(data) || data.length === 0) return;
+
+        const version = Date.now();
+        setPromoSlides(data.map((banner) => ({
+          ...banner,
+          image: `${banner.image}${banner.image.includes("?") ? "&" : "?"}v=${version}`,
+        })));
+        setActiveSlide(0);
+      } catch (error) {
+        console.error("Error al cargar banners:", error);
+      }
+    }
+
+    loadBanners();
+    return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (activeSlide >= promoSlides.length) setActiveSlide(0);
+  }, [activeSlide, promoSlides.length]);
 
   useEffect(() => {
     let active = true;
