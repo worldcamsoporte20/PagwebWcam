@@ -3381,3 +3381,138 @@ select {
     font-size: 16px;
     font-weight: 600;
 }
+.cambiarBannerBotonEliminar {
+  width: 100%;
+  margin-top: 14px;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #e5192c;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cambiarBannerBotonEliminar:hover {
+  background: #bd1020;
+}
+
+.cambiarBannerBotonEliminar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.cambiarBannerSeccion {
+  width: 100%;
+  margin-top: 28px;
+}
+
+.cambiarBannerSubtitulo {
+  margin: 0 0 14px;
+  color: #03164c;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.cambiarBannerEncabezadoLista {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.cambiarBannerCantidad {
+  margin: 4px 0 0;
+  color: #515767;
+  font-size: 14px;
+}
+
+.cambiarBannerGaleria {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.cambiarBannerElemento {
+  overflow: hidden;
+  border: 1px solid #d3ddf0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(3, 22, 76, 0.08);
+}
+
+.cambiarBannerMiniatura {
+  position: relative;
+  width: 100%;
+  min-height: 170px;
+  background: #edf1fa;
+}
+
+.cambiarBannerMiniaturaImagen {
+  object-fit: contain;
+}
+
+.cambiarBannerElementoInfo {
+  padding: 14px;
+}
+
+.cambiarBannerNombre {
+  margin: 0 0 12px;
+  color: #12141a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.cambiarBannerBotonEliminar,
+.cambiarBannerBotonEliminarTodos {
+  border: none;
+  border-radius: 9px;
+  background: #e5192c;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cambiarBannerBotonEliminar {
+  width: 100%;
+  padding: 12px 15px;
+}
+
+.cambiarBannerBotonEliminarTodos {
+  padding: 11px 18px;
+}
+
+.cambiarBannerBotonEliminar:hover,
+.cambiarBannerBotonEliminarTodos:hover {
+  background: #bd1020;
+}
+
+.cambiarBannerBotonEliminar:disabled,
+.cambiarBannerBotonEliminarTodos:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cambiarBannerEstadoLista {
+  padding: 25px;
+  border: 1px dashed #d3ddf0;
+  border-radius: 12px;
+  color: #515767;
+  text-align: center;
+}
+
+@media (max-width: 750px) {
+  .cambiarBannerGaleria {
+    grid-template-columns: 1fr;
+  }
+
+  .cambiarBannerEncabezadoLista {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cambiarBannerBotonEliminarTodos {
+    width: 100%;
+  }
+}

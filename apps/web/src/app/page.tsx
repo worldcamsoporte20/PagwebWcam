@@ -44,22 +44,14 @@ type CatalogProduct = {
   image?: string;
 };
 
+type Banner = {
+  title: string;
+  image: string;
+};
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-const promoSlides = [
-  {
-    title: "Camaras solares 4G",
-    image: "/images/promos/camaras-solares-4g.png",
-  },
-  {
-    title: "Discos duros para videovigilancia",
-    image: "/images/promos/discos-duros-videovigilancia.png",
-  },
-  {
-    title: "Switches de alto rendimiento",
-    image: "/images/promos/switches-alto-rendimiento.png",
-  },
-];
+const bannersDefault: Banner[] = [];
 
 const courses = [
   {
@@ -110,6 +102,8 @@ function money(value: number) {
 export default function Homeicon() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [catalogHighlights, setCatalogHighlights] = useState<CatalogProduct[]>([]);
+  const [promoSlides, setPromoSlides] = useState<Banner[]>(bannersDefault);
+
   const dragStartX = useRef<number | null>(null);
   const dragDeltaX = useRef(0);
   const didSwipe = useRef(false);
@@ -117,54 +111,139 @@ export default function Homeicon() {
   const slide = promoSlides[activeSlide];
 
   const goToPrevious = () => {
-    setActiveSlide((current) => (current === 0 ? promoSlides.length - 1 : current - 1));
-  };
+  if (promoSlides.length === 0) return;
 
-  const goToNext = () => {
-    setActiveSlide((current) => (current === promoSlides.length - 1 ? 0 : current + 1));
-  };
+  setActiveSlide((current) =>
+    current === 0 ? promoSlides.length - 1 : current - 1
+  );
+};
 
-  useEffect(() => {
-    const timer = window.setInterval(goToNext, 7000);
-    return () => window.clearInterval(timer);
-  }, []);
+const goToNext = () => {
+  if (promoSlides.length === 0) return;
+
+  setActiveSlide((current) =>
+    current === promoSlides.length - 1 ? 0 : current + 1
+  );
+};
+
+ useEffect(() => {
+  if (promoSlides.length <= 1) {
+    return;
+  }
+
+  const timer = window.setInterval(() => {
+    setActiveSlide((current) =>
+      current === promoSlides.length - 1 ? 0 : current + 1
+    );
+  }, 7000);
+
+  return () => window.clearInterval(timer);
+}, [promoSlides.length]);
+
+
+useEffect(() => {
+  let activo = true;
+
+  async function cargarBanners() {
+    try {
+      const respuesta = await fetch(
+        `${apiBaseUrl || "http://localhost:4000"}/api/banner`,
+        {
+          cache: "no-store",
+        }
+      );
+      
+
+      if (!respuesta.ok) {
+        throw new Error("No se pudieron cargar los banners.");
+      }
+
+      const datos: Banner[] = await respuesta.json();
+
+if (!activo || !Array.isArray(datos)) {
+  return;
+}
+
+const version = Date.now();
+
+const bannersActualizados = datos.map((banner) => ({
+  ...banner,
+  image: `${banner.image}?v=${version}`,
+}));
+
+setPromoSlides(bannersActualizados);
+setActiveSlide(0);
+
+    } catch (error) {
+      console.error("Error al cargar banners:", error);
+      setPromoSlides([]);
+    }
+  }
+
+  cargarBanners();
+
+  return () => {
+    activo = false;
+  };
+}, []);
+
+useEffect(() => {
+  if (activeSlide >= promoSlides.length) {
+    setActiveSlide(0);
+  }
+}, [activeSlide, promoSlides.length]);
 
   useEffect(() => {
     let active = true;
-
+    
     async function loadCatalogHighlights() {
       try {
         const response = await fetch(`${apiBaseUrl}/api/catalog/products`);
         const data = await response.json();
         if (!active || !Array.isArray(data)) return;
 
-        const products = data
-          .map((product: CatalogProduct) => ({
-            ...product,
-            model: product.model || product.clave || "",
-          }))
-          .filter((product: CatalogProduct) => {
-            const text = `${product.name} ${product.brand} ${product.category} ${product.model} ${product.sku}`.toLowerCase();
-            return text.includes("dahua") || text.includes("dh-") || text.includes("dhi-");
-          })
-          .sort((a: CatalogProduct, b: CatalogProduct) => {
-            const aScore = Number(Boolean(a.image)) * 20 + Number(a.stock > 0) * 10 + Math.min(a.stock, 20);
-            const bScore = Number(Boolean(b.image)) * 20 + Number(b.stock > 0) * 10 + Math.min(b.stock, 20);
-            return bScore - aScore;
-          })
-          .slice(0, 4);
+      const products = data
+        .map((product: CatalogProduct) => ({
+          ...product,
+          model: product.model || product.clave || "",
+        }))
+        .filter((product: CatalogProduct) => {
+          const text = `${product.name} ${product.brand} ${product.category} ${product.model} ${product.sku}`.toLowerCase();
+          return (
+            text.includes("dahua") ||
+            text.includes("dh-") ||
+            text.includes("dhi-")
+          );
+        })
+        .sort((a: CatalogProduct, b: CatalogProduct) => {
+          const aScore =
+            Number(Boolean(a.image)) * 20 +
+            Number(a.stock > 0) * 10 +
+            Math.min(a.stock, 20);
 
-        setCatalogHighlights(products);
-      } catch {
-        setCatalogHighlights([]);
-      }
+          const bScore =
+            Number(Boolean(b.image)) * 20 +
+            Number(b.stock > 0) * 10 +
+            Math.min(b.stock, 20);
+
+          return bScore - aScore;
+        })
+        .slice(0, 4);
+
+      setCatalogHighlights(products);
+    } catch {
+      setCatalogHighlights([]);
     }
+  }
 
-    loadCatalogHighlights();
-    return () => {
-      active = false;
-    };
-  }, []);
+  loadCatalogHighlights();
+
+  return () => {
+    active = false;
+  };
+}, []);
+
+    
 
   const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) {
@@ -227,19 +306,24 @@ export default function Homeicon() {
             <div className="relative select-none overflow-hidden bg-white">
               <div className="relative w-full min-h-[280px] md:min-h-[320px] lg:min-h-[360px]" style={{ aspectRatio: "1774/484" }}>
                 <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden transition-opacity duration-500">
-                  <Image
-                    className="h-full w-full object-contain"
-                    src={slide.image}
-                    alt={slide.title}
-                    fill
-                    sizes="100vw"
-                    draggable={false}
-                    onError={(event) => {
-                      const target = event.target as HTMLImageElement;
-                      target.src = "/images/dahua-ptz-3d-flyer.png";
-                    }}
-                  />
-                </div>
+  {slide ? (
+    <Image
+  key={slide.image}
+  className="h-full w-full object-contain"
+  src={`${slide.image}&actualizacion=${Date.now()}`}
+  alt={slide.title}
+  fill
+  sizes="100vw"
+  draggable={false}
+    unoptimized
+
+/>
+  ) : (
+    <div className="flex h-full w-full items-center justify-center">
+      Cargando banners...
+    </div>
+  )}
+</div>
               </div>
 
               <button
@@ -250,7 +334,11 @@ export default function Homeicon() {
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
-                aria-label={`${slide.title}. Presiona para ver productos o desliza para cambiar promocion.`}
+                aria-label={
+  slide
+    ? `${slide.title}. Presiona para ver productos o desliza para cambiar promocion.`
+    : "Carrusel de promociones"
+}
               />
 
               <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1.5 shadow-soft backdrop-blur md:bottom-5 md:right-5 md:gap-2 md:px-3 md:py-2">
