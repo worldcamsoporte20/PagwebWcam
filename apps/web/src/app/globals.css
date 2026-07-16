@@ -2,33 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Alibaba Sans";
-  src: url("/fonts/alibaba-sans-regular.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Alibaba Sans";
-  src: url("/fonts/alibaba-sans-medium.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 500 600;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Alibaba Sans";
-  src: url("/fonts/alibaba-sans-bold.woff2") format("woff2");
-  font-style: normal;
-  font-weight: 700 900;
-  font-display: swap;
-}
-
 :root {
   color-scheme: light;
-  --font-sans: "Alibaba Sans", "Segoe UI", sans-serif;
 }
 
 html.dark,
@@ -93,21 +68,7 @@ body {
   overflow-x: hidden;
   background: #ffffff;
   color: #000000;
-  font-family: var(--font-sans);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-sans);
-  letter-spacing: -0.025em;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 html.dark body {
@@ -698,11 +659,13 @@ select {
 }
 
 
+
+
 /* ── DISTRIBUIDOR PAGE ── */
 .dist-page {
   background: #EDF1FA;        /* --fondo-secundario */
   min-height: 100vh;
-  font-family: var(--font-sans);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: #12141A;             /* --texto-principal */
 }
 
@@ -1041,7 +1004,7 @@ select {
 .suc-page {
   background: #EDF1FA;
   min-height: 100vh;
-  font-family: var(--font-sans);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: #12141A;
 }
 
@@ -1269,7 +1232,7 @@ select {
   gap: 28px;
   align-items: start;
 }
-
+.suc-card-info {}
 .suc-card-name {
   font-size: 20px;
   font-weight: 800;
@@ -1573,119 +1536,7 @@ background:#03164C;
 }
 
 .cupon-card-top{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:18px;
-
-    padding:22px;
 }
-
-.cupon-icon{
-
-    width:70px;
-
-    height:70px;
-
-    border-radius:50%;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    background:white;
-
-    border:2px solid var(--bordes);
-
-    flex-shrink:0;
-}
-
-.logo-cupon{
-
-    width:55px;
-
-    height:55px;
-
-    object-fit:contain;
-}
-
-.cupon-info{
-
-    flex:1;
-}
-
-.cupon-info h2{
-
-    color:var(--azul-oscuro);
-
-    font-size:24px;
-
-    margin-bottom:8px;
-}
-
-.cupon-info p{
-
-    color:var(--texto-secundario);
-
-    margin-bottom:6px;
-}
-
-.cupon-info span{
-
-    color:var(--rojo-principal);
-
-    font-weight:bold;
-}
-
-.ticket-line{
-
-    border-top:2px dashed #d9d9d9;
-}
-
-.cupon-footer{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:18px 22px;
-}
-
-.cupon-footer small{
-
-    color:#777;
-}
-
-.btn-aplicar{
-
-    background:var(--azul-principal);
-
-    color:white;
-
-    border:none;
-
-    padding:10px 22px;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-    transition:.3s;
-}
-
-.btn-aplicar:hover{
-
-    background:var(--azul-boton);
-
-    transform:scale(1.05);
-}
-
 /*=========================================================
                     FACTURACIÓN
 =========================================================*/
@@ -2092,7 +1943,7 @@ background:#03164C;
 }
 
 .thanks-section strong{
-    color: rgb(255, 0, 0);
+    color: red;
 }
 
 @media (max-width: 768px){
@@ -2413,11 +2264,13 @@ background:#03164C;
 
 .process-item{
 
+
     display:flex;
 
     align-items:center;
 
     gap:18px;
+
 
     padding:22px;
 }
@@ -2429,6 +2282,7 @@ background:#03164C;
     height:70px;
 
     border-radius:50%;
+
 
 }
 
@@ -2648,11 +2502,64 @@ background:#03164C;
 
     color:#123B8E;
 
+
     display:flex;
 
     justify-content:center;
 
     align-items:center;
+
+
+    background:white;
+
+    border:2px solid var(--bordes);
+
+    flex-shrink:0;
+}
+
+.logo-cupon{
+
+    width:55px;
+
+    height:55px;
+
+    object-fit:contain;
+}
+
+.cupon-info{
+
+    flex:1;
+}
+
+.cupon-info h2{
+
+    color:var(--azul-oscuro);
+
+    font-size:24px;
+
+    margin-bottom:8px;
+}
+
+.cupon-info p{
+
+    color:var(--texto-secundario);
+
+    margin-bottom:6px;
+}
+
+.cupon-info span{
+
+    color:var(--rojo-principal);
+
+    font-weight:bold;
+}
+
+.ticket-line{
+
+    border-top:2px dashed #d9d9d9;
+}
+
+.cupon-footer{
 }
 
 
@@ -2704,6 +2611,44 @@ background:#03164C;
 
 .faq-grid summary{
 
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+
+    padding:18px 22px;
+}
+
+.cupon-footer small{
+
+    color:#777;
+}
+
+.btn-aplicar{
+
+    background:var(--azul-principal);
+
+    color:white;
+
+    border:none;
+
+    padding:10px 22px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.btn-aplicar:hover{
+
+    background:var(--azul-boton);
+
+    transform:scale(1.05);
     cursor:pointer;
 
     list-style:none;
@@ -3102,81 +3047,44 @@ background:#03164C;
 =========================================================*/
 
 
+
+
 .topbar {
   background-color: #0a2472; /* mismo azul del header actual */
   padding: 8px 24px;
 }
 
-.warranty-content{
-
-    max-width:1200px;
-    margin:auto;
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:35px;
-
+.topbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.warranty-text{
-
-    margin:0;
-
-    color:#fff;
-
-    font-size:1.1rem;
-
-    font-weight:600;
-
-    flex:1;
-
+.topbar-buttons {
+  display: flex;
+  gap: 10px;
 }
 
-.warranty-buttons{
-
-    display:flex;
-    align-items:center;
-    gap:15px;
-    flex-shrink:0;
-
+.topbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #1e5fd9; /* azul más claro, combina bien con el fondo */
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
 }
 
-.warranty-btn{
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-
-    padding:12px 22px;
-
-    background:#fff;
-
-    color:#123B8E;
-
-    border-radius:50px;
-
-    text-decoration:none;
-
-    font-weight:700;
-
-    transition:.30s;
-
-    white-space:nowrap;
-
-    box-shadow:0 8px 18px rgba(0,0,0,.15);
-
-}
-
-.warranty-btn:hover{
-
-    background:#E53935;
-
-    color:#fff;
-
-    transform:translateY(-3px);
-
+.topbar-btn:hover {
+  background-color: #ffffff;
+  color: #0a2472;
 }
 
 .topbar-links {
@@ -3189,6 +3097,7 @@ background:#03164C;
   font-size: 13px;
   text-decoration: underline;
 }
+
 /* ====== FORZAR COLORES DE CUPONES ====== */
 
 .cupones-page{
@@ -3228,340 +3137,326 @@ background:#03164C;
     color:white !important;
 }
 
-/*=========================================================
-                AVISO DE PRIVACIDAD
-=========================================================*/
 
-.privacidad-container{
-    max-width:1200px;
-    margin:auto;
-    padding:60px 20px 80px;
+/* ================================================= */
+/*      POLITICAS DE GARANTIA - WORLDCAM             */
+/* ================================================= */
+
+/* ---------- CONTENEDOR GENERAL ---------- */
+
+.wc-politicas-page{
+    background: #caf6fc;
+    min-height:100vh;
+    padding:50px 20px 80px;
 }
+/* ================================================= */
+/*                     BANNER                        */
+/* ================================================= */
 
-/*================ HERO ================*/
+.wc-politicas-banner{
 
-.privacidad-hero{
+    max-width:1200px;
+    margin:0 auto 45px;
 
-    background:linear-gradient(135deg,#123B8E,#2C64D8);
+    background:linear-gradient(
+        135deg,
+        var(--azul-principal),
+        var(--azul-boton)
+    );
 
-    color:#fff;
-
-    border-radius:25px;
+    border-radius:28px;
 
     padding:60px;
 
     display:flex;
-
     justify-content:space-between;
-
     align-items:center;
+    gap:50px;
 
-    gap:40px;
+    color:white;
 
-    margin-bottom:70px;
-
-}
-
-.privacidad-hero .hero-content{
-
-    max-width:650px;
+    box-shadow:0 20px 45px rgba(2,44,150,.20);
 
 }
 
-.privacidad-hero .hero-badge{
+.wc-politicas-info{
+    flex:1;
+}
+
+.wc-politicas-etiqueta{
 
     display:inline-block;
 
-    background:rgba(255,255,255,.18);
+    background:rgba(255,255,255,.15);
 
-    padding:8px 18px;
+    padding:10px 22px;
 
     border-radius:50px;
 
     font-size:.85rem;
 
-    font-weight:600;
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin-bottom:25px;
+
+    color:white;
 
 }
 
-.privacidad-hero h1{
+.wc-politicas-banner h1{
 
-    font-size:3rem;
+    color:white;
 
-    margin:20px 0 15px;
+    font-size:58px;
 
-}
+    font-weight:800;
 
-.privacidad-hero p{
-
-    font-size:1.05rem;
-
-    line-height:1.8;
-
-}
-
-.privacidad-hero .hero-icon{
-
-    color:#fff;
-
-}
-
-/*================ TITULOS ================*/
-
-.privacidad-section{
-
-    margin-top:80px;
-
-}
-
-.privacidad-section h2{
-
-    text-align:center;
-
-    color:#123B8E;
-
-    font-size:2rem;
-
-    margin-bottom:12px;
-
-}
-
-.privacidad-section .subtitle{
-
-    text-align:center;
-
-    color:#666;
-
-    margin-bottom:45px;
-
-}
-
-/*================ GRID ================*/
-
-.cards-grid{
-
-    display:grid;
-
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-
-    gap:25px;
-
-}
-
-.info-card{
-
-    background:#fff;
-
-    border-radius:18px;
-
-    padding:35px 25px;
-
-    text-align:center;
-
-    border-top:5px solid #123B8E;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-
-    transition:.3s;
-
-}
-
-.info-card:hover{
-
-    transform:translateY(-8px);
-
-    border-top-color:#E53935;
-
-}
-
-.info-card .icon{
-
-    width:52px;
-
-    height:52px;
-
-    color:#123B8E;
+    line-height:1.05;
 
     margin-bottom:18px;
 
 }
 
-.info-card h3{
+.wc-politicas-banner p{
 
-    color:#123B8E;
+    color:#EDF1FA;
 
-    margin-bottom:10px;
+    font-size:22px;
 
-}
-
-.info-card p{
-
-    color:#555;
-
-    line-height:1.7;
+    line-height:1.6;
 
 }
 
-/*================ IMPORTANTE ================*/
-
-.warning-box{
-
-    margin-top:55px;
+.wc-politicas-logo-contenedor{
 
     display:flex;
-
-    align-items:center;
-
-    gap:30px;
-
-    padding:35px;
-
-    border-radius:18px;
-
-    border-left:8px solid #E53935;
-
-    background:#fff;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-
-}
-
-.warning-icon{
-
-    min-width:80px;
-
-    width:80px;
-
-    height:80px;
-
-    border-radius:50%;
-
-    background:#E53935;
-
-    color:#fff;
-
-    display:flex;
-
-    align-items:center;
 
     justify-content:center;
 
-    font-size:2rem;
-
-    font-weight:bold;
+    align-items:center;
 
 }
 
-.warning-box h2{
+.wc-politicas-logo{
 
-    color:#E53935;
+    width:240px;
 
-    margin-bottom:10px;
+    height:auto;
 
-}
-
-.warning-box p{
-
-    color:#444;
-
-    line-height:1.8;
+    transition:.30s;
 
 }
 
-/*================ COOKIES ================*/
+.wc-politicas-logo:hover{
 
-.cookies-card{
+    transform:scale(1.05);
 
-    margin-top:45px;
+}
 
-    background:#fff;
+/* ================================================= */
+/*                    TARJETAS                       */
+/* ================================================= */
+
+.wc-politicas-tarjeta{
+
+    max-width:1200px;
+
+    margin:0 auto 35px;
+
+    background:#FFF;
 
     border-radius:22px;
 
-    padding:50px;
+    padding:40px;
 
-    text-align:center;
+    border-top:6px solid var(--azul-principal);
 
-    box-shadow:0 12px 30px rgba(0,0,0,.08);
+    box-shadow:0 10px 35px rgba(0,0,0,.08);
 
-}
-
-.cookies-card svg{
-
-    color:#123B8E;
-
-    margin-bottom:25px;
+    transition:.30s;
 
 }
 
-.cookies-card p{
+.wc-politicas-tarjeta:hover{
 
-    max-width:900px;
+    transform:translateY(-5px);
 
-    margin:18px auto;
+    box-shadow:0 20px 45px rgba(0,0,0,.12);
 
-    color:#555;
+}
+
+/* ================================================= */
+/*                  TITULOS                          */
+/* ================================================= */
+
+.wc-politicas-tarjeta h2{
+
+    color:var(--azul-principal);
+
+    font-size:34px;
+
+    font-weight:700;
+
+    margin-bottom:28px;
+
+    padding-bottom:12px;
+
+    border-bottom:4px solid var(--azul-principal);
+
+    display:inline-block;
+
+}
+
+/* ================================================= */
+/*                 PARRAFOS                          */
+/* ================================================= */
+
+.wc-politicas-tarjeta p{
+
+    color:var(--texto-principal);
+
+    font-size:17px;
 
     line-height:1.9;
-
-}
-
-/*================ SEGURIDAD ================*/
-
-.security-box{
-
-    margin:90px 0;
-
-    background:linear-gradient(135deg,#123B8E,#2C64D8);
-
-    color:#fff;
-
-    border-radius:24px;
-
-    padding:55px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:35px;
-
-}
-
-.security-box svg{
-
-    min-width:70px;
-
-}
-
-.security-box h2{
 
     margin-bottom:15px;
 
 }
 
-.security-box p{
+/* ================================================= */
+/*                   LISTAS                          */
+/* ================================================= */
 
-    line-height:1.9;
+.wc-politicas-tarjeta ul{
+
+    margin-top:15px;
+
+    padding-left:28px;
 
 }
 
-/*================ CONTACTO ================*/
+.wc-politicas-tarjeta li{
 
-.thanks-section{
+    color:var(--texto-principal);
 
-    margin-top:90px;
+    font-size:16px;
 
-    background:#fff;
+    line-height:1.9;
 
-    border-radius:24px;
+    margin-bottom:15px;
 
-    padding:55px;
+}
 
-    text-align:center;
+/* ================================================= */
+/*                 RESPONSIVE                        */
+/* ================================================= */
 
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
+@media(max-width:900px){
 
+.wc-politicas-banner{
+
+flex-direction:column;
+
+text-align:center;
+
+padding:40px 30px;
+
+}
+
+.wc-politicas-banner h1{
+
+font-size:42px;
+
+}
+
+.wc-politicas-banner p{
+
+font-size:18px;
+
+}
+
+.wc-politicas-logo{
+
+width:180px;
+
+}
+
+.wc-politicas-tarjeta{
+
+padding:30px;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.wc-politicas-page{
+
+padding:20px 12px 60px;
+
+}
+
+.wc-politicas-banner{
+
+padding:30px 20px;
+
+}
+
+.wc-politicas-banner h1{
+
+font-size:32px;
+
+}
+
+.wc-politicas-banner p{
+
+font-size:16px;
+
+}
+
+.wc-politicas-tarjeta{
+
+padding:24px;
+
+}
+
+.wc-politicas-tarjeta h2{
+
+font-size:28px;
+
+}
+
+.wc-politicas-tarjeta p,
+.wc-politicas-tarjeta li{
+
+font-size:15px;
+
+}
+
+}
+
+/* ===========================
+   FORZAR ESTILOS POLÍTICAS
+=========================== */
+
+.wc-politicas-page *{
+    box-sizing:border-box;
+}
+
+.wc-politicas-page h1{
+    color:#FFFFFF !important;
+    font-size:58px !important;
+    font-weight:800 !important;
+    line-height:1.1 !important;
+}
+
+.wc-politicas-page h2{
+    color:#022C96 !important;
+    font-size:34px !important;
+    font-weight:700 !important;
 }
 
 .wc-politicas-page p{
@@ -3591,81 +3486,60 @@ background:#03164C;
         #0F46AF
     ) !important;
 }
+
 .warranty-bar{
     width:100%;
     background:linear-gradient(135deg,#123B8E,#0a2472);
     padding:18px 20px;
 }
 
-.thanks-section p{
-
-    max-width:800px;
-
-    margin:0 auto 25px;
-
-    color:#555;
-
-    line-height:1.9;
-
+.warranty-content{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
 }
 
-.thanks-section strong{
-
-    display:block;
-
-    color:#123B8E;
-
-    margin-top:10px;
-
-    font-size:1.05rem;
-
+.warranty-text{
+    color:#fff;
+    font-size:1rem;
+    font-weight:500;
+    margin:0;
 }
 
-/*================ ACTUALIZACION ================*/
-
-.update-card{
-
-    margin:70px auto 0;
-
-    max-width:450px;
-
-    text-align:center;
-
+.warranty-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
     background:#fff;
-
-    padding:35px;
-
-    border-radius:18px;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-
-}
-
-.update-card svg{
-
     color:#123B8E;
-
-    margin-bottom:15px;
-
+    text-decoration:none;
+    font-weight:700;
+    padding:12px 22px;
+    border-radius:50px;
+    transition:.3s;
+    box-shadow:0 8px 20px rgba(240, 239, 239, 0.18);
 }
 
-.update-card h3{
-
-    color:#123B8E;
-
-    margin-bottom:10px;
-
+.warranty-btn:hover{
+    background:#E53935;
+    color:#fff;
+    transform:translateY(-2px);
 }
 
-.update-card p{
+.warranty-btn svg{
+    transition:.3s;
+}
 
-    color:#666;
-
+.warranty-btn:hover svg{
+    transform:rotate(-20deg);
 }
 
 /*================ RESPONSIVE ================*/
 
-@media(max-width:992px){
+@media(max-width:768px){
 
     .warranty-content{
         flex-direction:column;
@@ -3690,316 +3564,548 @@ background:#03164C;
     color:#fff;
 }
 
-/*=========================================================
-                         SITE FOOTER
-=========================================================*/
+/* ============================================================
+   DARK MODE — páginas con CSS propio (no Tailwind)
+   ============================================================ */
 
-.site-footer {
-  width: 100%;
-  color: #fff;
-  background: #071b4d;
+/* Fondos de página completos */
+html.dark .dist-page,
+html.dark .suc-page,
+html.dark .cupones-page,
+html.dark .wc-politicas-page {
+  background: #0B0D12;
 }
 
-.footer-main {
-  padding: 52px 24px 44px;
+html.dark .facturacion-container,
+html.dark .garantia-container {
+  color: #F8FAFC;
 }
 
-.footer-inner {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(230px, 1fr) 2fr;
-  gap: 72px;
+/* Tarjetas / contenedores blancos → oscuros */
+html.dark .dist-container,
+html.dark .dist-input,
+html.dark .dist-select,
+html.dark .dist-textarea,
+html.dark .dist-volumen-card,
+html.dark .dist-upload-box,
+html.dark .dist-radio-option,
+html.dark .suc-horarios-banner,
+html.dark .suc-card,
+html.dark .suc-card-img,
+html.dark .suc-card-map,
+html.dark .cupon-card,
+html.dark .cupon-input input,
+html.dark .info-card,
+html.dark .step-card,
+html.dark .contact-card,
+html.dark .faq details,
+html.dark .faq-grid details,
+html.dark .thanks-section,
+html.dark .warning-box,
+html.dark .important-card,
+html.dark .policy-card,
+html.dark .large-card,
+html.dark .wc-politicas-tarjeta,
+html.dark .stat-card {
+  background: #12141A !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-.footer-brand p {
-  max-width: 320px;
-  margin: 16px 0 22px;
-  color: #c8d3ed;
-  font-size: 0.95rem;
-  line-height: 1.65;
+/* Texto principal dentro de esas tarjetas (color heredado) */
+html.dark .dist-container,
+html.dark .suc-card,
+html.dark .cupon-card,
+html.dark .info-card,
+html.dark .step-card,
+html.dark .contact-card,
+html.dark .faq,
+html.dark .faq-grid,
+html.dark .thanks-section,
+html.dark .warning-box,
+html.dark .important-card,
+html.dark .policy-card,
+html.dark .large-card,
+html.dark .wc-politicas-tarjeta,
+html.dark .stat-card {
+  color: #F8FAFC;
 }
 
-.footer-logo {
-  color: #fff;
-  display: inline-block;
-  font-size: 2.25rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  text-decoration: none;
+/* Títulos con color de marca — se dejan legibles en oscuro */
+html.dark .cupones-page h1,
+html.dark .cupones-page h2,
+html.dark .wc-politicas-page h2,
+html.dark .facturacion-section h2,
+html.dark .garantia-section h2,
+html.dark .info-card h3,
+html.dark .step-card h3,
+html.dark .contact-card h3,
+html.dark .faq summary,
+html.dark .large-card h2,
+html.dark .card-header h2,
+html.dark .policy-card h3,
+html.dark .suc-card-name,
+html.dark .suc-horarios-title,
+html.dark .dist-section-title {
+  color: #7CA6F0 !important;
 }
 
-.footer-socials {
-  display: flex;
-  gap: 12px;
+/* Párrafos y texto secundario (gris) */
+html.dark .cupones-page p,
+html.dark .wc-politicas-page p,
+html.dark .wc-politicas-page li,
+html.dark .info-card p,
+html.dark .step-card p,
+html.dark .contact-card p,
+html.dark .faq p,
+html.dark .faq-grid p,
+html.dark .facturacion-section .subtitle,
+html.dark .garantia-section .subtitle,
+html.dark .check-list li,
+html.dark .important-card p,
+html.dark .warning-box p,
+html.dark .dist-label,
+html.dark .dist-upload-hint,
+html.dark .suc-card-address,
+html.dark .suc-horario-cerrado,
+html.dark .cupones-page small {
+  color: #9CA3AF !important;
 }
 
-.footer-contact {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 18px;
-  margin-bottom: 22px;
+/* Inputs y bordes de formularios */
+html.dark .dist-input,
+html.dark .dist-select,
+html.dark .dist-textarea,
+html.dark .dist-hr,
+html.dark .suc-hr,
+html.dark .cupon-input input {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #F8FAFC !important;
+  background: #12141A !important;
 }
 
-.footer-contact a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #fff;
-  font-size: 0.92rem;
-  font-weight: 700;
-  text-decoration: none;
+html.dark .dist-radio-option.active {
+  background: rgba(2, 44, 150, 0.3) !important;
+  color: #93C5FD !important;
 }
 
-.footer-contact a:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+/* Sección TikTok */
+html.dark .tiktok-heading h2 {
+  color: #F8FAFC !important;
 }
 
-.footer-contact .footer-whatsapp {
-  color: #55df83;
+html.dark .tiktok-heading p {
+  color: #9CA3AF !important;
 }
 
-.footer-socials a {
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255,255,255,.24);
-  border-radius: 50%;
-  color: #fff;
-  font-size: 1.1rem;
-  transition: background-color .25s ease, border-color .25s ease, transform .25s ease;
+html.dark .tiktok-label {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #fca5a5 !important;
 }
 
-.footer-socials a:hover {
-  background: #e53935;
-  border-color: #e53935;
-  transform: translateY(-3px);
-}
+/* =======================================================
+   PANEL ADMINISTRADOR
+======================================================= */
 
-.footer-socials a:focus-visible,
-.footer-links a:focus-visible,
-.footer-logo:focus-visible {
-  outline: 3px solid #fff;
-  outline-offset: 4px;
-}
-
-.footer-sitemap {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(130px, 1fr));
-  gap: 36px;
-}
-
-.footer-links h2 {
-  margin: 0 0 18px;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 800;
-}
-
-.footer-links ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.footer-links li + li {
-  margin-top: 11px;
-}
-
-.footer-links a {
-  color: #c8d3ed;
-  font-size: 0.92rem;
-  text-decoration: none;
-  transition: color .2s ease;
-}
-
-.footer-links a:hover {
-  color: #fff;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.footer-bottom {
-  padding: 18px 24px;
-  border-top: 1px solid rgba(255,255,255,.13);
-  text-align: center;
-}
-
-.footer-bottom p {
-  margin: 0;
-  color: #aebddd;
-  font-size: 0.84rem;
-}
-
-@media (max-width: 800px) {
-  .footer-inner {
-    grid-template-columns: 1fr;
-    gap: 42px;
-  }
-
-  .footer-brand {
-    text-align: center;
-  }
-
-  .footer-brand p {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .footer-socials {
-    justify-content: center;
-  }
-
-  .footer-contact {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 560px) {
-  .footer-main {
-    padding: 42px 20px 36px;
-  }
-
-  .footer-logo {
-    font-size: 1.9rem;
-  }
-
-  .footer-sitemap {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    text-align: center;
-  }
-
-  .warranty-buttons {
-    width: 100%;
-    flex-direction: column;
-  }
-}
-
-/* Administration pages integrated from the Dulio branch. */
-.panelAdminContenedor,
-.loginAdminContenedor,
-.cambiarBannerContenedor {
+.panelAdminContenedor {
   min-height: 100vh;
-  background: #edf1fa;
-  color: #12141a;
+  background: #f4f7fc;
 }
 
 .panelAdminEncabezado {
+  width: 100%;
+  background: linear-gradient(90deg, #022C96, #0F46AF);
+  padding: 20px 40px;
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 24px 40px;
-  background: linear-gradient(135deg, #03164c, #0f46af);
-  color: #fff;
+  justify-content: space-between;
+  border-bottom: 4px solid #ffffff;
 }
 
-.panelAdminLogo { display: flex; align-items: center; }
-.panelAdminTitulo { flex: 1; text-align: center; }
-.panelAdminTitulo h1 { margin: 0; font-size: 2rem; font-weight: 800; }
-.panelAdminTitulo p { margin: 6px 0 0; color: #dce8ff; }
+.panelAdminLogo {
+  display: flex;
+  align-items: center;
+}
+
+.panelAdminTitulo {
+  text-align: center;
+  flex: 1;
+}
+
+.panelAdminTitulo h1 {
+  color: white;
+  font-size: 34px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.panelAdminTitulo p {
+  color: #dce8ff;
+  font-size: 15px;
+}
+
 .panelAdminUsuario {
-  border-radius: 10px;
-  background: #fff;
+  background: white;
   padding: 12px 20px;
-  color: #022c96;
-  font-weight: 700;
+  border-radius: 10px;
+  font-weight: bold;
+  color: #022C96;
+  border: 2px solid #dce6ff;
 }
 
-.panelAdminContenido { width: 100%; max-width: 1400px; margin: auto; padding: 48px 28px; }
-.panelAdminGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.panelAdminContenido {
+  width: 100%;
+  max-width: 1400px;
+  margin: auto;
+  padding: 50px 30px;
+}
+
+.panelAdminGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
 .panelAdminTarjeta {
-  display: flex;
-  min-height: 170px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
+  background: white;
   border: 2px solid #dbe6fb;
   border-radius: 18px;
-  background: #fff;
-  padding: 28px 20px;
-  text-align: center;
+  padding: 35px 20px;
   text-decoration: none;
-  box-shadow: 0 8px 24px rgba(3, 22, 76, 0.07);
-  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .05);
+  transition: .2s;
 }
-.panelAdminTarjeta:hover { transform: translateY(-4px); border-color: #0f46af; box-shadow: 0 14px 30px rgba(3, 22, 76, .13); }
-.panelAdminIcono { display: grid; width: 70px; height: 70px; place-items: center; border-radius: 18px; background: #edf4ff; color: #0f46af; }
-.panelAdminNombre { margin: 0; color: #12141a; font-size: 1rem; font-weight: 700; }
 
-.loginAdminContenedor { display: grid; place-items: center; padding: 40px 24px; background: linear-gradient(135deg, #0057d8, #1f8cff, #edf5ff); }
-.loginAdminTarjeta { display: flex; width: min(1100px, 100%); overflow: hidden; border-radius: 25px; background: #fff; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
-.loginAdminLadoLogo,
-.loginAdminLadoFormulario { width: 50%; padding: 56px; }
-.loginAdminLadoLogo { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #03164c; color: #fff; text-align: center; }
-.loginAdminImagenLogo { width: min(320px, 100%); height: auto; object-fit: contain; }
-.loginAdminTituloEmpresa { margin: 32px 0 0; font-size: 1.7rem; }
-.loginAdminDescripcionEmpresa { margin: 12px 0 0; color: #dce8ff; }
-.loginAdminLadoFormulario { display: flex; flex-direction: column; justify-content: center; }
-.loginAdminTitulo { margin: 0; color: #03164c; font-size: 2.4rem; }
-.loginAdminSubtitulo { margin: 10px 0 30px; color: #687083; }
-.loginAdminFormulario { width: 100%; }
-.loginAdminGrupoCampo { margin-bottom: 22px; }
-.loginAdminEtiqueta { display: block; margin-bottom: 8px; color: #12141a; font-weight: 700; }
-.loginAdminCampoTexto { width: 100%; border: 2px solid #d8e7fb; border-radius: 10px; padding: 14px 16px; outline: none; }
-.loginAdminCampoTexto:focus { border-color: #0f46af; box-shadow: 0 0 0 3px rgba(15,70,175,.12); }
-.loginAdminBoton,
-.cambiarBannerBoton { width: 100%; border: 0; border-radius: 10px; background: #0f46af; padding: 15px 20px; color: #fff; font-weight: 800; cursor: pointer; }
-.loginAdminBoton:hover,
-.cambiarBannerBoton:hover { background: #072f79; }
-.loginAdminOlvido { align-self: center; margin-top: 24px; color: #0f46af; font-weight: 700; }
+.panelAdminTarjeta:hover {
+  border-color: #0F46AF;
+  background: #f8fbff;
+}
 
-.cambiarBannerContenedor { display: flex; justify-content: center; padding: 48px 24px; }
-.cambiarBannerTarjeta { width: min(760px, 100%); border-radius: 20px; background: #fff; padding: 40px; box-shadow: 0 16px 42px rgba(3,22,76,.12); }
-.cambiarBannerTitulo { margin: 0; color: #143d8d; font-size: 2.1rem; }
-.cambiarBannerTexto { margin: 10px 0 0; color: #626b7d; line-height: 1.6; }
-.cambiarBannerSeccion { width: 100%; margin-top: 30px; }
-.cambiarBannerSubtitulo { margin: 0 0 14px; color: #03164c; font-size: 1.35rem; }
-.cambiarBannerPreview { position: relative; display: grid; width: 100%; height: 300px; place-items: center; overflow: hidden; border: 3px dashed #d6dceb; border-radius: 14px; background: #f7f9fd; color: #778096; }
-.cambiarBannerImagen,
-.cambiarBannerMiniaturaImagen { object-fit: contain; }
-.cambiarBannerInput { width: 100%; margin: 16px 0; border: 1px solid #d8deeb; border-radius: 9px; padding: 12px; }
-.cambiarBannerBoton:disabled { opacity: .55; cursor: not-allowed; }
-.cambiarBannerEncabezadoLista { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.cambiarBannerCantidad { margin: 4px 0 0; color: #687083; font-size: .875rem; }
-.cambiarBannerGaleria { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-.cambiarBannerElemento { overflow: hidden; border: 1px solid #d3ddf0; border-radius: 14px; background: #fff; }
-.cambiarBannerMiniatura { position: relative; width: 100%; min-height: 170px; background: #edf1fa; }
-.cambiarBannerElementoInfo { padding: 14px; }
-.cambiarBannerNombre { margin: 0 0 12px; color: #12141a; font-weight: 700; }
-.cambiarBannerBotonEliminar,
-.cambiarBannerBotonEliminarTodos { border: 0; border-radius: 9px; background: #e5192c; padding: 12px 16px; color: #fff; font-weight: 700; cursor: pointer; }
-.cambiarBannerBotonEliminar { width: 100%; }
-.cambiarBannerBotonEliminar:hover,
-.cambiarBannerBotonEliminarTodos:hover { background: #bd1020; }
-.cambiarBannerBotonEliminar:disabled,
-.cambiarBannerBotonEliminarTodos:disabled { opacity: .55; cursor: not-allowed; }
-.cambiarBannerEstadoLista { border: 1px dashed #d3ddf0; border-radius: 12px; padding: 25px; color: #687083; text-align: center; }
-.cambiarBannerMensaje { margin: 20px 0 0; text-align: center; font-weight: 700; }
+.panelAdminIcono {
+  width: 75px;
+  height: 75px;
+  margin: auto;
+  margin-bottom: 20px;
+  background: #edf4ff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #022C96;
+}
+
+.panelAdminNombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: #12141A;
+  line-height: 1.4;
+}
 
 @media (max-width: 1100px) {
-  .panelAdminGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .panelAdminGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .panelAdminTitulo h1 {
+    font-size: 28px;
+  }
 }
 
 @media (max-width: 768px) {
-  .panelAdminEncabezado { flex-direction: column; padding: 25px; }
-  .panelAdminGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .loginAdminTarjeta { flex-direction: column; }
-  .loginAdminLadoLogo,
-  .loginAdminLadoFormulario { width: 100%; padding: 38px 28px; }
-  .loginAdminImagenLogo { width: 220px; }
-  .cambiarBannerTarjeta { padding: 28px 20px; }
-  .cambiarBannerGaleria { grid-template-columns: 1fr; }
-  .cambiarBannerEncabezadoLista { align-items: stretch; flex-direction: column; }
-  .cambiarBannerBotonEliminarTodos { width: 100%; }
+  .panelAdminEncabezado {
+    flex-direction: column;
+    gap: 20px;
+    padding: 25px;
+  }
+
+  .panelAdminTitulo {
+    order: 2;
+  }
+
+  .panelAdminUsuario {
+    order: 3;
+  }
+
+  .panelAdminGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .panelAdminTarjeta {
+    padding: 25px 15px;
+  }
+
+  .panelAdminIcono {
+    width: 65px;
+    height: 65px;
+  }
+
+  .panelAdminNombre {
+    font-size: 14px;
+  }
 }
 
-@media (max-width: 520px) {
-  .panelAdminGrid { grid-template-columns: 1fr; }
+@media (max-width: 500px) {
+  .panelAdminGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .panelAdminTitulo h1 {
+    font-size: 24px;
+  }
+
+  .panelAdminTitulo p {
+    font-size: 14px;
+  }
+}
+
+/* =======================================================
+   LOGIN ADMINISTRADOR
+======================================================= */
+
+.loginAdminContenedor {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #0057d8, #1f8cff, #edf5ff);
+}
+
+.loginAdminTarjeta {
+  width: 1100px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 25px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .18);
+}
+
+.loginAdminLadoLogo {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+  background: #ffffff;
+}
+
+.loginAdminImagenLogo {
+  width: 320px;
+  height: auto;
+}
+
+.loginAdminTituloEmpresa {
+  margin-top: 35px;
+  font-size: 30px;
+  color: #0057d8;
+  font-weight: 700;
+}
+
+.loginAdminDescripcionEmpresa {
+  margin-top: 15px;
+  font-size: 17px;
+  color: #666;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.loginAdminLadoFormulario {
+  width: 50%;
+  background: #f7fbff;
+  padding: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.loginAdminTitulo {
+  font-size: 40px;
+  color: #0057d8;
+  margin-bottom: 10px;
+}
+
+.loginAdminSubtitulo {
+  color: #777;
+  margin-bottom: 40px;
+  font-size: 17px;
+}
+
+.loginAdminFormulario {
+  width: 100%;
+}
+
+.loginAdminGrupoCampo {
+  margin-bottom: 25px;
+}
+
+.loginAdminEtiqueta {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #0047b3;
+}
+
+.loginAdminCampoTexto {
+  width: 100%;
+  padding: 18px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 2px solid #d8e7fb;
+  outline: none;
+  transition: .3s;
+  background: #fff;
+}
+
+.loginAdminCampoTexto:focus {
+  border-color: #0077ff;
+  box-shadow: 0 0 12px rgba(0, 119, 255, .2);
+}
+
+.loginAdminBoton {
+  width: 100%;
+  margin-top: 10px;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  background: #0077ff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.loginAdminBoton:hover {
+  background: #005fd0;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(0, 102, 255, .3);
+}
+
+.loginAdminOlvido {
+  margin-top: 25px;
+  text-align: center;
+  text-decoration: none;
+  color: #0077ff;
+  font-weight: 500;
+}
+
+.loginAdminOlvido:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .loginAdminTarjeta {
+    flex-direction: column;
+  }
+
+  .loginAdminLadoLogo {
+    width: 100%;
+    padding: 40px;
+  }
+
+  .loginAdminLadoFormulario {
+    width: 100%;
+    padding: 40px;
+  }
+
+  .loginAdminImagenLogo {
+    width: 220px;
+  }
+
+  .loginAdminTitulo {
+    font-size: 32px;
+  }
+}
+
+/* ===========================
+   CAMBIAR IMAGEN DE INICIO
+=========================== */
+
+.cambiarBannerContenedor {
+  min-height: 100vh;
+  background: #EDF1FA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.cambiarBannerTarjeta {
+  width: 700px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 35px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, .12);
+}
+
+.cambiarBannerTitulo {
+  color: #143D8D;
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.cambiarBannerTexto {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.cambiarBannerPreview {
+  width: 100%;
+  height: 320px;
+  border: 3px dashed #D6DCEB;
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #F8FAFD;
+  color: #888;
+  margin-bottom: 25px;
+}
+
+.cambiarBannerImagen {
+  object-fit: contain;
+}
+
+.cambiarBannerInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  cursor: pointer;
+}
+
+.cambiarBannerBoton {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #143D8D;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.cambiarBannerBoton:hover {
+  background: #0F3274;
+}
+
+.cambiarBannerBoton:disabled {
+  background: #8EA7D9;
+  cursor: not-allowed;
+}
+
+.cambiarBannerMensaje {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
 }

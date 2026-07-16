@@ -23,6 +23,7 @@ import {
   BarChart3,
   Newspaper,
   Wrench,
+  GraduationCap,
 } from "lucide-react";
 
 const modulos = [
@@ -140,6 +141,11 @@ const modulos = [
     icono: <ShoppingCart size={38} />,
     ruta: "#",
   },
+  {
+  nombre: "Cursos",
+  icono: <GraduationCap size={38} />,
+  ruta: "/cursos_panel",
+},
 ];
 
 export default function PanelAdministrador() {

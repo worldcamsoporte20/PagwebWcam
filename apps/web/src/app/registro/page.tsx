@@ -2,12 +2,7 @@
 
 import { Building2, FileText, Lock, Mail, MapPin, Phone, User, UserPlus } from "lucide-react";
 import { useState } from "react";
-
-const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Catalogo", href: "/catalogo" },
-  { label: "Promociones", href: "/promociones" },
-];
+import SiteHeader from "@/components/SiteHeader"; // 👈 AJUSTA esta ruta a donde tengas tu SiteHeader real
 
 const mexicanStates = [
   "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas",
@@ -173,31 +168,11 @@ export default function RegistroPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 text-ink dark:bg-[#080d19] dark:text-white">
-      <header className="bg-ink text-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8">
-          <a href="/" className="block">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-mint">Worldcam de Mexico</p>
-            <h1 className="mt-1 text-2xl font-black">Crear cuenta</h1>
-          </a>
-          <nav className="flex flex-wrap gap-2">
-            {navItems.map((item) => (
-              <a
-                key={item.href}
-                className="rounded-lg bg-white/10 px-4 py-2 text-sm font-black uppercase text-white hover:bg-white/15"
-                href={item.href}
-              >
-                {item.label}
-              </a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2 text-sm font-semibold text-white/80">
-            <Phone className="h-4 w-4 text-mint" aria-hidden />
-            221 653 1107
-          </div>
-        </div>
-      </header>
+      <SiteHeader active="home" />
 
       <section className="mx-auto max-w-2xl px-4 py-10 md:px-0">
+        <h1 className="mb-6 text-2xl font-black">Crear cuenta</h1>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-soft dark:border-white/10 dark:bg-[#0d1526]">
             <div className="grid gap-2 sm:grid-cols-2">
