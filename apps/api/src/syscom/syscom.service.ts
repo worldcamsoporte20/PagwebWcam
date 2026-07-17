@@ -79,6 +79,7 @@ export type SyscomCatalogProduct = {
   price: number;
   category: string;
   image?: string;
+  description?: string;
 };
 
 type SyscomExchangeRateResponse = {
@@ -518,6 +519,7 @@ export class SyscomService {
       price: this.pickPrice(product) ?? 0,
       category: this.pickCategory(product),
       image: this.pickImage(product),
+      description: this.cleanDescription(product.descripcion ?? ""),
     };
   }
 

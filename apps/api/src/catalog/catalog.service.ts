@@ -3,7 +3,10 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import { CacheService } from "../common/cache.service";
 import { OdooProduct, OdooService } from "../odoo/odoo.service";
+import { PchCatalogProduct, PchService } from "../pch/pch.service";
 import { SyscomCatalogProduct, SyscomService } from "../syscom/syscom.service";
+import { TecnosinergiaCatalogProduct, TecnosinergiaService } from "../tecnosinergia/tecnosinergia.service";
+import { TvcCatalogProduct, TvcService } from "../tvc/tvc.service";
 
 type AdvisorProduct = {
   name: string;
@@ -45,7 +48,7 @@ export type CatalogProductsPageResult = CatalogProductsResult & {
 };
 
 export type CatalogWarehouseAvailability = {
-  id: "wcam" | "tvc" | "syscom";
+  id: "wcam" | "tvc" | "syscom" | "tecnosinergia" | "pch";
   label: string;
   stock: number | null;
   status: "active" | "pending" | "unconfigured" | "error";
@@ -56,11 +59,21 @@ export type CatalogWarehouseAvailability = {
 };
 
 type CatalogProductSource = OdooProduct & {
-  source?: "odoo" | "syscom" | "merged";
+  source?: "odoo" | "syscom" | "tvc" | "tecnosinergia" | "pch" | "merged";
   syscomId?: string;
   syscomModel?: string;
   syscomStock?: number;
+  tvcId?: string;
+  tvcModel?: string;
+  tvcStock?: number;
+  tecnosinergiaId?: string;
+  tecnosinergiaModel?: string;
+  tecnosinergiaStock?: number;
+  pchId?: string;
+  pchModel?: string;
+  pchStock?: number;
   wcamStock?: number;
+  descriptionPriority?: number;
   syscomCharacteristics?: string[];
   syscomTechnicalImages?: string[];
   syscomTechnicalHtml?: string;
@@ -79,6 +92,9 @@ export class CatalogService {
     private readonly cache: CacheService,
     private readonly odoo: OdooService,
     private readonly syscom: SyscomService,
+    private readonly tvc: TvcService,
+    private readonly tecnosinergia: TecnosinergiaService,
+    private readonly pch: PchService,
   ) {}
 
   async findProducts(): Promise<OdooProduct[]> {
@@ -87,7 +103,7 @@ export class CatalogService {
   }
 
   async findProductsResult(): Promise<CatalogProductsResult> {
-    const cacheKey = "catalog:products:all:v15";
+    const cacheKey = this.fullCatalogCacheKey();
     if (this.fullCatalogMemory) {
       return { products: this.fullCatalogMemory, status: "odoo" };
     }
@@ -123,8 +139,13 @@ export class CatalogService {
         this.cache.setJson(cacheKey, migratedCatalog, 24 * 60 * 60),
         this.writeFullCatalogFile(migratedCatalog),
       ]);
+      this.startFullCatalogBuild(migratedCatalog, cacheKey);
       this.logger.log(`Migrated ${migratedCatalog.length} cached products to MXN`);
-      return { products: migratedCatalog, status: "odoo" };
+      return {
+        products: migratedCatalog,
+        status: "odoo",
+        message: "Catalogo completo cargandose en segundo plano.",
+      };
     }
 
     try {
@@ -138,6 +159,7 @@ export class CatalogService {
           source: "odoo" as const,
           wcamStock: product.stock,
           syscomStock: 0,
+          tecnosinergiaStock: 0,
         }));
 
       if (!cachedBase) {
@@ -214,7 +236,9 @@ export class CatalogService {
       if (sort === "price-desc") return b.price - a.price;
       if (sort === "name-asc") return a.product.name.localeCompare(b.product.name);
       if (sort === "stock-desc") return b.stock - a.stock;
-      return a.price - b.price;
+      const aSortablePrice = a.price > 0 ? a.price : Number.POSITIVE_INFINITY;
+      const bSortablePrice = b.price > 0 ? b.price : Number.POSITIVE_INFINITY;
+      return aSortablePrice - bSortablePrice;
     });
 
     const pageResult = {
@@ -342,13 +366,28 @@ export class CatalogService {
     this.fullCatalogBuild = (async () => {
       const startedAt = Date.now();
       try {
-        this.logger.log("Building full catalog with Syscom products...");
-        const syscomProducts = await this.syscom.getCatalogProducts();
-        const mergedProducts = this.mergeSyscomCatalog(baseProducts, syscomProducts);
+        this.logger.log("Building full catalog with Syscom, TVC and PCH products...");
+        const [syscomProducts, pchProducts] = await Promise.all([
+          this.syscom.getCatalogProducts(),
+          this.pch.getCatalogProducts(),
+        ]);
+        const withSyscomProducts = this.mergeSyscomCatalog(baseProducts, syscomProducts);
+        const mergedProducts = this.mergePchCatalog(withSyscomProducts, pchProducts);
         this.fullCatalogMemory = mergedProducts;
         await this.cache.setJson(cacheKey, mergedProducts, 24 * 60 * 60);
         await this.writeFullCatalogFile(mergedProducts);
-        this.logger.log(`Full catalog ready: ${mergedProducts.length} products in ${Date.now() - startedAt}ms`);
+        this.logger.log(`Base catalog with PCH ready: ${mergedProducts.length} products in ${Date.now() - startedAt}ms`);
+
+        const [tvcProducts, tecnosinergiaProducts] = await Promise.all([
+          this.tvc.getCatalogProducts(),
+          this.tecnosinergia.getCatalogProducts(),
+        ]);
+        const withTvcProducts = this.mergeTvcCatalog(mergedProducts, tvcProducts);
+        const fullProducts = this.mergeTecnosinergiaCatalog(withTvcProducts, tecnosinergiaProducts);
+        this.fullCatalogMemory = fullProducts;
+        await this.cache.setJson(cacheKey, fullProducts, 24 * 60 * 60);
+        await this.writeFullCatalogFile(fullProducts);
+        this.logger.log(`Full catalog ready: ${fullProducts.length} products in ${Date.now() - startedAt}ms`);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Syscom catalog build failed";
         this.logger.warn(`Full catalog build failed: ${message}`);
@@ -359,7 +398,26 @@ export class CatalogService {
   }
 
   private fullCatalogFilePath() {
-    return path.join(process.cwd(), ".cache", "catalog-products-all-v15.json");
+    const suffix = [
+      this.tvc.isConfigured() ? "tvc" : "",
+      this.tecnosinergia.isConfigured() ? "tecnosinergia" : "",
+      this.pch.isConfigured() ? "pch" : "",
+    ]
+      .filter(Boolean)
+      .join("-");
+    const version = suffix ? `v22-${suffix}` : "v22";
+    return path.join(process.cwd(), ".cache", `catalog-products-all-${version}.json`);
+  }
+
+  private fullCatalogCacheKey() {
+    const suffix = [
+      this.tvc.isConfigured() ? "tvc" : "",
+      this.tecnosinergia.isConfigured() ? "tecnosinergia" : "",
+      this.pch.isConfigured() ? "pch" : "",
+    ]
+      .filter(Boolean)
+      .join(":");
+    return suffix ? `catalog:products:all:v22:${suffix}` : "catalog:products:all:v22";
   }
 
   private async readFullCatalogFile() {
@@ -389,7 +447,11 @@ export class CatalogService {
       source: "odoo" as const,
       wcamStock: product.stock,
       syscomStock: 0,
+      tvcStock: 0,
+      tecnosinergiaStock: 0,
+      pchStock: 0,
       priceCurrency: "MXN" as const,
+      descriptionPriority: product.description ? 1 : undefined,
     }));
     const byModel = new Map<string, CatalogProductSource>();
 
@@ -414,6 +476,7 @@ export class CatalogService {
           existing.price = syscomProduct.price;
           existing.priceCurrency = "MXN";
         }
+        this.applyPreferredDescription(existing, syscomProduct.description || syscomProduct.title, 2);
         continue;
       }
 
@@ -428,17 +491,227 @@ export class CatalogService {
         category: syscomProduct.category,
         brand: syscomProduct.brand || "Syscom",
         image: syscomProduct.image,
-        description: syscomProduct.title,
+        description: syscomProduct.description || syscomProduct.title,
         source: "syscom",
         priceCurrency: "MXN",
+        descriptionPriority: syscomProduct.description || syscomProduct.title ? 2 : undefined,
         syscomId: syscomProduct.id,
         syscomModel: syscomProduct.model,
         syscomStock: syscomProduct.stock,
         wcamStock: 0,
+        tvcStock: 0,
+        tecnosinergiaStock: 0,
+        pchStock: 0,
       });
     }
 
     return products;
+  }
+
+  private mergeTvcCatalog(
+    currentProducts: CatalogProductSource[],
+    tvcProducts: TvcCatalogProduct[],
+  ): CatalogProductSource[] {
+    const products: CatalogProductSource[] = [...currentProducts];
+    const byModel = new Map<string, CatalogProductSource>();
+
+    for (const product of products) {
+      for (const key of this.productModelKeys(product)) {
+        if (!byModel.has(key)) byModel.set(key, product);
+      }
+    }
+
+    for (const tvcProduct of tvcProducts) {
+      const tvcKey = this.normalizeModelKey(tvcProduct.model);
+      if (!tvcKey) continue;
+
+      const existing = byModel.get(tvcKey);
+      if (existing) {
+        existing.stock = Number(existing.stock ?? 0) + tvcProduct.stock;
+        existing.source = "merged";
+        existing.tvcId = tvcProduct.id;
+        existing.tvcModel = tvcProduct.model;
+        existing.tvcStock = tvcProduct.stock;
+        if (!existing.price && tvcProduct.price) {
+          existing.price = tvcProduct.price;
+          existing.priceCurrency = "MXN";
+        }
+        this.applyPreferredDescription(existing, tvcProduct.description || tvcProduct.title, 3);
+        continue;
+      }
+
+      const id = this.negativeExternalId("tvc", tvcProduct.id || tvcProduct.model);
+      products.push({
+        id,
+        variantId: id,
+        sku: tvcProduct.model || tvcProduct.id,
+        clave: tvcProduct.model || tvcProduct.id,
+        name: `${tvcProduct.brand} ${tvcProduct.model} ${tvcProduct.title}`.replace(/\s+/g, " ").trim(),
+        stock: tvcProduct.stock,
+        price: tvcProduct.price,
+        category: tvcProduct.category,
+        brand: tvcProduct.brand || "TVC",
+        image: tvcProduct.image,
+        description: tvcProduct.description || tvcProduct.title,
+        source: "tvc",
+        priceCurrency: "MXN",
+        descriptionPriority: tvcProduct.description || tvcProduct.title ? 3 : undefined,
+        tvcId: tvcProduct.id,
+        tvcModel: tvcProduct.model,
+        tvcStock: tvcProduct.stock,
+        wcamStock: 0,
+        syscomStock: 0,
+        tecnosinergiaStock: 0,
+        pchStock: 0,
+      });
+    }
+
+    return products;
+  }
+
+  private mergeTecnosinergiaCatalog(
+    currentProducts: CatalogProductSource[],
+    tecnosinergiaProducts: TecnosinergiaCatalogProduct[],
+  ): CatalogProductSource[] {
+    const products: CatalogProductSource[] = [...currentProducts];
+    const byModel = new Map<string, CatalogProductSource>();
+
+    for (const product of products) {
+      for (const key of this.productModelKeys(product)) {
+        if (!byModel.has(key)) byModel.set(key, product);
+      }
+    }
+
+    for (const tecnosinergiaProduct of tecnosinergiaProducts) {
+      const tecnosinergiaKey = this.normalizeModelKey(tecnosinergiaProduct.model);
+      if (!tecnosinergiaKey) continue;
+
+      const existing = byModel.get(tecnosinergiaKey);
+      if (existing) {
+        existing.stock = Number(existing.stock ?? 0) + tecnosinergiaProduct.stock;
+        existing.source = "merged";
+        existing.tecnosinergiaId = tecnosinergiaProduct.id;
+        existing.tecnosinergiaModel = tecnosinergiaProduct.model;
+        existing.tecnosinergiaStock = tecnosinergiaProduct.stock;
+        if (!existing.price && tecnosinergiaProduct.price) {
+          existing.price = tecnosinergiaProduct.price;
+          existing.priceCurrency = "MXN";
+        }
+        this.applyPreferredDescription(existing, tecnosinergiaProduct.description || tecnosinergiaProduct.title, 5);
+        continue;
+      }
+
+      const id = this.negativeExternalId("tecnosinergia", tecnosinergiaProduct.id || tecnosinergiaProduct.model);
+      products.push({
+        id,
+        variantId: id,
+        sku: tecnosinergiaProduct.model || tecnosinergiaProduct.id,
+        clave: tecnosinergiaProduct.model || tecnosinergiaProduct.id,
+        name: `${tecnosinergiaProduct.brand} ${tecnosinergiaProduct.model} ${tecnosinergiaProduct.title}`.replace(/\s+/g, " ").trim(),
+        stock: tecnosinergiaProduct.stock,
+        price: tecnosinergiaProduct.price,
+        category: tecnosinergiaProduct.category,
+        brand: tecnosinergiaProduct.brand || "TVC",
+        image: tecnosinergiaProduct.image,
+        description: tecnosinergiaProduct.description || tecnosinergiaProduct.title,
+        source: "tecnosinergia",
+        priceCurrency: "MXN",
+        descriptionPriority: tecnosinergiaProduct.description || tecnosinergiaProduct.title ? 5 : undefined,
+        tecnosinergiaId: tecnosinergiaProduct.id,
+        tecnosinergiaModel: tecnosinergiaProduct.model,
+        tecnosinergiaStock: tecnosinergiaProduct.stock,
+        wcamStock: 0,
+        syscomStock: 0,
+        tvcStock: 0,
+        pchStock: 0,
+      });
+    }
+
+    return products;
+  }
+
+  private mergePchCatalog(
+    currentProducts: CatalogProductSource[],
+    pchProducts: PchCatalogProduct[],
+  ): CatalogProductSource[] {
+    const products: CatalogProductSource[] = [...currentProducts];
+    const byModel = new Map<string, CatalogProductSource>();
+
+    for (const product of products) {
+      for (const key of this.productModelKeys(product)) {
+        if (!byModel.has(key)) byModel.set(key, product);
+      }
+    }
+
+    for (const pchProduct of pchProducts) {
+      const pchKey = this.normalizeModelKey(pchProduct.model);
+      if (!pchKey) continue;
+
+      const existing = byModel.get(pchKey);
+      if (existing) {
+        existing.stock = Number(existing.stock ?? 0) + pchProduct.stock;
+        existing.source = "merged";
+        existing.pchId = pchProduct.id;
+        existing.pchModel = pchProduct.model;
+        existing.pchStock = pchProduct.stock;
+        if (!existing.price && pchProduct.price) {
+          existing.price = pchProduct.price;
+          existing.priceCurrency = "MXN";
+        }
+        this.applyPreferredDescription(existing, pchProduct.description || pchProduct.title, 4);
+        continue;
+      }
+
+      const id = this.negativeExternalId("pch", pchProduct.id || pchProduct.model);
+      products.push({
+        id,
+        variantId: id,
+        sku: pchProduct.model || pchProduct.id,
+        clave: pchProduct.model || pchProduct.id,
+        name: `${pchProduct.brand} ${pchProduct.model} ${pchProduct.title}`.replace(/\s+/g, " ").trim(),
+        stock: pchProduct.stock,
+        price: pchProduct.price,
+        category: pchProduct.category,
+        brand: pchProduct.brand || "PCH",
+        image: pchProduct.image,
+        description: pchProduct.description || pchProduct.title,
+        source: "pch",
+        priceCurrency: "MXN",
+        descriptionPriority: pchProduct.description || pchProduct.title ? 4 : undefined,
+        pchId: pchProduct.id,
+        pchModel: pchProduct.model,
+        pchStock: pchProduct.stock,
+        wcamStock: 0,
+        syscomStock: 0,
+        tecnosinergiaStock: 0,
+      });
+    }
+
+    return products;
+  }
+
+  private negativeExternalId(prefix: string, value: string) {
+    let hash = 0;
+    const text = `${prefix}:${value}`;
+    for (let index = 0; index < text.length; index += 1) {
+      hash = (hash * 31 + text.charCodeAt(index)) >>> 0;
+    }
+    return -Number(1_000_000_000 + (hash % 900_000_000));
+  }
+
+  private applyPreferredDescription(product: CatalogProductSource, candidate: string | undefined, priority: number) {
+    const description = this.cleanCatalogDescription(candidate);
+    if (!description) return;
+
+    const currentPriority = product.descriptionPriority ?? (product.description ? 1 : Number.POSITIVE_INFINITY);
+    if (!product.description || priority < currentPriority) {
+      product.description = description;
+      product.descriptionPriority = priority;
+    }
+  }
+
+  private cleanCatalogDescription(value: string | undefined) {
+    return (value ?? "").replace(/\s+/g, " ").trim();
   }
 
   private productModelKeys(product: Pick<OdooProduct, "name" | "sku" | "clave">) {
@@ -464,12 +737,18 @@ export class CatalogService {
       const summary = products.find((product) => {
         const catalogProduct = product as CatalogProductSource;
         const syscomId = catalogProduct.syscomId ? String(catalogProduct.syscomId) : "";
+        const tvcId = catalogProduct.tvcId ? String(catalogProduct.tvcId) : "";
+        const tecnosinergiaId = catalogProduct.tecnosinergiaId ? String(catalogProduct.tecnosinergiaId) : "";
+        const pchId = catalogProduct.pchId ? String(catalogProduct.pchId) : "";
         const normalizedProductId = productId.replace(/^-/, "");
         return (
           String(product.id) === productId ||
           String(Math.abs(Number(product.id))) === normalizedProductId ||
           String(product.variantId) === productId ||
           syscomId === normalizedProductId ||
+          tvcId === normalizedProductId ||
+          tecnosinergiaId === normalizedProductId ||
+          pchId === normalizedProductId ||
           product.sku === productId ||
           product.clave === productId
         );
@@ -487,12 +766,23 @@ export class CatalogService {
       }
 
       const catalogSummary = summary as CatalogProductSource;
+      if (catalogSummary.source === "tvc" || catalogSummary.source === "tecnosinergia" || catalogSummary.source === "pch") {
+        return { product: catalogSummary, status: "odoo" };
+      }
+
       if (catalogSummary.source === "syscom") {
         const cacheKey = `catalog:products:syscom-detail:v7:${catalogSummary.syscomId}`;
         const cached = await this.cache.getJson<CatalogProductSource>(cacheKey);
         if (cached) return { product: cached, status: "odoo" };
 
-        const detail = await this.syscom.getProductDetail(catalogSummary.syscomId ?? "");
+        let detail = null;
+        try {
+          detail = await this.syscom.getProductDetail(catalogSummary.syscomId ?? "");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Syscom detail unavailable";
+          this.logger.warn(`Syscom product detail unavailable for ${catalogSummary.syscomId}: ${message}`);
+        }
+
         const product = {
           ...catalogSummary,
           image: detail?.image ?? catalogSummary.image,
@@ -515,8 +805,18 @@ export class CatalogService {
       if (!product) {
         return { product: null, status: "odoo", message: "Product not found" };
       }
-      await this.cache.setJson(cacheKey, product, 900);
-      return { product, status: "odoo" };
+      const combinedProduct =
+        catalogSummary.source === "merged"
+          ? {
+              ...product,
+              ...catalogSummary,
+              image: product.image ?? catalogSummary.image,
+              description: product.description || catalogSummary.description,
+              internalNotesHtml: product.internalNotesHtml,
+            }
+          : product;
+      await this.cache.setJson(cacheKey, combinedProduct, 900);
+      return { product: combinedProduct, status: "odoo" };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Odoo product unavailable";
       this.logger.warn(`Catalog product unavailable: ${message}`);
@@ -548,7 +848,13 @@ export class CatalogService {
       return { data: Buffer.from(cached.data, "base64"), contentType: cached.contentType };
     }
 
-    const image = await this.syscom.getProductImage(productId);
+    let image = null;
+    try {
+      image = await this.syscom.getProductImage(productId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Syscom image unavailable";
+      this.logger.warn(`Syscom product image unavailable for ${productId}: ${message}`);
+    }
     if (!image) return null;
 
     await this.cache.setJson(
@@ -571,8 +877,10 @@ export class CatalogService {
     const productResult = await this.findProductResult(productId);
     const product = productResult.product as CatalogProductSource | null;
     const wcamStock = product?.wcamStock ?? product?.stock ?? 0;
+    const pchStock = product?.pchStock ?? (product?.source === "pch" ? product.stock : 0);
+    const tvcStock = product?.tvcStock ?? (product?.source === "tvc" ? product.stock : 0);
     const syscomMatch = product
-      ? product.source === "syscom" || product.source === "merged"
+      ? product.source === "syscom" || Boolean(product.syscomId)
         ? {
             status: "matched" as const,
             product: {
@@ -587,6 +895,7 @@ export class CatalogService {
           }
         : { status: "not_found" as const, message: "Este producto no esta combinado con Syscom en el catalogo actual." }
       : { status: "not_found" as const, message: "Producto no encontrado en Odoo." };
+    const tecnosinergiaStock = product?.tecnosinergiaStock ?? (product?.source === "tecnosinergia" ? product.stock : 0);
 
     return [
       {
@@ -596,14 +905,46 @@ export class CatalogService {
         status: "active",
         message: `${wcamStock} unidades disponibles de este producto.`,
       },
+      this.toSyscomWarehouse(syscomMatch),
       {
         id: "tvc",
         label: "Almacen TVC",
-        stock: null,
-        status: "pending",
-        message: "Pendiente por conectar.",
+        stock: product?.tvcId || product?.source === "tvc" ? tvcStock : null,
+        status: product?.tvcId || product?.source === "tvc" ? "active" : "pending",
+        price: product?.source === "tvc" ? product.price : null,
+        externalId: product?.tvcId,
+        matchedModel: product?.tvcModel,
+        message:
+          product?.tvcId || product?.source === "tvc"
+            ? `Coincide con TVC ${product.tvcModel ?? product.clave}.`
+            : "Pendiente por conectar o sin coincidencia en TVC.",
       },
-      this.toSyscomWarehouse(syscomMatch),
+      {
+        id: "tecnosinergia",
+        label: "Almacen Tecnosinergia",
+        stock: product?.tecnosinergiaId || product?.source === "tecnosinergia" ? tecnosinergiaStock : null,
+        status: product?.tecnosinergiaId || product?.source === "tecnosinergia" ? "active" : "pending",
+        price: product?.source === "tecnosinergia" ? product.price : null,
+        externalId: product?.tecnosinergiaId,
+        matchedModel: product?.tecnosinergiaModel,
+        message:
+          product?.tecnosinergiaId || product?.source === "tecnosinergia"
+            ? `Coincide con Tecnosinergia ${product.tecnosinergiaModel ?? product.clave}.`
+            : "Pendiente por conectar o sin coincidencia en Tecnosinergia.",
+      },
+      {
+        id: "pch",
+        label: "Almacen PCH",
+        stock: product?.pchId || product?.source === "pch" ? pchStock : null,
+        status: product?.pchId || product?.source === "pch" ? "active" : "pending",
+        price: product?.source === "pch" ? product.price : null,
+        externalId: product?.pchId,
+        matchedModel: product?.pchModel,
+        message:
+          product?.pchId || product?.source === "pch"
+            ? `Coincide con PCH ${product.pchModel ?? product.clave}.`
+            : "Pendiente por conectar o sin coincidencia en PCH.",
+      },
     ];
   }
 

@@ -72,7 +72,11 @@ export class SalesService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.ensureSchema();
+    try {
+      await this.ensureSchema();
+    } catch {
+      this.schemaReady = false;
+    }
   }
 
   async listLocalQuotations() {

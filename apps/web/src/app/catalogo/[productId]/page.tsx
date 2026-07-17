@@ -36,7 +36,7 @@ type CatalogProduct = {
   image?: string;
   description?: string;
   internalNotesHtml?: string;
-  source?: "odoo" | "syscom" | "merged";
+  source?: "odoo" | "syscom" | "tvc" | "tecnosinergia" | "pch" | "merged";
   syscomCharacteristics?: string[];
   syscomTechnicalImages?: string[];
   syscomTechnicalHtml?: string;
@@ -44,7 +44,7 @@ type CatalogProduct = {
 };
 
 type WarehouseAvailability = {
-  id: "wcam" | "tvc" | "syscom";
+  id: "wcam" | "tvc" | "syscom" | "tecnosinergia" | "pch";
   label: string;
   stock: number | null;
   status: "active" | "pending" | "unconfigured" | "error";
@@ -108,6 +108,15 @@ function money(value: number) {
   return currency.format(value);
 }
 
+function sourceLabel(product: CatalogProduct) {
+  if (product.source === "syscom") return "Syscom";
+  if (product.source === "tvc") return "TVC";
+  if (product.source === "tecnosinergia") return "Tecnosinergia";
+  if (product.source === "pch") return "PCH";
+  if (product.source === "merged") return "catalogo";
+  return "Odoo";
+}
+
 function productText(product: CatalogProduct) {
   return normalizeSearch([product.name, product.description, product.brand, product.category, product.sku, product.clave].filter(Boolean).join(" "));
 }
@@ -135,6 +144,12 @@ function buildRelatedSearch(product: CatalogProduct) {
     return `${product.brand || ""} camara`.trim();
   }
   return `${product.brand || ""} ${product.category || product.name}`.trim();
+}
+
+async function readJsonOrNull<T>(response: Response): Promise<T | null> {
+  const text = await response.text();
+  if (!text.trim()) return null;
+  return JSON.parse(text) as T;
 }
 
 export default function ProductDetailPage() {
@@ -168,12 +183,12 @@ export default function ProductDetailPage() {
 
         if (!detailResponse.ok) throw new Error(`Product request failed: ${detailResponse.status}`);
 
-        const detail = (await detailResponse.json()) as CatalogProduct | null;
+        const detail = await readJsonOrNull<CatalogProduct>(detailResponse);
         const nextProduct = detail && typeof detail === "object" ? detail : null;
         setProductDetail(nextProduct);
 
         if (warehousesResponse.ok) {
-          const warehouseRows = (await warehousesResponse.json()) as WarehouseAvailability[];
+          const warehouseRows = await readJsonOrNull<WarehouseAvailability[]>(warehousesResponse);
           setWarehouses(Array.isArray(warehouseRows) ? warehouseRows : []);
         }
 
@@ -187,9 +202,9 @@ export default function ProductDetailPage() {
             signal: controller.signal,
           });
           if (relatedResponse.ok) {
-            const relatedPage = (await relatedResponse.json()) as CatalogPageResponse;
+            const relatedPage = await readJsonOrNull<CatalogPageResponse>(relatedResponse);
             setRelatedProducts(
-              Array.isArray(relatedPage.products)
+              Array.isArray(relatedPage?.products)
                 ? relatedPage.products.filter((item) => productKey(item) !== productKey(nextProduct)).slice(0, 8)
                 : [],
             );
@@ -338,9 +353,9 @@ export default function ProductDetailPage() {
                   </p>
                   <p className="mt-2 inline-flex items-center gap-1 rounded bg-blue-500/15 px-2 py-1 text-xs font-black uppercase text-blue-200">
                     <Tag className="h-3 w-3" aria-hidden />
-                    {product.source === "syscom"
-                      ? "Precio Syscom · MXN"
-                      : `Precio ${product.source === "merged" ? "catalogo" : "Odoo"} · ${product.priceCurrency ?? "MXN"}`}
+                    {product.source === "syscom" || product.source === "tvc" || product.source === "tecnosinergia" || product.source === "pch"
+                      ? `Precio ${sourceLabel(product)} · MXN`
+                      : `Precio ${sourceLabel(product)} · ${product.priceCurrency ?? "MXN"}`}
                   </p>
                 </div>
 
@@ -370,10 +385,18 @@ export default function ProductDetailPage() {
           <section className="mx-auto grid max-w-[1500px] gap-4 px-4 pb-5 lg:grid-cols-3 lg:px-6">
             <InfoPanel
               icon={<BadgeCheck className="h-7 w-7 text-mint" aria-hidden />}
-              title={product.source === "syscom" ? "Informacion de Syscom" : "Informacion de Odoo"}
+              title={product.source === "syscom" ? "Informacion de Syscom" : product.source === "tvc" ? "Informacion de TVC" : product.source === "tecnosinergia" ? "Informacion de Tecnosinergia" : product.source === "pch" ? "Informacion de PCH" : product.source === "merged" ? "Informacion combinada" : "Informacion de Odoo"}
               text={
                 product.source === "syscom"
                   ? "Descripcion, caracteristicas, precio, existencia, SKU y foto vienen sincronizados desde Syscom."
+                  : product.source === "tvc"
+                    ? "Descripcion, precio, existencia, SKU y foto vienen sincronizados desde TVC."
+                  : product.source === "tecnosinergia"
+                    ? "Descripcion, precio, existencia, SKU y foto vienen sincronizados desde Tecnosinergia."
+                  : product.source === "pch"
+                    ? "Descripcion, precio, existencia, SKU y foto vienen sincronizados desde PCH."
+                  : product.source === "merged"
+                    ? "Ficha de Odoo combinada con existencia y clave de proveedor cuando hay coincidencia."
                   : "Descripcion, notas internas, precio, existencia, SKU y foto vienen sincronizados del ERP."
               }
             />
@@ -516,6 +539,20 @@ function InventoryPanel({ wcamStock, warehouses }: { wcamStock: number; warehous
     {
       id: "tvc",
       label: "Almacen TVC",
+      stock: null,
+      status: "pending",
+      message: "Pendiente por conectar.",
+    },
+    {
+      id: "tecnosinergia",
+      label: "Almacen Tecnosinergia",
+      stock: null,
+      status: "pending",
+      message: "Pendiente por conectar.",
+    },
+    {
+      id: "pch",
+      label: "Almacen PCH",
       stock: null,
       status: "pending",
       message: "Pendiente por conectar.",

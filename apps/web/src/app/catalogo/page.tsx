@@ -34,8 +34,11 @@ type CatalogProduct = {
   discount?: string;
   image?: string;
   description?: string;
-  source?: "odoo" | "syscom" | "merged";
+  source?: "odoo" | "syscom" | "tvc" | "tecnosinergia" | "pch" | "merged";
   syscomStock?: number;
+  tvcStock?: number;
+  tecnosinergiaStock?: number;
+  pchStock?: number;
   wcamStock?: number;
   syscomId?: string;
   priceCurrency?: "MXN" | "USD";
@@ -58,6 +61,15 @@ const currency = new Intl.NumberFormat("es-MX", { style: "currency", currency: "
 
 function formatPrice(product: CatalogProduct) {
   return currency.format(product.price);
+}
+
+function sourceLabel(product: CatalogProduct) {
+  if (product.source === "syscom") return "Syscom";
+  if (product.source === "tvc") return "TVC";
+  if (product.source === "tecnosinergia") return "Tecnosinergia";
+  if (product.source === "pch") return "PCH";
+  if (product.source === "merged") return "catalogo";
+  return "Odoo";
 }
 
 const DISPLAY_STEP = 60;
@@ -732,7 +744,7 @@ export default function CatalogoPage() {
                       </p>
                     ) : (
                       <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-blue-100/45 sm:text-sm">
-                        Ficha de {product.source === "syscom" ? "Syscom" : product.source === "merged" ? "Odoo y Syscom" : "Odoo"} con precio, clave y existencia disponible.
+                        Ficha de {sourceLabel(product)} con precio, clave y existencia disponible.
                       </p>
                     )}
 
@@ -750,8 +762,10 @@ export default function CatalogoPage() {
                       </p>
                       {product.source === "merged" ? (
                         <p className="mt-1 flex items-center justify-between gap-2 text-blue-100/55">
-                          <span>Wcam / Syscom</span>
-                          <span className="font-black text-blue-100">{product.wcamStock ?? 0} / {product.syscomStock ?? 0}</span>
+                          <span>Wcam / Syscom / TVC / Tecno / PCH</span>
+                          <span className="font-black text-blue-100">
+                            {product.wcamStock ?? 0} / {product.syscomStock ?? 0} / {product.tvcStock ?? 0} / {product.tecnosinergiaStock ?? 0} / {product.pchStock ?? 0}
+                          </span>
                         </p>
                       ) : null}
                     </div>
@@ -760,8 +774,8 @@ export default function CatalogoPage() {
                       <p className="text-xl font-black text-white sm:text-2xl">{formatPrice(product)}</p>
                       <p className="mt-1 inline-flex items-center gap-1 rounded bg-blue-500/15 px-2 py-1 text-[10px] font-black uppercase text-blue-200 sm:text-xs">
                         <Tag className="h-3 w-3" aria-hidden />
-                        {product.source === "syscom"
-                          ? "Precio Syscom · MXN"
+                        {product.source === "syscom" || product.source === "tvc" || product.source === "tecnosinergia" || product.source === "pch"
+                          ? `Precio ${sourceLabel(product)} · MXN`
                           : product.source === "merged"
                             ? `Precio catalogo · ${product.priceCurrency ?? "MXN"}`
                             : "Precio Odoo · MXN"}

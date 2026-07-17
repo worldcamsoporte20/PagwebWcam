@@ -1090,7 +1090,7 @@ export class OdooService {
         price: Number(record.list_price ?? 0),
         category,
         brand: this.inferBrand(record.name, category),
-        description: this.cleanDescription(record.description_sale),
+        description: this.cleanDescription(record.description_sale) || record.name,
       };
     });
   }
@@ -1212,7 +1212,7 @@ export class OdooService {
       category,
       brand: this.inferBrand(record.name, category),
       image: record.image_512 ? `data:image/png;base64,${record.image_512}` : record.image_128 ? `data:image/png;base64,${record.image_128}` : undefined,
-      description: this.cleanDescription(record.description_sale || record.description),
+      description: this.cleanDescription(record.description_sale || record.description) || record.name,
       internalNotesHtml: this.cleanProductHtml(record.description),
     };
   }
