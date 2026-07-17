@@ -1,0 +1,9 @@
+(node:26536) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+npm error Lifecycle script `start:dev` failed with error:
+npm error code 4294967295
+npm error path C:\Users\usuario\Documents\PagwebWcam\apps\api
+npm error workspace @odoo-headless/api@0.1.0
+npm error location C:\Users\usuario\Documents\PagwebWcam\apps\api
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s /c nest start --watch
