@@ -20,6 +20,7 @@ import SiteHeader from "../components/SiteHeader";
 import TikTokVideos from "@/components/TikTokVideos";
 import SiteFooter from "@/components/SiteFooter";
 import SupportAdvisors from "@/components/SupportAdvisors";
+import { addCartItem } from "../lib/cart";
 
 type CatalogProduct = {
   id?: number;
@@ -35,41 +36,156 @@ type CatalogProduct = {
   image?: string;
 };
 
+type Banner = {
+  title: string;
+  image: string;
+};
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-const promoSlides = [
-  { title: "Camaras solares 4G", image: "/images/promos/camaras-solares-4g.png" },
-  { title: "Discos duros para videovigilancia", image: "/images/promos/discos-duros-videovigilancia.png" },
-  { title: "Switches de alto rendimiento", image: "/images/promos/switches-alto-rendimiento.png" },
+const defaultPromoSlides: Banner[] = [
+  {
+    title: "Camaras solares 4G",
+    image: "/images/promos/camaras-solares-4g.png",
+  },
+  {
+    title: "Discos duros para videovigilancia",
+    image: "/images/promos/discos-duros-videovigilancia.png",
+  },
+  {
+    title: "Switches de alto rendimiento",
+    image: "/images/promos/switches-alto-rendimiento.png",
+  },
 ];
 
 const quickCategories = ["Videovigilancia", "Acceso", "Alarmas", "Redes", "Cableado UTP", "Cerraduras"];
+
+const productRows = [
+  {
+    key: "cameras",
+    eyebrow: "Videovigilancia",
+    title: "Camaras mas vendidas",
+    description: "Camaras IP, HDCVI, domos, bullets y PTZ listas para tus instalaciones.",
+    search: "camara",
+    icon: Camera,
+    matches: ["camara", "camera", "ipc", "bullet", "domo", "dome", "turret", "ptz"],
+  },
+  {
+    key: "kits",
+    eyebrow: "Soluciones completas",
+    title: "Kits recomendados",
+    description: "Combos de videovigilancia para instalar con todos los componentes esenciales.",
+    search: "kit",
+    icon: PackageSearch,
+    matches: ["kit", "combo", "paquete"],
+  },
+  {
+    key: "networks",
+    eyebrow: "Conectividad",
+    title: "Redes y conectividad",
+    description: "Switches PoE, routers, cableado y accesorios para una red estable.",
+    search: "redes",
+    icon: Wifi,
+    matches: ["switch", "poe", "router", "access point", "utp", "ethernet", "redes", "network"],
+  },
+] as const;
 
 function money(value: number) {
   return value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 }
 
+function productKey(product: CatalogProduct) {
+  return String(product.variantId ?? product.id ?? product.sku);
+}
+
 export default function Homeicon() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [catalogHighlights, setCatalogHighlights] = useState<CatalogProduct[]>([]);
+  const [promoSlides, setPromoSlides] = useState<Banner[]>(defaultPromoSlides);
+  const [catalogRows, setCatalogRows] = useState<Record<string, CatalogProduct[]>>({});
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+  const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const dragStartX = useRef<number | null>(null);
   const dragDeltaX = useRef(0);
   const didSwipe = useRef(false);
 
+  const catalogHighlights = Object.values(catalogRows).flat().slice(0, 8);
+
   const slide = promoSlides[activeSlide];
 
   const goToPrevious = () => {
+    if (promoSlides.length === 0) return;
     setActiveSlide((current) => (current === 0 ? promoSlides.length - 1 : current - 1));
   };
 
   const goToNext = () => {
+    if (promoSlides.length === 0) return;
     setActiveSlide((current) => (current === promoSlides.length - 1 ? 0 : current + 1));
   };
 
+  const moveProductCarousel = (rowKey: string, direction: -1 | 1) => {
+    carouselRefs.current[rowKey]?.scrollBy({ left: direction * 720, behavior: "smooth" });
+  };
+
+  const handleAddToCart = (product: CatalogProduct) => {
+    const id = productKey(product);
+    addCartItem({
+      id,
+      productId: product.id,
+      variantId: product.variantId,
+      sku: product.sku,
+      clave: product.clave || product.sku,
+      brand: product.brand || "Worldcam",
+      category: product.category || "Sin categoria",
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+    setLastAddedId(id);
+    window.setTimeout(() => setLastAddedId((current) => (current === id ? null : current)), 1400);
+  };
+
   useEffect(() => {
-    const timer = window.setInterval(goToNext, 7000);
+    if (promoSlides.length <= 1) return;
+
+    const timer = window.setInterval(() => {
+      setActiveSlide((current) => (current === promoSlides.length - 1 ? 0 : current + 1));
+    }, 7000);
     return () => window.clearInterval(timer);
+  }, [promoSlides.length]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadBanners() {
+      try {
+        const response = await fetch(
+          `${apiBaseUrl || "http://localhost:3000"}/api/banner`,
+          { cache: "no-store" },
+        );
+        if (!response.ok) throw new Error("No se pudieron cargar los banners.");
+
+        const data: Banner[] = await response.json();
+        if (!active || !Array.isArray(data) || data.length === 0) return;
+
+        const version = Date.now();
+        setPromoSlides(data.map((banner) => ({
+          ...banner,
+          image: `${banner.image}${banner.image.includes("?") ? "&" : "?"}v=${version}`,
+        })));
+        setActiveSlide(0);
+      } catch (error) {
+        console.error("Error al cargar banners:", error);
+      }
+    }
+
+    loadBanners();
+    return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (activeSlide >= promoSlides.length) setActiveSlide(0);
+  }, [activeSlide, promoSlides.length]);
 
   useEffect(() => {
     let active = true;
@@ -84,21 +200,31 @@ export default function Homeicon() {
           .map((product: CatalogProduct) => ({
             ...product,
             model: product.model || product.clave || "",
-          }))
-          .filter((product: CatalogProduct) => {
-            const text = `${product.name} ${product.brand} ${product.category} ${product.model} ${product.sku}`.toLowerCase();
-            return text.includes("dahua") || text.includes("dh-") || text.includes("dhi-");
-          })
-          .sort((a: CatalogProduct, b: CatalogProduct) => {
-            const aScore = Number(Boolean(a.image)) * 20 + Number(a.stock > 0) * 10 + Math.min(a.stock, 20);
-            const bScore = Number(Boolean(b.image)) * 20 + Number(b.stock > 0) * 10 + Math.min(b.stock, 20);
-            return bScore - aScore;
-          })
-          .slice(0, 4);
+          }));
 
-        setCatalogHighlights(products);
+        const rows = Object.fromEntries(
+          productRows.map((row) => {
+            const matches = products
+              .filter((product: CatalogProduct) => {
+                const text = `${product.name} ${product.brand} ${product.category} ${product.model} ${product.sku}`.toLowerCase();
+                return row.matches.some((term) => text.includes(term));
+              })
+              .sort((a: CatalogProduct, b: CatalogProduct) => {
+                const aScore = Number(a.stock > 0) * 100 + Math.min(Math.max(a.stock, 0), 50) + Number(a.price > 0) * 10;
+                const bScore = Number(b.stock > 0) * 100 + Math.min(Math.max(b.stock, 0), 50) + Number(b.price > 0) * 10;
+                return bScore - aScore;
+              })
+              .slice(0, 8);
+
+            return [row.key, matches];
+          }),
+        );
+
+        setCatalogRows(rows);
       } catch {
-        setCatalogHighlights([]);
+        setCatalogRows({});
+      } finally {
+        if (active) setCatalogLoading(false);
       }
     }
 
@@ -202,11 +328,28 @@ export default function Homeicon() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-8">
+      <BrandCarousel />
+
+      <section id="eventos" className="mx-auto max-w-7xl scroll-mt-40 px-4 py-6 lg:px-8 lg:py-8">
+        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-mint">Worldcam Academy</p>
+            <h2 className="mt-2 text-3xl font-black text-gray-900 dark:text-white">Cursos y capacitaciones</h2>
+            <p className="mt-2 max-w-2xl text-sm text-gray-600 dark:text-blue-100/65">
+              Agenda tecnica para instaladores, integradores y equipos de venta.
+            </p>
+          </div>
+          <a
+            href="/catalogo?buscar=ptz"
+            className="inline-flex h-11 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 text-sm font-black text-blue-700 transition hover:bg-blue-100 dark:border-blue-400/30 dark:bg-blue-500/10 dark:text-blue-100 dark:hover:bg-blue-500/20"
+          >
+            Ver productos PTZ
+          </a>
+        </div>
+
         <AntiGravityPtz />
       </section>
 
-      <BrandCarousel />
       <TikTokVideos />
 
       <section className="border-y border-gray-200 bg-gray-100 dark:border-white/10 dark:bg-[#0b1020]">
@@ -239,7 +382,13 @@ export default function Homeicon() {
               <div className="relative flex h-56 items-center justify-center bg-white p-5">
                 {product.image ? (
                   <div className="relative h-44 w-full overflow-hidden rounded-xl bg-slate-50">
-                    <Image className="object-cover" src={product.image} alt={product.name} fill sizes="(max-width: 768px) 100vw, 33vw" />
+                    <Image
+                      className="object-cover"
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
                   </div>
                 ) : (
                   <div className="flex h-44 items-center justify-center text-sm font-black uppercase tracking-widest text-gray-400">Sin imagen</div>
@@ -266,7 +415,10 @@ export default function Homeicon() {
                   <p className="text-xl font-black text-mint">{money(product.price)}</p>
                   <p className="text-xs font-bold text-gray-500 dark:text-blue-100/55">Stock: {product.stock}</p>
                 </div>
-                <a className="mt-4 flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 text-sm font-black uppercase text-white" href={`/catalogo?buscar=${encodeURIComponent(product.model || product.sku || product.name)}`}>
+                <a
+                  className="mt-4 flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 text-sm font-black uppercase text-white"
+                  href={`/catalogo?buscar=${encodeURIComponent(product.model || product.sku || product.name)}`}
+                >
                   Ver producto
                   <PackageSearch className="h-4 w-4" aria-hidden />
                 </a>
@@ -275,7 +427,7 @@ export default function Homeicon() {
           ))}
           {catalogHighlights.length === 0 ? (
             <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm font-semibold text-gray-600 dark:border-white/10 dark:bg-[#121827] dark:text-blue-100/65 md:col-span-2 xl:col-span-4">
-              Cargando productos destacados del catalogo...
+              {catalogLoading ? "Cargando productos destacados del catalogo..." : "No hay productos destacados por el momento."}
             </div>
           ) : null}
         </div>

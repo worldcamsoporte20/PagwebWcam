@@ -1,6 +1,5 @@
 "use client";
 import {
-  ArrowRight,
   BarChart3,
   FileText,
   Flame,
@@ -8,8 +7,8 @@ import {
   Heart,
   Home as HomeIcon,
   LayoutGrid,
-  Moon,
   Phone,
+  Moon,
   Search,
   ShoppingCart,
   Sparkles,
@@ -21,6 +20,7 @@ import {
 import { FormEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartTotals, readCart } from "../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, readSalesDraftItems } from "../lib/salesDraft";
+import { SideMegaMenuButtonV2 } from "./SideMegaMenuButtonV2";
 
 type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas" | "cursos";
 type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cotizacion";
@@ -151,14 +151,14 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
     <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
       <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-3 py-2.5 text-xs sm:px-4 lg:px-6">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full items-center gap-2 overflow-x-auto pb-0.5 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0">
             {topbarActions.map((action) => {
               const Icon = action.icon;
               return (
                 <a
                   key={action.label}
                   href={action.href}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
                 >
                   <Icon className="h-3.5 w-3.5" aria-hidden />
                   {action.label}
@@ -169,22 +169,22 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
         </div>
       </div>
 
-      <div className="bg-[#FCFCFD] shadow-sm dark:bg-[#0d1526] dark:text-white">
-        <div className="mx-auto flex w-full flex-wrap md:flex-nowrap items-center gap-3 justify-between px-3 py-1.5 sm:px-4 lg:px-6">
-          <a href="/" aria-label="Ir a inicio" className="flex items-center gap-3 flex-none">
-            <img src="/images/logo/logo.png" alt="Worldcam" className="h-24 w-auto sm:h-32 lg:h-36 xl:h-40" />
+      <div className="bg-white shadow-[0_1px_0_rgba(2,44,150,0.08)] dark:bg-[#0d1526] dark:text-white">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 md:flex-nowrap lg:px-8">
+          <a href="/" aria-label="Ir a inicio" className="flex h-14 flex-none items-center lg:h-20">
+            <img src="/images/logo/logo.png" alt="Worldcam" className="h-11 w-auto object-contain sm:h-12 lg:h-20" />
           </a>
 
-          <div className="order-2 flex w-full flex-1 min-w-[240px] justify-center md:order-none">
+          <div className="order-2 flex w-full min-w-0 flex-1 justify-center md:order-none md:min-w-[340px]">
             <form
               onSubmit={handleSearch}
-              className="w-full max-w-3xl overflow-hidden rounded-full border border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] shadow-sm dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
+              className="w-full max-w-[760px] overflow-hidden rounded-full border border-[#CCD8F2] bg-[#F8FAFF] text-[#12141A] transition focus-within:border-[#1E49A2] focus-within:bg-white dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
             >
-              <div className="flex h-12 items-center gap-3 px-4">
+              <div className="flex h-10 items-center gap-2 px-4 sm:h-11 sm:gap-3 sm:px-5">
                 <Search className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
                 <input
                   className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base dark:text-white dark:placeholder:text-white/40"
-                  placeholder="Buscar productos, categorías o marcas..."
+                  placeholder="Buscar productos, categorias o marcas..."
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                 />
@@ -192,12 +192,12 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             </form>
           </div>
 
-          <div className="order-3 flex items-center gap-2 md:ml-0 lg:ml-auto">
+          <div className="order-3 flex min-w-0 flex-1 items-center justify-end gap-1.5 md:ml-0 md:flex-none lg:ml-auto">
             {auth ? (
               <a
                 href="/cuenta"
                 aria-label="Mi cuenta"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
                   {auth.initials}
@@ -207,7 +207,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               <a
                 href="/login"
                 aria-label="Iniciar sesion"
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
               >
                 <UserRound className="h-5 w-5" aria-hidden />
               </a>
@@ -215,7 +215,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             {auth ? (
               <a
                 href="/cuenta"
-                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
               >
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
                   {auth.initials}
@@ -224,7 +224,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : (
               <a
-                className="hidden items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 py-3 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+                className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
                 href="/login"
               >
                 <UserRound className="h-5 w-5" aria-hidden />
@@ -233,14 +233,14 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             )}
             <a
               href="/favoritos"
-              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 md:hidden dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
               aria-label="Favoritos"
             >
               <Heart className="h-6 w-6 text-[#1E49A2] dark:text-white" aria-hidden />
             </a>
             <a
               href="/favoritos"
-              className="hidden h-11 items-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-4 text-sm font-black text-[#12141A] hover:bg-[#CBC9D4]/30 md:flex lg:px-5 dark:border-white/10 dark:bg-[#0f172a] dark:text-white dark:hover:bg-white/10"
+              className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
             >
               <Heart className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
               <span className="hidden lg:inline">Favoritos</span>
@@ -248,7 +248,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
             {isStaff ? (
               <a
                 href="/ventas"
-                className="relative hidden items-center gap-1.5 rounded-2xl bg-[#1E49A2] px-4 py-3 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF] lg:flex"
+                className="relative hidden h-10 items-center gap-1.5 rounded-full bg-[#1E49A2] px-4 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] lg:flex"
               >
                 <FileText className="h-5 w-5" aria-hidden />
                 <span>Orden</span>
@@ -262,7 +262,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
 
             {!isStaff ? (
               <a
-                className="relative flex h-11 items-center gap-2 rounded-2xl bg-[#022C96] px-4 text-sm font-black text-[#FCFCFD] hover:bg-[#2D70CF]"
+                className="relative flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#022C96] px-3 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] sm:px-4"
                 href="/carrito"
               >
                 <ShoppingCart className="h-5 w-5" aria-hidden />
@@ -275,20 +275,15 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={() => setIsDark((value) => !value)}
-            className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#CBC9D4] bg-[#FCFCFD] px-3 text-sm font-black text-[#12141A] transition hover:bg-[#CBC9D4]/30 dark:border-white/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
-            aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
-          >
-            {isDark ? <Sun className="h-4 w-4" aria-hidden /> : <Moon className="h-4 w-4" aria-hidden />}
-            <span className="hidden sm:inline">{isDark ? "Claro" : "Oscuro"}</span>
-          </button>
         </div>
 
-        {/* Nav principal: Inicio, Productos, Nuevos, Para ti, Cursos, Promociones */}
+        {/* Nav principal: Todas las categorias + Inicio, Productos, Nuevos, Para ti, Cursos, Promociones */}
         <nav className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full dark:border-white/10 dark:bg-[#0d1526]">
           <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-2 sm:px-4 lg:px-6">
+            <div className="shrink-0">
+              <SideMegaMenuButtonV2 />
+            </div>
+
             {fullNavItems.map((item) => {
               const Icon = item.icon;
               const isHashActive = currentHash && item.key === currentHash;
@@ -299,8 +294,8 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
                   key={item.label}
                   className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-black transition ${
                     isActive
-                      ? "border-[#1E49A2] bg-[#2D70CF]/10 text-[#012477]"
-                      : "border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30"
+                      ? "border-[#1E49A2] bg-[#2D70CF]/10 text-[#012477] dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200"
+                      : "border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10"
                   }`}
                   href={item.href}
                 >
@@ -314,6 +309,29 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
                 </a>
               );
             })}
+
+            <button
+              type="button"
+              onClick={() => setIsDark((value) => !value)}
+              className="order-3 flex h-10 shrink-0 items-center gap-2 rounded-full px-1.5 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] dark:text-white dark:hover:bg-white/10"
+              aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+              aria-pressed={isDark}
+            >
+              <span className="hidden sm:inline">{isDark ? "Oscuro" : "Claro"}</span>
+              <span
+                className={`relative inline-flex h-7 w-13 items-center rounded-full border p-0.5 transition ${
+                  isDark ? "border-[#1E49A2] bg-[#022C96]" : "border-[#CCD8F2] bg-[#EEF4FF]"
+                }`}
+              >
+                <span
+                  className={`absolute flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#1E49A2] shadow-sm transition ${
+                    isDark ? "translate-x-6" : "translate-x-0"
+                  }`}
+                >
+                  {isDark ? <Moon className="h-3.5 w-3.5" aria-hidden /> : <Sun className="h-3.5 w-3.5" aria-hidden />}
+                </span>
+              </span>
+            </button>
           </div>
         </nav>
       </div>

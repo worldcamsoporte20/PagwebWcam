@@ -5,12 +5,15 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Alibaba Sans", "Segoe UI", "sans-serif"],
+      },
       colors: {
         ink: "#17202A",
         steel: "#52616B",
         mint: "#1F9D8A",
         amber: "#D88921",
-        coral: "#D95D55",
+        coral: "rgb(255, 0, 0)",
         cloud: "#F5F7F8",
         wc: {
           white: "#FCFCFD",

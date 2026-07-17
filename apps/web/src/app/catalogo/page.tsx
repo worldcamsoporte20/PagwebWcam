@@ -35,17 +35,31 @@ type CatalogProduct = {
   discount?: string;
   image?: string;
   description?: string;
+  source?: "odoo" | "syscom" | "merged";
+  syscomStock?: number;
+  wcamStock?: number;
 };
 
 type AuthState = { email: string; role: string } | null;
 
 type SortMode = "price-asc" | "price-desc" | "name-asc" | "stock-desc";
 
+type CatalogPageResponse = {
+  products: CatalogProduct[];
+  total: number;
+  brands: string[];
+  categories: string[];
+  status: "odoo" | "unavailable";
+  message?: string;
+};
+
 const currency = new Intl.NumberFormat("es-MX", {
   style: "currency",
   currency: "MXN",
   maximumFractionDigits: 2,
 });
+
+const DISPLAY_STEP = 60;
 
 const categoryIcons: Record<string, typeof Camera> = {
   videovigilancia: Camera,
@@ -218,16 +232,64 @@ function getIconForCategory(category: string) {
   return match ? categoryIcons[match] : Box;
 }
 
+function cameraPriority(product: CatalogProduct) {
+  const name = normalizeSearch(product.name);
+  const category = normalizeSearch(product.category);
+  const nonCameraProduct =
+    /\b(gps|localizador|rastreador|dvr|nvr|xvr|servidor|server|switch|fuente|power|adaptador|cargador|cable|conector|conectores|conexion|conexiones|jack|divisor|bracket|soporte|montaje|base|brazo|caja|cajas|compatible|disco|hdd|ssd|monitor|teclado|mouse|microfono|sirena|sensor|control|ups|gabinete|rack)\b/.test(name);
+  if (nonCameraProduct) return 0;
+
+  const cameraName = /^(camara|camera|camaras)\b/.test(name);
+  const cameraModel = /\b(dh[- ]?ipc|ipc|ez[- ]?ipc|ds[- ]?2c|ds[- ]?2d|ptz|bullet|domo|dome|turret|eyeball)\b/.test(name);
+  const cameraFormFactor = /\b(lente|mp|megapixel|wizcolor|colorvu|acuface|acusense|ir)\b/.test(name);
+  const cameraCategory = /\b(videovigilancia|cctv|camara|camaras)\b/.test(category);
+
+  if (cameraName && cameraModel) return 5;
+  if (cameraName) return 4;
+  if (cameraModel) return 3;
+  if (cameraCategory && cameraFormFactor) return 2;
+  return 0;
+}
+
+function ProductImage({ product }: { product: CatalogProduct }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!product.image || failed) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center rounded bg-white/[0.03] text-blue-100/30">
+        <PackageSearch className="h-14 w-14" aria-hidden />
+        <span className="mt-3 text-xs font-black uppercase tracking-widest">Sin imagen</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      className="h-full w-full object-contain transition duration-200 group-hover:scale-[1.02]"
+      src={product.image}
+      alt={product.name}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export default function CatalogoPage() {
-  const [query, setQuery] = useState("camara");
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [brand, setBrand] = useState("Todas");
   const [category, setCategory] = useState("Todas");
   const [sortMode, setSortMode] = useState<SortMode>("price-asc");
   const [onlyStock, setOnlyStock] = useState(false);
   const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [brands, setBrands] = useState(["Todas"]);
+  const [categories, setCategories] = useState(["Todas"]);
   const [source, setSource] = useState<"loading" | "odoo" | "odoo-error" | "error">("loading");
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [auth, setAuth] = useState<AuthState>(null);
   const [salesDraftQtyByVariant, setSalesDraftQtyByVariant] = useState<Record<number, number>>({});
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
@@ -237,8 +299,14 @@ export default function CatalogoPage() {
     const search = params.get("buscar");
     if (search) {
       setQuery(search);
+      setDebouncedQuery(search);
     }
   }, []);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedQuery(query), 250);
+    return () => window.clearTimeout(timeout);
+  }, [query]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -248,7 +316,16 @@ export default function CatalogoPage() {
       setSource("loading");
 
       try {
-        const response = await fetch(`${apiBaseUrl}/api/catalog/products`, {
+        const params = new URLSearchParams({
+          search: debouncedQuery.trim(),
+          brand,
+          category,
+          onlyStock: String(onlyStock),
+          sort: sortMode,
+          limit: String(DISPLAY_STEP),
+          offset: "0",
+        });
+        const response = await fetch(`${apiBaseUrl}/api/catalog/products-page?${params}`, {
           signal: controller.signal,
         });
 
@@ -256,12 +333,16 @@ export default function CatalogoPage() {
           throw new Error(`Catalog request failed: ${response.status}`);
         }
 
-        const odooProducts = (await response.json()) as CatalogProduct[];
-        setProducts(Array.isArray(odooProducts) ? odooProducts : []);
+        const catalogPage = (await response.json()) as CatalogPageResponse;
+        setProducts(Array.isArray(catalogPage.products) ? catalogPage.products : []);
+        setTotalProducts(Number(catalogPage.total ?? 0));
+        setBrands(Array.isArray(catalogPage.brands) ? catalogPage.brands : ["Todas"]);
+        setCategories(Array.isArray(catalogPage.categories) ? catalogPage.categories : ["Todas"]);
         setSource(response.headers.get("X-Catalog-Status") === "unavailable" ? "odoo-error" : "odoo");
       } catch {
         if (!controller.signal.aborted) {
           setProducts([]);
+          setTotalProducts(0);
           setSource("error");
         }
       }
@@ -269,7 +350,7 @@ export default function CatalogoPage() {
 
     loadProducts();
     return () => controller.abort();
-  }, []);
+  }, [brand, category, debouncedQuery, onlyStock, sortMode]);
 
   useEffect(() => {
     const token = localStorage.getItem("wc_access_token");
@@ -302,48 +383,47 @@ export default function CatalogoPage() {
     };
   }, [isStaff]);
 
-  const brands = useMemo(() => {
-    return ["Todas", ...Array.from(new Set(products.map((product) => product.brand || "Worldcam"))).sort()];
-  }, [products]);
-
-  const categories = useMemo(() => {
-    return ["Todas", ...Array.from(new Set(products.map((product) => product.category || "Sin categoria"))).sort()];
-  }, [products]);
-
   const activeFilterCount = [
     brand !== "Todas",
     category !== "Todas",
     onlyStock,
   ].filter(Boolean).length;
 
-  const filteredProducts = useMemo(() => {
-    const hasQuery = searchTokens(query).length > 0;
-
-    const result = products.flatMap((product) => {
-      const matchesBrand = brand === "Todas" || product.brand === brand;
-      const matchesCategory = category === "Todas" || product.category === category;
-      const matchesStock = !onlyStock || product.stock > 0;
-      if (!matchesBrand || !matchesCategory || !matchesStock) return [];
-
-      const searchScore = productSearchScore(product, query);
-      return !hasQuery || searchScore > 0 ? [{ product, searchScore }] : [];
-    });
-
-    return [...result]
-      .sort((a, b) => {
-        if (hasQuery && b.searchScore !== a.searchScore) return b.searchScore - a.searchScore;
-        if (sortMode === "price-desc") return b.product.price - a.product.price;
-        if (sortMode === "name-asc") return a.product.name.localeCompare(b.product.name);
-        if (sortMode === "stock-desc") return b.product.stock - a.product.stock;
-        return a.product.price - b.product.price;
-      })
-      .map((item) => item.product);
-  }, [brand, category, onlyStock, products, query, sortMode]);
+  const visibleProducts = products;
 
   function clearFilters() {
     setBrand("Todas");
     setCategory("Todas");
     setOnlyStock(false);
+  }
+
+  async function loadMoreProducts() {
+    if (isLoadingMore || products.length >= totalProducts) return;
+
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const params = new URLSearchParams({
+      search: debouncedQuery.trim(),
+      brand,
+      category,
+      onlyStock: String(onlyStock),
+      sort: sortMode,
+      limit: String(DISPLAY_STEP),
+      offset: String(products.length),
+    });
+
+    setIsLoadingMore(true);
+    try {
+      const response = await fetch(`${apiBaseUrl}/api/catalog/products-page?${params}`);
+      if (!response.ok) throw new Error(`Catalog request failed: ${response.status}`);
+      const catalogPage = (await response.json()) as CatalogPageResponse;
+      setProducts((current) => [...current, ...(Array.isArray(catalogPage.products) ? catalogPage.products : [])]);
+      setTotalProducts(Number(catalogPage.total ?? totalProducts));
+      setSource(response.headers.get("X-Catalog-Status") === "unavailable" ? "odoo-error" : "odoo");
+    } catch {
+      setSource("error");
+    } finally {
+      setIsLoadingMore(false);
+    }
   }
 
   function handleAddToCart(product: CatalogProduct) {
@@ -420,7 +500,7 @@ export default function CatalogoPage() {
 
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
-                <p className="text-2xl font-black">{filteredProducts.length}</p>
+                <p className="text-2xl font-black">{totalProducts}</p>
                 <p className="text-xs font-black uppercase text-white/55">Resultados</p>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
@@ -541,7 +621,7 @@ export default function CatalogoPage() {
         <div>
           <div className="mb-4 flex flex-col gap-3 rounded-lg border border-blue-300/15 bg-[#0d1324] px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-xs font-black uppercase text-mint">{filteredProducts.length} productos</p>
+              <p className="text-xs font-black uppercase text-mint">{totalProducts} productos</p>
               <p className="truncate text-sm font-semibold text-blue-100/65">
                 {query.trim() ? `Busqueda: ${query.trim()}` : "Catalogo disponible"}
               </p>
@@ -582,7 +662,7 @@ export default function CatalogoPage() {
                 <div key={index} className="h-[360px] animate-pulse rounded-lg border border-white/10 bg-white/[0.04]" />
               ))}
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : totalProducts === 0 ? (
             <div className="rounded-lg border border-white/10 bg-white/[0.04] p-10 text-center">
               <PackageSearch className="mx-auto h-10 w-10 text-blue-100/45" aria-hidden />
               <h2 className="mt-4 text-2xl font-black">No hay productos para mostrar</h2>
@@ -595,8 +675,9 @@ export default function CatalogoPage() {
               </p>
             </div>
           ) : (
+            <>
             <div className={`grid gap-3 sm:grid-cols-2 ${filtersOpen ? "xl:grid-cols-3 2xl:grid-cols-4" : "lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
-              {filteredProducts.map((product) => (
+              {visibleProducts.map((product) => (
                 (() => {
                   const variantId = Number(product.variantId ?? product.id);
                   const draftQty = Number.isFinite(variantId) ? salesDraftQtyByVariant[variantId] ?? 0 : 0;
@@ -611,14 +692,7 @@ export default function CatalogoPage() {
                     className="relative flex shrink-0 items-center justify-center bg-white p-2 outline-none transition max-sm:w-[38%] sm:aspect-square sm:w-full sm:p-3"
                     aria-label={`Ver detalle de ${product.name}`}
                   >
-                    {product.image ? (
-                      <img className="h-full w-full object-contain transition duration-200 group-hover:scale-[1.02]" src={product.image} alt={product.name} />
-                    ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center rounded bg-white/[0.03] text-blue-100/30">
-                        <PackageSearch className="h-14 w-14" aria-hidden />
-                        <span className="mt-3 text-xs font-black uppercase tracking-widest">Sin imagen</span>
-                      </div>
-                    )}
+                    <ProductImage product={product} />
                     {product.stock > 0 ? (
                       <span className="absolute right-2 top-2 rounded-md bg-mint px-1.5 py-1 text-[10px] font-black text-ink sm:right-3 sm:top-3 sm:px-2 sm:text-xs">
                         Disponible
@@ -652,7 +726,7 @@ export default function CatalogoPage() {
                       </p>
                     ) : (
                       <p className="mt-2 line-clamp-2 text-xs font-semibold leading-5 text-blue-100/45 sm:text-sm">
-                        Ficha de Odoo con precio, clave y existencia disponible.
+                        Ficha de {product.source === "syscom" ? "Syscom" : product.source === "merged" ? "Odoo y Syscom" : "Odoo"} con precio, clave y existencia disponible.
                       </p>
                     )}
 
@@ -668,13 +742,19 @@ export default function CatalogoPage() {
                         <span>Existencia</span>
                         <span className={product.stock > 0 ? "font-black text-mint" : "font-black text-coral"}>{product.stock}</span>
                       </p>
+                      {product.source === "merged" ? (
+                        <p className="mt-1 flex items-center justify-between gap-2 text-blue-100/55">
+                          <span>Wcam / Syscom</span>
+                          <span className="font-black text-blue-100">{product.wcamStock ?? 0} / {product.syscomStock ?? 0}</span>
+                        </p>
+                      ) : null}
                     </div>
 
                     <div className="mt-auto pt-2 sm:pt-4">
                       <p className="text-xl font-black text-white sm:text-2xl">{currency.format(product.price)}</p>
                       <p className="mt-1 inline-flex items-center gap-1 rounded bg-blue-500/15 px-2 py-1 text-[10px] font-black uppercase text-blue-200 sm:text-xs">
                         <Tag className="h-3 w-3" aria-hidden />
-                        Precio Odoo
+                        {product.source === "syscom" ? "Precio Syscom" : product.source === "merged" ? "Precio catalogo" : "Precio Odoo"}
                       </p>
                     </div>
 
@@ -729,6 +809,18 @@ export default function CatalogoPage() {
                 })()
               ))}
             </div>
+            {visibleProducts.length < totalProducts ? (
+              <div className="mt-6 flex justify-center">
+                <button
+                  className="h-12 rounded-lg border border-blue-400/35 bg-blue-700/20 px-5 text-sm font-black text-blue-100 transition hover:bg-blue-700/35"
+                  onClick={loadMoreProducts}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? "Cargando..." : `Ver mas productos (${totalProducts - visibleProducts.length} restantes)`}
+                </button>
+              </div>
+            ) : null}
+            </>
           )}
         </div>
       </section>

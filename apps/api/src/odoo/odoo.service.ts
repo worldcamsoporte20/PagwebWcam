@@ -212,7 +212,6 @@ export class OdooService {
 
   async getConnectionStatus(): Promise<OdooConnectionStatus> {
     try {
-      const uid = await this.authenticate();
       const productCount = await this.executeKw<number>(
         "product.template",
         "search_count",
@@ -221,8 +220,7 @@ export class OdooService {
 
       return {
         connected: true,
-        message: "Odoo authentication succeeded",
-        uid,
+        message: "Odoo JSON-2 authentication succeeded",
         productCount,
       };
     } catch (error) {
@@ -1054,8 +1052,6 @@ export class OdooService {
           "categ_id",
           "product_variant_id",
           "image_128",
-          "image_512",
-          "description",
           "description_sale",
           "product_variant_count",
           "type",
@@ -1092,11 +1088,131 @@ export class OdooService {
         price: Number(record.list_price ?? 0),
         category,
         brand: this.inferBrand(record.name, category),
-        image: record.image_512 ? `data:image/png;base64,${record.image_512}` : record.image_128 ? `data:image/png;base64,${record.image_128}` : undefined,
-        description: this.cleanDescription(record.description_sale || record.description),
-        internalNotesHtml: this.cleanProductHtml(record.description),
+        description: this.cleanDescription(record.description_sale),
       };
     });
+  }
+
+  async getProductImage(productId: number): Promise<Buffer | null> {
+    const records = await this.executeKw<Array<{ image_128?: string | false }>>(
+      "product.template",
+      "search_read",
+      [[["id", "=", productId]]],
+      {
+        fields: ["image_128"],
+        limit: 1,
+      },
+    );
+
+    const image = records[0]?.image_128;
+    return typeof image === "string" ? Buffer.from(image, "base64") : null;
+  }
+
+  async getProductDetail(templateId: number): Promise<OdooProduct | null> {
+    let records = await this.executeKw<OdooProductRecord[]>(
+      "product.template",
+      "search_read",
+      [[["id", "=", templateId]]],
+      {
+        fields: [
+          "id",
+          "default_code",
+          "sku",
+          "barcode",
+          "name",
+          "list_price",
+          "qty_available",
+          "virtual_available",
+          "incoming_qty",
+          "outgoing_qty",
+          "categ_id",
+          "product_variant_id",
+          "image_128",
+          "image_512",
+          "description",
+          "description_sale",
+          "product_variant_count",
+          "type",
+        ],
+        limit: 1,
+      },
+    );
+
+    if (!records[0]) {
+      const variants = await this.executeKw<Array<{ product_tmpl_id?: OdooMany2One }>>(
+        "product.product",
+        "search_read",
+        [[["id", "=", templateId]]],
+        {
+          fields: ["product_tmpl_id"],
+          limit: 1,
+        },
+      );
+      const templateFromVariant = variants[0]?.product_tmpl_id;
+      const resolvedTemplateId = Array.isArray(templateFromVariant) ? templateFromVariant[0] : undefined;
+
+      if (resolvedTemplateId) {
+        records = await this.executeKw<OdooProductRecord[]>(
+          "product.template",
+          "search_read",
+          [[["id", "=", resolvedTemplateId]]],
+          {
+            fields: [
+              "id",
+              "default_code",
+              "sku",
+              "barcode",
+              "name",
+              "list_price",
+              "qty_available",
+              "virtual_available",
+              "incoming_qty",
+              "outgoing_qty",
+              "categ_id",
+              "product_variant_id",
+              "image_128",
+              "image_512",
+              "description",
+              "description_sale",
+              "product_variant_count",
+              "type",
+            ],
+            limit: 1,
+          },
+        );
+      }
+    }
+
+    const record = records[0];
+    if (!record) return null;
+
+    const variantId = Array.isArray(record.product_variant_id) ? record.product_variant_id[0] : record.id;
+    const quantStock = await this.getInternalQuantStock([variantId]);
+    const category = Array.isArray(record.categ_id) ? record.categ_id[1] : "Sin categoria";
+    const reference = this.cleanOdooValue(record.default_code) || String(record.id);
+    const sku = this.cleanOdooValue(record.sku) || reference;
+    const barcodeValue = this.cleanOdooValue(record.barcode);
+    const computedStock = this.pickStockQuantity(record);
+    const internalStock = quantStock.get(variantId);
+
+    return {
+      id: record.id,
+      variantId,
+      sku,
+      clave: reference,
+      barcode: barcodeValue || undefined,
+      name:
+        record.product_variant_count && record.product_variant_count > 1
+          ? `${record.name} (${record.product_variant_count} variantes)`
+          : record.name,
+      stock: internalStock !== undefined ? internalStock : computedStock,
+      price: Number(record.list_price ?? 0),
+      category,
+      brand: this.inferBrand(record.name, category),
+      image: record.image_512 ? `data:image/png;base64,${record.image_512}` : record.image_128 ? `data:image/png;base64,${record.image_128}` : undefined,
+      description: this.cleanDescription(record.description_sale || record.description),
+      internalNotesHtml: this.cleanProductHtml(record.description),
+    };
   }
 
   private async getInternalQuantStock(productIds: number[]): Promise<Map<number, number>> {
@@ -1168,13 +1284,43 @@ export class OdooService {
   ): Promise<T> {
     const db = this.requiredConfig("ODOO_DB");
     const apiKey = this.requiredConfig("ODOO_API_KEY");
-    const uid = await this.authenticate();
+    const baseUrl = this.requiredConfig("ODOO_URL").replace(/\/$/, "");
+    const body: Record<string, unknown> = { ...kwargs };
 
-    return this.jsonRpc<T>({
-      service: "object",
-      method: "execute_kw",
-      args: [db, uid, apiKey, model, method, args, kwargs],
-    });
+    if (["search", "search_count", "search_read", "name_search"].includes(method)) {
+      body.domain = args[0] ?? [];
+    } else if (method === "read" || method === "unlink") {
+      body.ids = args[0] ?? [];
+    } else if (method === "write") {
+      body.ids = args[0] ?? [];
+      body.vals = args[1] ?? {};
+    } else if (method === "create") {
+      body.vals_list = Array.isArray(args[0]) ? args[0] : [args[0] ?? {}];
+    } else if (args.length > 0) {
+      body.ids = args[0] ?? [];
+    }
+
+    const response = await fetch(
+      `${baseUrl}/json/2/${encodeURIComponent(model)}/${encodeURIComponent(method)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `bearer ${apiKey}`,
+          "Content-Type": "application/json; charset=utf-8",
+          "X-Odoo-Database": db,
+          "User-Agent": "WorldCam-Catalog/1.0",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60_000),
+      },
+    );
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+      throw new Error(payload?.message ?? `Odoo JSON-2 request failed: ${response.status}`);
+    }
+
+    return (await response.json()) as T;
   }
 
   private async readSaleOrderSummary(orderId: number): Promise<{

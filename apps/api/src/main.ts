@@ -21,8 +21,13 @@ async function bootstrap() {
   );
   app.setGlobalPrefix("api");
 
-  const port = config.get<number>("API_PORT", 4000);
-  await app.listen(port);
+  const configuredPort = config.get<string | number>("API_PORT", 4000);
+  const port = Number(configuredPort) || 4000;
+  await app.listen(port, "0.0.0.0");
+  console.log(`API listening on http://localhost:${port}/api`);
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error("API failed to start", error);
+  process.exit(1);
+});
