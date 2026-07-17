@@ -34,6 +34,7 @@ const sitemapSections = [
       { label: "Mi cuenta", href: "/cuenta" },
       { label: "Política de garantía", href: "/poli_garantia" },
       { label: "Aviso de privacidad", href: "/avisosprivacidad" },
+      { label: "Política de Devoluciones", href: "/poli_devoluciones" },
     ],
   },
 ];
