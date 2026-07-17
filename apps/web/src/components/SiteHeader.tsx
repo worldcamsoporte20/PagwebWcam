@@ -1,18 +1,20 @@
 "use client";
 import {
+  ArrowRight,
   BarChart3,
   FileText,
   Flame,
+  Gamepad2,
   GraduationCap,
   Heart,
   Home as HomeIcon,
   LayoutGrid,
-  Phone,
-  Moon,
+  Moon,        // nuevo
+  Percent,
   Search,
   ShoppingCart,
   Sparkles,
-  Sun,
+  Sun,         // nuevo
   Tag,
   Truck,
   UserRound,
@@ -23,7 +25,7 @@ import { SALES_DRAFT_UPDATED_EVENT, readSalesDraftItems } from "../lib/salesDraf
 import { SideMegaMenuButtonV2 } from "./SideMegaMenuButtonV2";
 
 type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas" | "cursos";
-type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cotizacion";
+type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cupones" | "cursos" | "cotizacion";
 type AuthState = { email: string; initials: string; role: string } | null;
 
 type NavItem = {
@@ -38,7 +40,8 @@ const navItems: NavItem[] = [
   { label: "Productos", href: "/catalogo", icon: LayoutGrid, key: "catalogo" },
   { label: "Nuevos", href: "/#nuevos", icon: Flame, key: "nuevos" },
   { label: "Para ti", href: "/#para-ti", icon: Sparkles, key: "para-ti" },
-  { label: "Cursos", href: "/cursos", icon: GraduationCap, key: "cursos" },
+  { label: "Cupones", href: "/cupones", icon: Percent, key: "cupones" },
+  { label: "Cursos", href: "/#eventos", icon: GraduationCap, key: "cursos" },
   { label: "Promociones", href: "/promociones", icon: Tag, key: "promociones" },
 ];
 
@@ -139,14 +142,6 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
 
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
 
-  const fullNavItems = [
-    ...navItems,
-    ...(auth && !isStaff
-      ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" as NavItemKey }]
-      : []),
-    ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" as NavItemKey }] : []),
-  ];
-
   return (
     <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
       <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
@@ -171,8 +166,16 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
 
       <div className="bg-white shadow-[0_1px_0_rgba(2,44,150,0.08)] dark:bg-[#0d1526] dark:text-white">
         <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 md:flex-nowrap lg:px-8">
-          <a href="/" aria-label="Ir a inicio" className="flex h-14 flex-none items-center lg:h-20">
-            <img src="/images/logo/logo.png" alt="Worldcam" className="h-11 w-auto object-contain sm:h-12 lg:h-20" />
+          <a
+            href="/"
+            aria-label="Ir a inicio"
+            className="relative h-20 w-56 flex-none overflow-hidden sm:h-24 sm:w-64 lg:h-28 lg:w-72"
+          >
+            <img
+              src="/images/logo/logo.png"
+              alt="Worldcam"
+              className="absolute left-1/2 top-1/2 w-[122%] max-w-none -translate-x-1/2 -translate-y-1/2"
+            />
           </a>
 
           <div className="order-2 flex w-full min-w-0 flex-1 justify-center md:order-none md:min-w-[340px]">
@@ -259,7 +262,7 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
                 ) : null}
               </a>
             ) : null}
-
+            
             {!isStaff ? (
               <a
                 className="relative flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#022C96] px-3 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] sm:px-4"
@@ -275,41 +278,6 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
               </a>
             ) : null}
           </div>
-        </div>
-
-        {/* Nav principal: Todas las categorias + Inicio, Productos, Nuevos, Para ti, Cursos, Promociones */}
-        <nav className="border-t border-[#CBC9D4] bg-[#FCFCFD] w-full dark:border-white/10 dark:bg-[#0d1526]">
-          <div className="mx-auto flex w-full max-w-[1400px] flex-wrap items-center justify-center gap-2 px-3 py-2 sm:px-4 lg:px-6">
-            <div className="shrink-0">
-              <SideMegaMenuButtonV2 />
-            </div>
-
-            {fullNavItems.map((item) => {
-              const Icon = item.icon;
-              const isHashActive = currentHash && item.key === currentHash;
-              const isActive = isHashActive || (!currentHash && item.key === active);
-
-              return (
-                <a
-                  key={item.label}
-                  className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-black transition ${
-                    isActive
-                      ? "border-[#1E49A2] bg-[#2D70CF]/10 text-[#012477] dark:border-blue-400/40 dark:bg-blue-500/15 dark:text-blue-200"
-                      : "border-[#1E49A2] bg-[#FCFCFD] text-[#12141A] hover:bg-[#CBC9D4]/30 dark:border-white/15 dark:bg-white/[0.04] dark:text-white dark:hover:bg-white/10"
-                  }`}
-                  href={item.href}
-                >
-                  <Icon className="h-4 w-4" aria-hidden />
-                  {item.label}
-                  {item.key === "ventas" && salesDraftQty > 0 ? (
-                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
-                      {salesDraftQty}
-                    </span>
-                  ) : null}
-                </a>
-              );
-            })}
-
             <button
               type="button"
               onClick={() => setIsDark((value) => !value)}
@@ -332,8 +300,47 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
                 </span>
               </span>
             </button>
+
+        </div>
+        
+        <div className="w-full border-t border-[#E8EEF9] bg-white">
+          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-stretch gap-3 px-4 py-2 sm:px-6 md:flex-row md:items-center md:justify-start lg:px-8">
+            <div className="w-full md:w-52">
+              <SideMegaMenuButtonV2 />
+            </div>
+            <nav className="flex w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto overflow-y-hidden pb-1 md:flex-1 md:pb-0">
+              {[
+                ...navItems,
+                ...(auth && !isStaff ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" as const }] : []),
+                ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" as const }] : []),
+              ].map((item) => {
+                const Icon = item.icon;
+                const isHashActive = currentHash && item.key === currentHash;
+                const isActive = isHashActive || (!currentHash && item.key === active);
+
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={`group inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-xs font-black transition sm:text-sm md:flex-1 ${
+                      isActive
+                        ? "bg-[#EAF1FF] text-[#012477] ring-1 ring-inset ring-[#1E49A2]"
+                        : "text-[#012477] hover:bg-[#F1F5FF] hover:text-[#0F46AF]"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 text-[#1E49A2]" aria-hidden />
+                    {item.label}
+                    {item.key === "ventas" && salesDraftQty > 0 ? (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
+                        {salesDraftQty}
+                      </span>
+                    ) : null}
+                  </a>
+                );
+              })}
+            </nav>
           </div>
-        </nav>
+        </div>
       </div>
     </header>
   );
