@@ -2,20 +2,28 @@
 
 import {
   ArrowRight,
+  BadgePercent,
+  Binoculars,
   Camera,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  CreditCard,
   GraduationCap,
+  Headphones,
   Heart,
   MapPin,
+  Monitor,
   PackageSearch,
   Phone,
+  PlugZap,
+  ShieldCheck,
   ShoppingCart,
+  Truck,
   Wifi,
 } from "lucide-react";
 import Image from "next/image";
-import { PointerEvent, useEffect, useRef, useState } from "react";
+import { Fragment, PointerEvent, useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import AntiGravityPtz from "../components/AntiGravityPtz";
 import BrandCarousel from "../components/BrandCarousel";
@@ -47,18 +55,33 @@ type Banner = {
 
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-const defaultPromoSlides: Banner[] = [
+const featuredBanner: Banner = {
+  title: "Tecnología que protege lo que más importa",
+  image: "/images/banner/baner1.png",
+};
+
+const defaultPromoSlides: Banner[] = [featuredBanner];
+
+const serviceBenefits = [
   {
-    title: "Camaras solares 4G",
-    image: "/images/promos/camaras-solares-4g.png",
+    title: "Envíos a todo México",
+    description: "Rápidos y seguros",
+    icon: Truck,
   },
   {
-    title: "Discos duros para videovigilancia",
-    image: "/images/promos/discos-duros-videovigilancia.png",
+    title: "Distribuidores oficiales",
+    description: "Marcas líderes en seguridad",
+    icon: ShieldCheck,
   },
   {
-    title: "Switches de alto rendimiento",
-    image: "/images/promos/switches-alto-rendimiento.png",
+    title: "Asesoría especializada",
+    description: "Soporte antes y después de tu compra",
+    icon: Headphones,
+  },
+  {
+    title: "Pagos seguros",
+    description: "Múltiples métodos de pago",
+    icon: CreditCard,
   },
 ];
 
@@ -96,6 +119,7 @@ const courses = [
 const productRows = [
   {
     key: "cameras",
+    label: "Cámaras",
     eyebrow: "Videovigilancia",
     title: "Camaras mas vendidas",
     description: "Camaras IP, HDCVI, domos, bullets y PTZ listas para tus instalaciones.",
@@ -105,6 +129,7 @@ const productRows = [
   },
   {
     key: "kits",
+    label: "Kits de videovigilancia",
     eyebrow: "Soluciones completas",
     title: "Kits recomendados",
     description: "Combos de videovigilancia para instalar con todos los componentes esenciales.",
@@ -114,6 +139,7 @@ const productRows = [
   },
   {
     key: "networks",
+    label: "Redes",
     eyebrow: "Conectividad",
     title: "Redes y conectividad",
     description: "Switches PoE, routers, cableado y accesorios para una red estable.",
@@ -121,7 +147,95 @@ const productRows = [
     icon: Wifi,
     matches: ["switch", "poe", "router", "access point", "utp", "ethernet", "redes", "network"],
   },
+  {
+    key: "computing",
+    label: "Computación",
+    eyebrow: "Tecnología",
+    title: "Computación y almacenamiento",
+    description: "Equipos, almacenamiento y accesorios para tu operación diaria.",
+    search: "computacion",
+    icon: Monitor,
+    matches: ["computadora", "computacion", "laptop", "monitor", "disco duro", "hard drive", "ssd", "memoria", "teclado", "mouse", "ups"],
+  },
 ] as const;
+
+const cameraPromotions = [
+  {
+    discount: "10% OFF",
+    title: "Binoculares BAK4 Dahua",
+    detail: "Visión nítida 20×50",
+    search: "binoculares",
+    icon: Binoculars,
+  },
+  {
+    discount: "15% OFF",
+    title: "Kit cableado de videovigilancia",
+    detail: "Video balun 4K",
+    search: "kit videovigilancia",
+    icon: Camera,
+  },
+  {
+    discount: "5% OFF",
+    title: "Kit de fuente de poder",
+    detail: "12 V para CCTV",
+    search: "fuente de poder",
+    icon: PlugZap,
+  },
+] as const;
+
+function CameraPromotionsStrip() {
+  return (
+    <aside
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_rgba(15,42,91,.06)] dark:border-white/10 dark:bg-[#101727]"
+      aria-label="Promociones para cámaras"
+    >
+      <div className="flex min-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <a
+          href="/promociones"
+          className="flex min-h-[104px] min-w-[210px] items-center gap-3 bg-[#e71934] px-5 text-white transition hover:bg-[#cb1029] lg:min-w-[230px]"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
+            <BadgePercent className="h-6 w-6" aria-hidden />
+          </span>
+          <span>
+            <strong className="block text-sm font-black leading-tight">Promociones</strong>
+            <span className="mt-1 block text-[11px] font-semibold leading-tight text-white/85">por tiempo limitado</span>
+          </span>
+        </a>
+
+        {cameraPromotions.map((promotion) => {
+          const Icon = promotion.icon;
+          return (
+            <a
+              key={promotion.title}
+              href={`/catalogo?buscar=${encodeURIComponent(promotion.search)}`}
+              className="group flex min-h-[104px] min-w-[265px] flex-1 items-center gap-4 border-r border-slate-200 px-5 transition hover:bg-slate-50 dark:border-white/10 dark:hover:bg-white/[0.04]"
+            >
+              <span className="flex h-16 w-20 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition group-hover:text-blue-700 dark:bg-white/[0.05] dark:text-blue-200">
+                <Icon className="h-10 w-10" strokeWidth={1.45} aria-hidden />
+              </span>
+              <span className="min-w-0">
+                <strong className="block text-sm font-black text-[#e71934]">{promotion.discount}</strong>
+                <span className="mt-1 block text-xs font-extrabold leading-tight text-slate-900 dark:text-white">{promotion.title}</span>
+                <span className="mt-1 block text-[10px] font-semibold text-slate-500 dark:text-blue-100/55">{promotion.detail}</span>
+              </span>
+            </a>
+          );
+        })}
+
+        <a
+          href="/promociones"
+          className="flex min-h-[104px] min-w-[200px] items-center justify-center px-5"
+        >
+          <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#e71934]/30 px-4 text-xs font-black text-[#e71934] transition hover:border-[#e71934] hover:bg-red-50 dark:hover:bg-red-500/10">
+            Ver todas las promociones
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </span>
+        </a>
+      </div>
+    </aside>
+  );
+}
 
 function money(value: number) {
   return value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
@@ -133,9 +247,10 @@ function productKey(product: CatalogProduct) {
 
 export default function Homeicon() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const [promoSlides, setPromoSlides] = useState<Banner[]>(defaultPromoSlides);
+  const [promoSlides] = useState<Banner[]>(defaultPromoSlides);
   const [catalogRows, setCatalogRows] = useState<Record<string, CatalogProduct[]>>({});
   const [catalogLoading, setCatalogLoading] = useState(true);
+  const [activeProductRow, setActiveProductRow] = useState<(typeof productRows)[number]["key"]>("cameras");
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const carouselRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -232,35 +347,6 @@ export default function Homeicon() {
 
     return () => window.clearInterval(timer);
   }, [catalogLoading]);
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadBanners() {
-      try {
-        const response = await fetch(
-          `${apiBaseUrl || "http://localhost:4000"}/api/banner`,
-          { cache: "no-store" },
-        );
-        if (!response.ok) throw new Error("No se pudieron cargar los banners.");
-
-        const data: Banner[] = await response.json();
-        if (!active || !Array.isArray(data) || data.length === 0) return;
-
-        const version = Date.now();
-        setPromoSlides(data.map((banner) => ({
-          ...banner,
-          image: `${banner.image}${banner.image.includes("?") ? "&" : "?"}v=${version}`,
-        })));
-        setActiveSlide(0);
-      } catch (error) {
-        console.error("Error al cargar banners:", error);
-      }
-    }
-
-    loadBanners();
-    return () => { active = false; };
-  }, []);
 
   useEffect(() => {
     if (activeSlide >= promoSlides.length) setActiveSlide(0);
@@ -364,26 +450,33 @@ export default function Homeicon() {
     window.location.href = "/catalogo";
   };
 
+  const activeProductCategory = productRows.find((row) => row.key === activeProductRow) ?? productRows[0];
+  const featuredProducts = catalogRows[activeProductCategory.key] ?? [];
+
   return (
     <main className="home-page min-h-screen bg-white text-black dark:bg-[#080d19] dark:text-white">
       <SiteHeader active="home" />
 
-      <section className="bg-transparent">
-        <div className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
-          <div className="overflow-hidden bg-white shadow-soft">
+      <section className="w-full overflow-hidden bg-white" aria-labelledby="home-hero-title">
+        <h1 id="home-hero-title" className="sr-only">Tecnología que protege lo que más importa</h1>
+        <div className="w-full">
+          <div className="w-full overflow-hidden bg-white">
             <div className="relative select-none overflow-hidden bg-white">
-              <div className="relative w-full min-h-[280px] md:min-h-[320px] lg:min-h-[360px]" style={{ aspectRatio: "1774/484" }}>
+              <div className="relative w-full min-h-[180px] sm:min-h-0" style={{ aspectRatio: "1920/540" }}>
                 <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden transition-opacity duration-500">
                   <Image
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                     src={slide.image}
                     alt={slide.title}
                     fill
                     sizes="100vw"
+                    quality={90}
+                    priority
+                    fetchPriority="high"
                     draggable={false}
                     onError={(event) => {
                       const target = event.target as HTMLImageElement;
-                      target.src = "/images/dahua-ptz-3d-flyer.png";
+                      target.src = "/images/banner/baner1.png";
                     }}
                   />
                 </div>
@@ -397,29 +490,154 @@ export default function Homeicon() {
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
-                aria-label={`${slide.title}. Presiona para ver productos o desliza para cambiar promocion.`}
+                aria-label={`${slide.title}. Ver catálogo completo.`}
               />
 
-              <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 rounded-full bg-white/95 px-2 py-1.5 shadow-soft backdrop-blur md:bottom-5 md:right-5 md:gap-2 md:px-3 md:py-2">
-                {promoSlides.map((item, index) => (
-                  <button
-                    key={item.title}
-                    className={`h-2 rounded-full transition-all ${activeSlide === index ? "w-8 bg-blue-700" : "w-2 bg-slate-400"}`}
-                    onClick={() => setActiveSlide(index)}
-                    aria-label={`Ver promocion ${index + 1}`}
-                  />
-                ))}
-                <button className="ml-2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-ink" onClick={goToPrevious} aria-label="Promocion anterior">
-                  <ChevronLeft className="h-5 w-5" aria-hidden />
-                </button>
-                <button className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-ink" onClick={goToNext} aria-label="Siguiente promocion">
-                  <ChevronRight className="h-5 w-5" aria-hidden />
-                </button>
-              </div>
             </div>
           </div>
         </div>
       </section>
+
+      <section className="border-y border-slate-200 bg-white dark:border-white/10 dark:bg-[#0b1020]" aria-labelledby="beneficios-worldcam">
+        <h2 id="beneficios-worldcam" className="sr-only">Beneficios de comprar en WorldCam México</h2>
+        <ul className="mx-auto grid max-w-7xl grid-cols-1 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8" role="list">
+          {serviceBenefits.map((benefit, index) => {
+            const Icon = benefit.icon;
+            return (
+              <li
+                key={benefit.title}
+                className={`border-slate-200 dark:border-white/10 ${index < 3 ? "border-b lg:border-b-0" : ""} ${index % 2 === 0 ? "sm:border-r lg:border-r" : ""} ${index === 1 ? "lg:border-r" : ""} ${index === 2 ? "sm:border-b-0" : ""}`}
+              >
+                <article className="flex min-h-[76px] items-center gap-3 px-3 py-3 sm:min-h-[82px] sm:px-5 lg:justify-center lg:px-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f1f5ff] text-[#0757d8] ring-1 ring-blue-100 dark:bg-blue-500/15 dark:text-blue-300 dark:ring-blue-400/20">
+                    <Icon className="h-[19px] w-[19px]" strokeWidth={2} aria-hidden />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-[12px] font-extrabold leading-tight text-[#071b50] dark:text-white sm:text-[13px]">{benefit.title}</h3>
+                    <p className="mt-1 text-[10px] leading-tight text-slate-500 dark:text-blue-100/60 sm:text-[11px]">{benefit.description}</p>
+                  </div>
+                </article>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      <section className="bg-[#f7f9fc] px-3 pb-1 pt-5 dark:bg-[#080d19] sm:px-6 lg:px-8" aria-labelledby="categorias-productos-titulo">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-600 dark:text-blue-300">Compra por categoría</p>
+              <h2 id="categorias-productos-titulo" className="mt-1 text-lg font-black text-[#071b50] dark:text-white sm:text-xl">Encuentra lo que necesitas</h2>
+            </div>
+            <a href="/catalogo" className="hidden items-center gap-1 text-xs font-extrabold text-blue-700 hover:text-blue-500 dark:text-blue-200 sm:inline-flex">Ver todas las categorías <ArrowRight className="h-3.5 w-3.5" /></a>
+          </div>
+          <ul className="grid grid-cols-2 gap-2.5 lg:grid-cols-4" role="list">
+            {productRows.map((row) => {
+              const Icon = row.icon;
+              const selected = activeProductRow === row.key;
+              return (
+                <li key={`category-${row.key}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveProductRow(row.key);
+                      window.setTimeout(() => document.getElementById(`productos-${row.key}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    }}
+                    className={`group flex min-h-[92px] w-full items-center gap-3 rounded-xl border bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:bg-[#101727] sm:min-h-[104px] sm:p-4 ${selected ? "border-blue-500 ring-2 ring-blue-100 dark:border-blue-400 dark:ring-blue-500/15" : "border-slate-200 dark:border-white/10"}`}
+                    aria-pressed={selected}
+                  >
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition sm:h-12 sm:w-12 ${selected ? "bg-blue-700 text-white" : "bg-blue-50 text-blue-700 group-hover:bg-blue-100 dark:bg-blue-500/15 dark:text-blue-300"}`}><Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.8} /></span>
+                    <span className="min-w-0 flex-1">
+                      <strong className="block text-xs font-black leading-tight text-[#071b50] dark:text-white sm:text-sm">{row.label}</strong>
+                      <span className="mt-1 line-clamp-2 block text-[10px] leading-4 text-slate-500 dark:text-blue-100/55 sm:text-[11px]">{row.description}</span>
+                    </span>
+                    <ChevronRight className="hidden h-4 w-4 shrink-0 text-blue-600 sm:block" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      {false && (<section id="productos-destacados" className="scroll-mt-32 bg-[#f7f9fc] px-3 py-5 dark:bg-[#080d19] sm:px-6 lg:px-8" aria-labelledby="productos-destacados-titulo">
+        <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,42,91,.07)] dark:border-white/10 dark:bg-[#101727]">
+          <header className="flex flex-col border-b border-slate-200 px-4 pt-4 dark:border-white/10 lg:flex-row lg:items-end lg:justify-between lg:px-5 lg:pt-0">
+            <div className="flex min-w-0 flex-1 flex-col lg:flex-row lg:items-end lg:gap-8">
+              <div className="shrink-0 pb-3 lg:py-4">
+                <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-600 dark:text-blue-300">Selección WorldCam</p>
+                <h2 id="productos-destacados-titulo" className="mt-1 text-xl font-black text-[#071b50] dark:text-white sm:text-2xl">Productos destacados</h2>
+              </div>
+              <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Categorías de productos destacados">
+                {productRows.map((row) => (
+                  <button
+                    key={row.key}
+                    type="button"
+                    onClick={() => setActiveProductRow(row.key)}
+                    className={`relative h-11 shrink-0 px-3 text-xs font-extrabold transition sm:px-4 ${activeProductRow === row.key ? "text-blue-700 dark:text-blue-300" : "text-slate-500 hover:text-blue-700 dark:text-blue-100/55"}`}
+                    aria-pressed={activeProductRow === row.key}
+                  >
+                    {row.title}
+                    {activeProductRow === row.key ? <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-blue-700 dark:bg-blue-300" /> : null}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            <div className="hidden items-center gap-2 pb-3 lg:flex">
+              <button type="button" onClick={() => moveProductCarousel(activeProductCategory.key, -1)} className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-700 dark:border-white/15 dark:text-white" aria-label="Productos anteriores"><ChevronLeft className="h-4 w-4" /></button>
+              <button type="button" onClick={() => moveProductCarousel(activeProductCategory.key, 1)} className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-700 dark:border-white/15 dark:text-white" aria-label="Más productos"><ChevronRight className="h-4 w-4" /></button>
+              <a href="/catalogo" className="ml-2 inline-flex items-center gap-1 text-xs font-extrabold text-blue-700 hover:text-blue-500 dark:text-blue-200">Ver catálogo completo <ArrowRight className="h-3.5 w-3.5" /></a>
+            </div>
+          </header>
+
+          <div
+            ref={(element) => { carouselRefs.current[activeProductCategory.key] = element; }}
+            onPointerEnter={() => { pausedCarousels.current[activeProductCategory.key] = true; }}
+            onPointerLeave={() => { pausedCarousels.current[activeProductCategory.key] = false; }}
+            className="grid snap-x snap-mandatory auto-cols-[minmax(220px,82%)] grid-flow-col overflow-x-auto [scrollbar-width:none] sm:auto-cols-[calc((100%_-_1px)/2)] lg:auto-cols-[calc((100%_-_2px)/3)] xl:auto-cols-[calc((100%_-_4px)/5)] [&::-webkit-scrollbar]:hidden"
+            aria-label={`Productos destacados: ${activeProductCategory.title}`}
+          >
+            {featuredProducts.map((product, index) => {
+              const favorite = favoriteIds.has(productKey(product));
+              const productHref = product.id ? `/catalogo/${product.id}` : `/catalogo?buscar=${encodeURIComponent(product.sku)}`;
+              return (
+                <article key={`${activeProductCategory.key}-${product.id ?? product.sku}`} className="group relative flex min-h-[420px] snap-start flex-col border-r border-slate-200 bg-white p-3.5 transition hover:z-10 hover:shadow-xl dark:border-white/10 dark:bg-[#101727]">
+                  {index < 3 ? <span className="absolute left-3 top-3 z-20 rounded bg-[#ef233c] px-2 py-1 text-[9px] font-black uppercase text-white">Top {index + 1}</span> : null}
+                  <a href={productHref} className="block">
+                    <div className="relative flex h-44 items-center justify-center bg-white p-3 dark:bg-[#101727] sm:h-48">
+                      {product.image ? (
+                        <Image src={product.image} alt={`${product.name}${product.model ? ` modelo ${product.model}` : ""}`} fill sizes="(max-width: 640px) 75vw, (max-width: 1280px) 33vw, 240px" className="object-contain transition duration-300 group-hover:scale-105" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                      ) : <PackageSearch className="h-20 w-20 text-slate-200" aria-hidden />}
+                    </div>
+                    <div className="pt-2">
+                      <p className="text-[9px] font-black uppercase tracking-[.1em] text-blue-600 dark:text-blue-300">{product.brand || "WorldCam"}</p>
+                      <h3 className="mt-1 line-clamp-2 min-h-10 text-[13px] font-bold leading-5 text-slate-800 group-hover:text-blue-700 dark:text-white">{product.name}</h3>
+                      <p className="mt-1 truncate text-[10px] font-semibold text-slate-500 dark:text-blue-100/55">Modelo: <span className="text-slate-700 dark:text-blue-100">{product.model || product.clave || product.sku}</span></p>
+                      <p className="mt-0.5 truncate text-[10px] text-slate-400 dark:text-blue-100/45">SKU: {product.sku || product.clave || "N/D"}</p>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {product.category ? <span className="max-w-full truncate rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[9px] font-semibold text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-blue-100/60">{product.category}</span> : null}
+                        {product.stock > 0 ? <span className="rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">En existencia</span> : null}
+                      </div>
+                    </div>
+                  </a>
+                  <div className="mt-auto pt-3">
+                    <p className="text-xl font-black tracking-tight text-[#071b50] dark:text-white">{product.price > 0 ? money(product.price) : "Cotizar"}</p>
+                    <p className={`mt-1 text-[10px] font-bold ${product.stock > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-300"}`}>{product.stock > 0 ? "✓ Disponible" : "Disponibilidad por confirmar"}</p>
+                    <div className="mt-2 grid grid-cols-[1fr_36px] gap-2">
+                      <button type="button" onClick={() => handleAddToCart(product)} className={`flex h-9 items-center justify-center gap-1.5 rounded-md px-2 text-[11px] font-extrabold text-white transition ${lastAddedId === productKey(product) ? "bg-emerald-600" : "bg-blue-700 hover:bg-blue-600"}`} aria-label={`Agregar ${product.name} al carrito`}><ShoppingCart className="h-4 w-4" />{lastAddedId === productKey(product) ? "Agregado" : "Agregar al carrito"}</button>
+                      <button type="button" onClick={() => toggleFavorite(product)} className={`flex h-9 w-9 items-center justify-center rounded-md border transition ${favorite ? "border-red-200 text-red-500" : "border-slate-200 text-slate-500 hover:text-red-500 dark:border-white/15"}`} aria-label={`${favorite ? "Quitar de" : "Agregar a"} favoritos: ${product.name}`} aria-pressed={favorite}><Heart className={`h-4 w-4 ${favorite ? "fill-current" : ""}`} /></button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+            {catalogLoading ? Array.from({ length: 5 }).map((_, index) => <div key={`featured-loading-${index}`} className="h-[420px] animate-pulse border-r border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/5" />) : null}
+            {!catalogLoading && featuredProducts.length === 0 ? <div className="col-span-full flex h-60 items-center justify-center px-6 text-center text-sm font-semibold text-slate-500">No encontramos productos destacados en esta categoría.</div> : null}
+          </div>
+          <div className="border-t border-slate-200 p-3 text-center dark:border-white/10 lg:hidden"><a href="/catalogo" className="inline-flex items-center gap-1 text-xs font-extrabold text-blue-700 dark:text-blue-200">Ver catálogo completo <ArrowRight className="h-3.5 w-3.5" /></a></div>
+        </div>
+      </section>)}
 
       <section id="para-ti" className="scroll-mt-40 border-y border-slate-200 bg-slate-50/80 py-8 dark:border-white/10 dark:bg-[#0b1020] lg:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -443,7 +661,8 @@ export default function Homeicon() {
               const products = catalogRows[row.key] ?? [];
 
               return (
-                <div key={row.key}>
+                <Fragment key={row.key}>
+                <div id={`productos-${row.key}`} className="scroll-mt-32 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_28px_rgba(15,42,91,.06)] dark:border-white/10 dark:bg-[#101727] sm:p-5">
                   <div className="mb-5 flex items-end justify-between gap-4">
                     <div className="flex min-w-0 items-start gap-3">
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-white shadow-sm">
@@ -490,7 +709,7 @@ export default function Homeicon() {
                       }
                     }}
                     aria-label={`${row.title}. Carrusel automatico de productos.`}
-                    className="grid snap-x snap-mandatory auto-cols-[minmax(260px,82%)] grid-flow-col gap-4 overflow-x-auto pb-5 [scrollbar-width:none] sm:auto-cols-[calc((100%_-_1rem)/2)] lg:auto-cols-[calc((100%_-_3rem)/4)] [&::-webkit-scrollbar]:hidden"
+                    className="grid snap-x snap-mandatory auto-cols-[minmax(260px,82%)] grid-flow-col gap-4 overflow-x-auto pb-2 [scrollbar-width:none] sm:auto-cols-[calc((100%_-_1rem)/2)] lg:auto-cols-[calc((100%_-_3rem)/4)] xl:auto-cols-[calc((100%_-_4rem)/5)] [&::-webkit-scrollbar]:hidden"
                   >
                     {products.map((product, index) => (
                       <article key={`${row.key}-${product.id ?? product.sku}`} className="group relative flex w-full snap-start flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg dark:border-white/10 dark:bg-[#121827] dark:hover:border-blue-400/40">
@@ -581,14 +800,18 @@ export default function Homeicon() {
                     ) : null}
                   </div>
                 </div>
+                {row.key === "cameras" ? <CameraPromotionsStrip /> : null}
+                </Fragment>
               );
             })}
           </div>
         </div>
       </section>
 
-      <section id="eventos" className="mx-auto max-w-7xl scroll-mt-40 px-4 py-6 lg:px-8 lg:py-8">
-        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+      <BrandCarousel />
+
+      <section id="flyer-destacado" className="mx-auto max-w-7xl scroll-mt-40 px-4 py-6 lg:px-8 lg:py-8">
+        {false && (<div>
           <div>
             <p className="text-xs font-black uppercase tracking-[0.24em] text-mint">Worldcam Academy</p>
             <h2 className="mt-2 text-3xl font-black text-gray-900 dark:text-white">Cursos y capacitaciones</h2>
@@ -602,12 +825,12 @@ export default function Homeicon() {
           >
             Ver productos PTZ
           </a>
-        </div>
+        </div>)}
 
-        <div className="grid gap-5 lg:grid-cols-[1fr_0.95fr]">
+        <div>
           <AntiGravityPtz />
 
-          <aside className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-soft dark:border-white/10 dark:bg-[#0d1526]">
+          {false && (<aside>
           {/* Header */}
           <div className="relative overflow-hidden border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white px-6 py-5 dark:border-white/10 dark:from-blue-900/40 dark:to-[#0d1526]">
             <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-10">
@@ -687,10 +910,9 @@ export default function Homeicon() {
               Ver todos los cursos
             </a>
           </div>
-          </aside>
+          </aside>)}
         </div>
       </section>
-      <BrandCarousel />
       <TikTokVideos />
 
       <SupportAdvisors />

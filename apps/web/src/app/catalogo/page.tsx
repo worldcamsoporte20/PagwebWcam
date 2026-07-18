@@ -14,7 +14,6 @@ import {
   RotateCcw,
   SlidersHorizontal,
   ShoppingCart,
-  Warehouse,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import SiteHeader from "../../components/SiteHeader";
@@ -63,6 +62,15 @@ const currency = new Intl.NumberFormat("es-MX", {
 });
 
 const DISPLAY_STEP = 60;
+const cameraResolutions = ["Todas", "2", "4", "6", "8"] as const;
+const cameraTypes = [
+  { value: "Todos", label: "Todos" },
+  { value: "domo", label: "Domo" },
+  { value: "bala", label: "Bala" },
+  { value: "ptz", label: "PTZ" },
+  { value: "fullcolor", label: "Full Color" },
+] as const;
+const preferredCameraBrands = ["Dahua", "Tiandy", "IMOU", "Hikvision", "HiLook", "Epcom"];
 
 const categoryIcons: Record<string, typeof Camera> = {
   videovigilancia: Camera,
@@ -283,6 +291,8 @@ export default function CatalogoPage() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [brand, setBrand] = useState("Todas");
   const [category, setCategory] = useState("Todas");
+  const [cameraResolution, setCameraResolution] = useState("Todas");
+  const [cameraType, setCameraType] = useState("Todos");
   const [sortMode, setSortMode] = useState<SortMode>("price-asc");
   const [onlyStock, setOnlyStock] = useState(false);
   const [products, setProducts] = useState<CatalogProduct[]>([]);
@@ -297,6 +307,24 @@ export default function CatalogoPage() {
   const [auth, setAuth] = useState<AuthState>(null);
   const [salesDraftQtyByVariant, setSalesDraftQtyByVariant] = useState<Record<number, number>>({});
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
+  const isCameraSearch = searchTokens(query).includes("camara");
+  const displayedBrands = useMemo(() => {
+    const available = isCameraSearch
+      ? Array.from(new Set(["Todas", ...preferredCameraBrands, ...brands]))
+      : brands;
+    return available.sort((left, right) => {
+      if (left === "Todas") return -1;
+      if (right === "Todas") return 1;
+      const leftPriority = preferredCameraBrands.indexOf(left);
+      const rightPriority = preferredCameraBrands.indexOf(right);
+      if (leftPriority >= 0 || rightPriority >= 0) {
+        if (leftPriority < 0) return 1;
+        if (rightPriority < 0) return -1;
+        return leftPriority - rightPriority;
+      }
+      return left.localeCompare(right);
+    });
+  }, [brands, isCameraSearch]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -304,6 +332,7 @@ export default function CatalogoPage() {
     if (search) {
       setQuery(search);
       setDebouncedQuery(search);
+      if (searchTokens(search).includes("camara")) setFiltersOpen(true);
     }
   }, []);
 
@@ -332,6 +361,8 @@ export default function CatalogoPage() {
           search: debouncedQuery.trim(),
           brand,
           category,
+          cameraResolution,
+          cameraType,
           onlyStock: String(onlyStock),
           sort: sortMode,
           limit: String(DISPLAY_STEP),
@@ -362,7 +393,7 @@ export default function CatalogoPage() {
 
     loadProducts();
     return () => controller.abort();
-  }, [brand, category, debouncedQuery, onlyStock, sortMode]);
+  }, [brand, cameraResolution, cameraType, category, debouncedQuery, onlyStock, sortMode]);
 
   useEffect(() => {
     const token = localStorage.getItem("wc_access_token");
@@ -398,6 +429,8 @@ export default function CatalogoPage() {
   const activeFilterCount = [
     brand !== "Todas",
     category !== "Todas",
+    cameraResolution !== "Todas",
+    cameraType !== "Todos",
     onlyStock,
   ].filter(Boolean).length;
 
@@ -406,6 +439,8 @@ export default function CatalogoPage() {
   function clearFilters() {
     setBrand("Todas");
     setCategory("Todas");
+    setCameraResolution("Todas");
+    setCameraType("Todos");
     setOnlyStock(false);
   }
 
@@ -417,6 +452,8 @@ export default function CatalogoPage() {
       search: debouncedQuery.trim(),
       brand,
       category,
+      cameraResolution,
+      cameraType,
       onlyStock: String(onlyStock),
       sort: sortMode,
       limit: String(DISPLAY_STEP),
@@ -535,34 +572,36 @@ export default function CatalogoPage() {
         </div>
       </section>
 
-      <section className={`mx-auto grid max-w-[1800px] gap-4 px-4 py-4 lg:px-6 ${filtersOpen ? "lg:grid-cols-[300px_1fr]" : "lg:grid-cols-1"}`}>
+      <section className={`mx-auto grid max-w-[1800px] gap-4 px-4 py-4 lg:px-6 ${filtersOpen ? "lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]" : "lg:grid-cols-1"}`}>
         {filtersOpen ? (
-        <aside className="space-y-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0d1324] lg:sticky lg:top-36 lg:max-h-[calc(100vh-10rem)] lg:overflow-y-auto">
+        <aside className="self-start space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_28px_rgba(15,42,91,.06)] dark:border-white/10 dark:bg-[#101727]">
           <div>
-            <div className="flex items-center justify-between gap-3 text-slate-900 dark:text-blue-100">
+            <div className="flex items-center justify-between gap-3 text-[#071b50] dark:text-white">
               <span className="flex items-center gap-2">
-                <SlidersHorizontal className="h-5 w-5 text-blue-300" aria-hidden />
-                <h2 className="text-lg font-black uppercase">Filtros</h2>
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
+                  <SlidersHorizontal className="h-4 w-4" aria-hidden />
+                </span>
+                <h2 className="text-base font-black">Filtrar productos</h2>
               </span>
               <div className="flex gap-2">
                 <button
-                  className="flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-xs font-black text-slate-600 transition hover:bg-slate-50 hover:text-blue-700 dark:border-white/10 dark:text-blue-100/70 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                  className="flex h-8 items-center gap-1 rounded-lg border border-slate-200 px-2 text-[11px] font-black text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-white/10 dark:text-blue-100/70 dark:hover:bg-blue-500/10"
                   onClick={clearFilters}
                 >
                   <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                   Limpiar
                 </button>
                 <button
-                  className="flex h-9 items-center rounded-lg border border-blue-300 px-2.5 text-xs font-black text-blue-700 transition hover:bg-blue-50 dark:border-blue-400/30 dark:text-blue-100 dark:hover:bg-blue-500/15"
+                  className="flex h-8 items-center rounded-lg border border-blue-200 px-2 text-[11px] font-black text-blue-700 transition hover:bg-blue-50 dark:border-blue-400/30 dark:text-blue-100 dark:hover:bg-blue-500/15"
                   onClick={() => setFiltersOpen(false)}
                 >
                   Cerrar
                 </button>
               </div>
             </div>
-            <div className="relative mt-4">
+            <div className="relative mt-3">
               <select
-                className="h-12 w-full appearance-none rounded-lg border border-slate-300 bg-white px-4 pr-10 font-semibold text-slate-800 outline-none focus:border-blue-500 dark:border-blue-400/25 dark:bg-[#090f1f] dark:text-white"
+                className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-3 pr-9 text-xs font-bold text-slate-700 outline-none focus:border-blue-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-white"
                 value={sortMode}
                 onChange={(event) => setSortMode(event.target.value as SortMode)}
               >
@@ -575,22 +614,52 @@ export default function CatalogoPage() {
             </div>
           </div>
 
-          <div className="border-t border-slate-200 pt-5 dark:border-white/10">
-            <h3 className="text-sm font-black uppercase text-slate-900 dark:text-blue-100">Promociones</h3>
-            <label className="mt-4 flex items-center justify-between gap-3 text-sm font-semibold text-slate-600 dark:text-blue-100/80">
-              <span className="flex items-center gap-2">
-                <Warehouse className="h-4 w-4 text-mint" aria-hidden />
-                En existencia
-              </span>
-              <input
-                type="checkbox"
-                className="h-5 w-5 rounded border-slate-300 bg-white accent-blue-600 dark:border-white/20 dark:bg-white/10"
-                checked={onlyStock}
-                onChange={(event) => setOnlyStock(event.target.checked)}
-              />
-            </label>
-          </div>
+          {isCameraSearch ? (
+            <div className="space-y-4 border-t border-slate-100 pt-4 dark:border-white/10">
+              <div>
+                <h3 className="text-[11px] font-black uppercase tracking-[.14em] text-blue-600 dark:text-blue-300">Resolución</h3>
+                <p className="mt-1 text-xs text-slate-500 dark:text-blue-100/55">Megapíxeles de la cámara</p>
+                <div className="mt-2 grid grid-cols-3 gap-1.5">
+                  {cameraResolutions.map((resolution) => (
+                    <button
+                      key={resolution}
+                      type="button"
+                      className={`h-9 rounded-lg border text-[11px] font-black transition ${
+                        cameraResolution === resolution
+                          ? "border-blue-700 bg-blue-700 text-white"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-blue-400 hover:text-blue-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-blue-100/70"
+                      }`}
+                      onClick={() => setCameraResolution(resolution)}
+                    >
+                      {resolution === "Todas" ? "Todas" : `${resolution} MP`}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
+              <div>
+                <h3 className="text-[11px] font-black uppercase tracking-[.14em] text-blue-600 dark:text-blue-300">Tipo de cámara</h3>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {cameraTypes.map((type) => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      className={`rounded-full border px-3 py-1.5 text-[11px] font-black transition ${
+                        cameraType === type.value
+                          ? "border-blue-700 bg-blue-700 text-white"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-blue-400 hover:text-blue-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-blue-100/70"
+                      }`}
+                      onClick={() => setCameraType(type.value)}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {!isCameraSearch ? (
           <div className="border-t border-slate-200 pt-5 dark:border-white/10">
             <h3 className="text-sm font-black uppercase text-slate-900 dark:text-blue-100">Categorias</h3>
             <div className="mt-4 space-y-2">
@@ -614,14 +683,15 @@ export default function CatalogoPage() {
               })}
             </div>
           </div>
+          ) : null}
 
-          <div className="border-t border-slate-200 pt-5 dark:border-white/10">
-            <h3 className="text-sm font-black uppercase text-slate-900 dark:text-blue-100">Marcas</h3>
-            <div className="mt-4 space-y-2">
-              {brands.slice(0, 16).map((item) => (
+          <div className="border-t border-slate-100 pt-4 dark:border-white/10">
+            <h3 className="text-[11px] font-black uppercase tracking-[.14em] text-blue-600 dark:text-blue-300">Marcas</h3>
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
+              {displayedBrands.slice(0, 18).map((item) => (
                 <button
                   key={item}
-                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-semibold transition ${
+                  className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-bold transition ${
                     brand === item ? "bg-blue-700 text-white" : "text-slate-600 hover:bg-slate-50 hover:text-blue-700 dark:text-blue-100/70 dark:hover:bg-white/[0.06] dark:hover:text-white"
                   }`}
                   onClick={() => setBrand(item)}
@@ -693,8 +763,8 @@ export default function CatalogoPage() {
             </div>
           ) : (
             <>
-            <div className={`grid gap-5 sm:grid-cols-2 ${filtersOpen ? "xl:grid-cols-3 2xl:grid-cols-4" : "lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
-              {visibleProducts.map((product) => (
+            <div className={`grid gap-3 sm:grid-cols-2 ${filtersOpen ? "lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4" : "lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}`}>
+              {visibleProducts.map((product, index) => (
                 (() => {
                   const variantId = Number(product.variantId ?? product.id);
                   const draftQty = Number.isFinite(variantId) ? salesDraftQtyByVariant[variantId] ?? 0 : 0;
@@ -702,56 +772,64 @@ export default function CatalogoPage() {
                   return (
                 <article
                   key={productKey(product)}
-                  className="group relative flex min-h-[470px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md transition duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl focus-within:border-blue-400 dark:border-white/10 dark:bg-[#121827] dark:hover:border-blue-400/50"
+                  className="group relative flex min-h-[430px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg focus-within:border-blue-400 dark:border-white/10 dark:bg-[#121827] dark:hover:border-blue-400/40"
                 >
                   <button
                     type="button"
-                    className={`absolute right-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border bg-white/95 shadow-md backdrop-blur transition hover:scale-105 ${favoriteIds.has(productKey(product)) ? "border-red-200 text-red-500" : "border-slate-200 text-slate-500 hover:text-red-500"}`}
+                    className={`absolute right-3 top-3 z-20 flex h-10 w-10 items-center justify-center rounded-full border bg-white/95 shadow-md backdrop-blur transition hover:scale-105 ${favoriteIds.has(productKey(product)) ? "border-red-200 text-red-500" : "border-slate-200 text-slate-500 hover:text-red-500"}`}
                     onClick={() => toggleFavorite(product)}
                     aria-label={`${favoriteIds.has(productKey(product)) ? "Quitar de" : "Agregar a"} favoritos: ${product.name}`}
                     aria-pressed={favoriteIds.has(productKey(product))}
                   >
-                    <Heart className={`h-5 w-5 ${favoriteIds.has(productKey(product)) ? "fill-current" : ""}`} aria-hidden />
+                    <Heart className={`h-4.5 w-4.5 ${favoriteIds.has(productKey(product)) ? "fill-current" : ""}`} aria-hidden />
                   </button>
                   <a
                     href={`/catalogo/${encodeURIComponent(productKey(product))}`}
                     className="block outline-none"
                     aria-label={`Ver detalle de ${product.name}`}
                   >
-                    <div className="relative flex h-60 items-center justify-center bg-gradient-to-b from-white to-slate-50 p-6 sm:h-64">
+                    <div className="relative flex h-48 items-center justify-center bg-white p-4 sm:h-52 dark:bg-[#121827]">
                       <ProductImage product={product} />
                       {product.discount ? (
-                        <span className="absolute left-4 top-4 rounded-full bg-coral px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white shadow-sm">{product.discount}</span>
+                        <span className="absolute left-3 top-3 rounded-md bg-coral px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-sm">{product.discount}</span>
+                      ) : index < 3 ? (
+                        <span className="absolute left-3 top-3 rounded-md bg-coral px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-sm">Top {index + 1}</span>
                       ) : null}
                       {isStaff && draftQty > 0 ? (
-                        <span className="absolute left-4 top-4 rounded-full bg-coral px-3 py-1.5 text-[11px] font-black text-white shadow-sm">En orden: {draftQty}</span>
+                        <span className="absolute bottom-3 left-3 rounded-md bg-coral px-2.5 py-1 text-[10px] font-black text-white shadow-sm">En orden: {draftQty}</span>
                       ) : null}
                     </div>
 
-                    <div className="border-t border-slate-100 px-5 pb-3 pt-5 dark:border-white/10">
+                    <div className="border-t border-slate-100 px-4 pb-3 pt-4 dark:border-white/10">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-xs font-black uppercase tracking-wide text-blue-700 dark:text-blue-300">{product.brand || "Worldcam"}</span>
-                        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black ${product.stock > 0 ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300" : "bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300"}`}>
+                        <span className="max-w-[62%] truncate rounded-md bg-blue-50 px-2 py-1 text-[11px] font-black uppercase tracking-wide text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">{product.brand || "Worldcam"}</span>
+                        <span className={`shrink-0 text-[10px] font-black ${product.stock > 0 ? "text-emerald-600 dark:text-emerald-300" : "text-amber-600 dark:text-amber-300"}`}>
                           {product.stock > 0 ? "Disponible" : "Consultar"}
                         </span>
                       </div>
-                      <h2 className="mt-3 line-clamp-2 min-h-12 text-base font-black leading-6 text-slate-900 dark:text-white">
+                      <h2 className="mt-2 line-clamp-2 min-h-11 text-sm font-bold leading-[1.35rem] text-slate-800 transition group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">
                         {compactName(product.name)}
                       </h2>
-                      <p className="mt-2 flex items-center gap-1 truncate text-sm font-semibold text-slate-400">
-                        Clave: {product.clave || product.sku}
-                        <Copy className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                      </p>
-                      <div className="mt-4 flex items-end justify-between gap-3">
-                        <p className="text-2xl font-black text-slate-950 dark:text-white">{product.price > 0 ? currency.format(product.price) : "Cotizar"}</p>
-                        <span className="shrink-0 text-xs font-bold text-slate-400">Stock {product.stock}</span>
+                      <div className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-[11px] dark:border-white/10">
+                        <p className="flex items-center gap-1 truncate text-slate-500 dark:text-blue-100/55">
+                          SKU: <span className="truncate font-bold text-slate-700 dark:text-blue-100">{product.sku || product.clave || "Sin SKU"}</span>
+                          <Copy className="h-3 w-3 shrink-0" aria-hidden />
+                        </p>
+                        <p className="truncate text-slate-500 dark:text-blue-100/55">
+                          Modelo: <span className="font-semibold text-slate-700 dark:text-blue-100">{product.clave || product.sku || "N/D"}</span>
+                        </p>
                       </div>
+                      <div className="mt-4 flex items-end justify-between gap-2">
+                        <p className="text-[1.7rem] font-black leading-none tracking-tight text-slate-950 dark:text-white">{product.price > 0 ? currency.format(product.price) : "Cotizar"}</p>
+                        <span className="shrink-0 text-[10px] font-semibold text-slate-400">Stock: {product.stock}</span>
+                      </div>
+                      <p className={`mt-2 text-xs font-bold ${product.stock > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-300"}`}>{product.stock > 0 ? "Disponible para entrega" : "Disponibilidad por confirmar"}</p>
                     </div>
                   </a>
 
-                  <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 px-5 pb-5">
+                  <div className="mt-auto grid grid-cols-[1fr_auto] gap-2 px-4 pb-4 pt-1">
                     {isStaff && draftQty > 0 ? (
-                        <div className="grid h-12 grid-cols-[40px_1fr_40px] overflow-hidden rounded-xl bg-blue-700 text-sm font-black text-white">
+                        <div className="grid h-10 grid-cols-[34px_1fr_34px] overflow-hidden rounded-md bg-blue-700 text-xs font-black text-white">
                           <button
                             className="flex items-center justify-center bg-blue-900/35 transition hover:bg-blue-900/55"
                             onClick={() => updateOrderQty(product, draftQty - 1)}
@@ -776,19 +854,19 @@ export default function CatalogoPage() {
                     ) : (
                       <button
                         type="button"
-                        className={`flex h-12 items-center justify-center gap-2 rounded-xl px-4 text-sm font-black text-white transition ${lastAddedId === productKey(product) ? "bg-emerald-600" : "bg-blue-700 hover:bg-blue-600"}`}
+                        className={`flex h-10 items-center justify-center gap-2 rounded-md px-3 text-xs font-black text-white transition ${lastAddedId === productKey(product) ? "bg-emerald-600" : "bg-blue-700 hover:bg-blue-600"}`}
                         onClick={() => handleAddToCart(product)}
                       >
-                        <ShoppingCart className="h-5 w-5" aria-hidden />
-                        {lastAddedId === productKey(product) ? "Agregado" : isStaff ? "Agregar a la orden" : "Agregar al carrito"}
+                        <ShoppingCart className="h-4 w-4" aria-hidden />
+                        {lastAddedId === productKey(product) ? "Agregado" : isStaff ? "Agregar a la orden" : "Agregar"}
                       </button>
                     )}
                     <a
                       href={`/catalogo/${encodeURIComponent(productKey(product))}`}
-                      className="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 text-slate-700 transition hover:border-blue-400 hover:text-blue-700 dark:border-white/15 dark:text-white"
+                      className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 text-slate-700 transition hover:border-blue-400 hover:text-blue-700 dark:border-white/15 dark:text-white"
                       aria-label={`Ver detalle de ${product.name}`}
                     >
-                      <ArrowRight className="h-5 w-5" aria-hidden />
+                      <ArrowRight className="h-4 w-4" aria-hidden />
                     </a>
                   </div>
                 </article>

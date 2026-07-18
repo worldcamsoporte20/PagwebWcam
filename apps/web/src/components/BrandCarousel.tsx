@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const brands = [
   { name: "Dahua", logo: "/images/marcas/dahua.png" },
   { name: "IMOU", logo: "/images/marcas/IMOU.png" },
-  { name: "TIANDY", logo: "/images/marcas/TIANDY.png" },
+  { name: "Tiandy", logo: "/images/marcas/TIANDY.png" },
   { name: "EZVIZ", logo: "/images/marcas/ezviz.png" },
   { name: "AccessPRO", logo: "/images/marcas/accesspro.png" },
   { name: "EPCOM", logo: "/images/marcas/epcom.png" },
@@ -23,10 +23,9 @@ const brands = [
 
 export default function BrandCarousel() {
   const viewportRef = useRef<HTMLDivElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLUListElement | null>(null);
   const indexRef = useRef(0);
   const pausedRef = useRef(false);
-  const [activeIndex, setActiveIndex] = useState(0);
   const [maxIndex, setMaxIndex] = useState(brands.length - 1);
   const [slideOffset, setSlideOffset] = useState(0);
 
@@ -37,134 +36,84 @@ export default function BrandCarousel() {
 
     const nextIndex = Math.min(Math.max(index, 0), max);
     const cardWidth = firstCard.getBoundingClientRect().width;
-    const style = window.getComputedStyle(track);
-    const gap = parseFloat(style.columnGap || style.gap || "16");
+    const styles = window.getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap || styles.gap || "10");
 
     indexRef.current = nextIndex;
-    setActiveIndex(nextIndex);
     setSlideOffset(nextIndex * (cardWidth + gap));
   }, [maxIndex]);
 
-  const measureCarousel = useCallback(() => {
+  const measure = useCallback(() => {
     const viewport = viewportRef.current;
     const track = trackRef.current;
     const firstCard = track?.querySelector<HTMLElement>("[data-brand-card]");
     if (!viewport || !track || !firstCard) return;
 
     const cardWidth = firstCard.getBoundingClientRect().width;
-    const style = window.getComputedStyle(track);
-    const gap = parseFloat(style.columnGap || style.gap || "16");
-    const visibleCards = Math.max(1, Math.floor((viewport.clientWidth + gap) / (cardWidth + gap)));
-    const nextMaxIndex = Math.max(0, brands.length - visibleCards);
+    const styles = window.getComputedStyle(track);
+    const gap = parseFloat(styles.columnGap || styles.gap || "10");
+    const visible = Math.max(1, Math.floor((viewport.clientWidth + gap) / (cardWidth + gap)));
+    const nextMax = Math.max(0, brands.length - visible);
 
-    setMaxIndex(nextMaxIndex);
-    moveToIndex(Math.min(indexRef.current, nextMaxIndex), nextMaxIndex);
+    setMaxIndex(nextMax);
+    moveToIndex(Math.min(indexRef.current, nextMax), nextMax);
   }, [moveToIndex]);
 
   useEffect(() => {
-    measureCarousel();
-
+    measure();
     const viewport = viewportRef.current;
     if (!viewport) return;
-
-    const resizeObserver = new ResizeObserver(measureCarousel);
-    resizeObserver.observe(viewport);
-    window.addEventListener("resize", measureCarousel);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("resize", measureCarousel);
-    };
-  }, [measureCarousel]);
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [measure]);
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      if (pausedRef.current) return;
-      moveToIndex((indexRef.current + 1) % (maxIndex + 1));
+    if (maxIndex === 0) return;
+    const timer = window.setInterval(() => {
+      if (!pausedRef.current) moveToIndex((indexRef.current + 1) % (maxIndex + 1));
     }, 3200);
-
-    return () => window.clearInterval(interval);
+    return () => window.clearInterval(timer);
   }, [maxIndex, moveToIndex]);
 
-  const prev = () => moveToIndex(indexRef.current === 0 ? maxIndex : indexRef.current - 1);
+  const previous = () => moveToIndex(indexRef.current === 0 ? maxIndex : indexRef.current - 1);
   const next = () => moveToIndex((indexRef.current + 1) % (maxIndex + 1));
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mb-4 rounded-xl border border-gray-200 bg-white px-5 py-4 shadow-soft sm:px-6 dark:border-white/10 dark:bg-[#0d1223]">
-        <div className="max-w-3xl">
+    <section className="bg-[#f7f9fc] px-3 pb-6 pt-1 dark:bg-[#080d19] sm:px-6 lg:px-8" aria-labelledby="marcas-destacadas-titulo">
+      <div className="mx-auto max-w-7xl">
+        <header className="mb-3 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-coral">Marcas destacadas</p>
-            <h2 className="mt-1 text-3xl font-black text-gray-900 dark:text-white">Nuestras marcas l&iacute;deres</h2>
-            <p className="mt-1 max-w-2xl text-sm text-gray-600 dark:text-white/60">
-              Descubre los principales fabricantes que distribuimos para soluciones de seguridad y redes.
-            </p>
+            <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-600 dark:text-blue-300">Distribuidores autorizados</p>
+            <h2 id="marcas-destacadas-titulo" className="mt-1 text-lg font-black text-[#071b50] dark:text-white sm:text-xl">Marcas destacadas</h2>
           </div>
-        </div>
-      </div>
+          <a href="/catalogo" className="hidden items-center gap-1 text-xs font-extrabold text-blue-700 hover:text-blue-500 dark:text-blue-200 sm:inline-flex">Ver todas las marcas <ChevronRight className="h-3.5 w-3.5" /></a>
+        </header>
 
-      <div
-        className="relative"
-        onMouseEnter={() => (pausedRef.current = true)}
-        onMouseLeave={() => (pausedRef.current = false)}
-        onFocus={() => (pausedRef.current = true)}
-        onBlur={() => (pausedRef.current = false)}
-      >
-        <div ref={viewportRef} className="overflow-hidden px-1 pb-3">
-          <div
-            ref={trackRef}
-            className="flex gap-4 transition-transform duration-700 ease-out"
-            style={{ transform: `translateX(-${slideOffset}px)` }}
-          >
-            {brands.map((brand, index) => (
-              <div
-                key={brand.name}
-                data-brand-card
-                className="group w-[210px] flex-shrink-0 rounded-xl border border-gray-200 bg-white px-4 py-4 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-soft sm:w-[240px] dark:border-white/10 dark:bg-[#0d1223] dark:hover:border-blue-400/40"
-              >
-                <div className="mx-auto mb-3 flex h-28 w-full items-center justify-center rounded-lg border border-gray-100 bg-gray-50 px-5 py-4 transition group-hover:bg-white dark:border-white/10 dark:bg-white/5 dark:group-hover:bg-white/10">
-                  <Image
-                    src={brand.logo}
-                    alt={`Logo de ${brand.name}`}
-                    width={180}
-                    height={96}
-                    sizes="180px"
-                    className="max-h-20 w-auto object-contain"
-                    priority={index < 4}
-                  />
-                </div>
-                <h3 className="min-h-7 text-base font-black text-slate-900 dark:text-white">{brand.name}</h3>
-              </div>
-            ))}
+        <div
+          className="relative"
+          onMouseEnter={() => { pausedRef.current = true; }}
+          onMouseLeave={() => { pausedRef.current = false; }}
+          onFocusCapture={() => { pausedRef.current = true; }}
+          onBlurCapture={() => { pausedRef.current = false; }}
+        >
+          <button type="button" onClick={previous} className="absolute -left-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-md transition hover:border-blue-300 hover:text-blue-700 dark:border-white/15 dark:bg-[#101727] dark:text-white sm:-left-4" aria-label="Ver marcas anteriores"><ChevronLeft className="h-4 w-4" /></button>
+
+          <div ref={viewportRef} className="overflow-hidden px-1" role="region" aria-label="Carrusel de marcas líderes">
+            <ul ref={trackRef} className="flex gap-2.5 transition-transform duration-500 ease-out" style={{ transform: `translateX(-${slideOffset}px)` }} role="list">
+              {brands.map((brand, index) => (
+                <li key={brand.name} data-brand-card className="group flex h-[72px] w-[128px] shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:border-white/10 dark:bg-[#101727] sm:h-[78px] sm:w-[142px]">
+                  <Image src={brand.logo} alt={`Logotipo de ${brand.name}, marca distribuida por WorldCam México`} width={120} height={54} sizes="142px" className="max-h-11 w-auto max-w-full object-contain" priority={index < 7} />
+                  <span className="sr-only">{brand.name}</span>
+                </li>
+              ))}
+            </ul>
           </div>
+
+          <button type="button" onClick={next} className="absolute -right-2 top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-md transition hover:border-blue-300 hover:text-blue-700 dark:border-white/15 dark:bg-[#101727] dark:text-white sm:-right-4" aria-label="Ver más marcas"><ChevronRight className="h-4 w-4" /></button>
         </div>
 
-        <button
-          onClick={prev}
-          aria-label="Anterior"
-          className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-slate-800 shadow-soft backdrop-blur transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2 dark:border-white/10 dark:bg-[#0d1223]/95 dark:text-white dark:hover:bg-white dark:hover:text-slate-900"
-        >
-          <ChevronLeft className="h-5 w-5" aria-hidden />
-        </button>
-
-        <button
-          onClick={next}
-          aria-label="Siguiente"
-          className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-slate-800 shadow-soft backdrop-blur transition hover:bg-slate-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2 dark:border-white/10 dark:bg-[#0d1223]/95 dark:text-white dark:hover:bg-white dark:hover:text-slate-900"
-        >
-          <ChevronRight className="h-5 w-5" aria-hidden />
-        </button>
-      </div>
-
-      <div className="mt-4 flex justify-center gap-2" aria-hidden="true">
-        {Array.from({ length: maxIndex + 1 }).map((_, index) => (
-          <span
-            key={`brand-indicator-${index}`}
-            className={`h-1.5 rounded-full transition-all ${
-              activeIndex === index ? "w-8 bg-coral" : "w-1.5 bg-gray-300 dark:bg-white/20"
-            }`}
-          />
-        ))}
+        <a href="/catalogo" className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-blue-700 dark:text-blue-200 sm:hidden">Ver todas las marcas <ChevronRight className="h-3.5 w-3.5" /></a>
       </div>
     </section>
   );
