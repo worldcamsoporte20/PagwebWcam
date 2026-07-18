@@ -212,7 +212,6 @@ export class OdooService {
 
   async getConnectionStatus(): Promise<OdooConnectionStatus> {
     try {
-      const uid = await this.authenticate();
       const productCount = await this.executeKw<number>(
         "product.template",
         "search_count",
@@ -221,8 +220,7 @@ export class OdooService {
 
       return {
         connected: true,
-        message: "Odoo authentication succeeded",
-        uid,
+        message: "Odoo JSON-2 authentication succeeded",
         productCount,
       };
     } catch (error) {
@@ -1286,13 +1284,43 @@ export class OdooService {
   ): Promise<T> {
     const db = this.requiredConfig("ODOO_DB");
     const apiKey = this.requiredConfig("ODOO_API_KEY");
-    const uid = await this.authenticate();
+    const baseUrl = this.requiredConfig("ODOO_URL").replace(/\/$/, "");
+    const body: Record<string, unknown> = { ...kwargs };
 
-    return this.jsonRpc<T>({
-      service: "object",
-      method: "execute_kw",
-      args: [db, uid, apiKey, model, method, args, kwargs],
-    });
+    if (["search", "search_count", "search_read", "name_search"].includes(method)) {
+      body.domain = args[0] ?? [];
+    } else if (method === "read" || method === "unlink") {
+      body.ids = args[0] ?? [];
+    } else if (method === "write") {
+      body.ids = args[0] ?? [];
+      body.vals = args[1] ?? {};
+    } else if (method === "create") {
+      body.vals_list = Array.isArray(args[0]) ? args[0] : [args[0] ?? {}];
+    } else if (args.length > 0) {
+      body.ids = args[0] ?? [];
+    }
+
+    const response = await fetch(
+      `${baseUrl}/json/2/${encodeURIComponent(model)}/${encodeURIComponent(method)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `bearer ${apiKey}`,
+          "Content-Type": "application/json; charset=utf-8",
+          "X-Odoo-Database": db,
+          "User-Agent": "WorldCam-Catalog/1.0",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(60_000),
+      },
+    );
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
+      throw new Error(payload?.message ?? `Odoo JSON-2 request failed: ${response.status}`);
+    }
+
+    return (await response.json()) as T;
   }
 
   private async readSaleOrderSummary(orderId: number): Promise<{

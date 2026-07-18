@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleInit } from "@nestjs/common";
 import { randomUUID } from "crypto";
 import { DatabaseService } from "../database/database.service";
 import { OdooProduct, OdooService } from "../odoo/odoo.service";
@@ -64,6 +64,7 @@ type LocalQuotationLineRow = {
 
 @Injectable()
 export class SalesService implements OnModuleInit {
+  private readonly logger = new Logger(SalesService.name);
   private schemaReady = false;
 
   constructor(
@@ -74,7 +75,9 @@ export class SalesService implements OnModuleInit {
   async onModuleInit() {
     try {
       await this.ensureSchema();
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Database unavailable";
+      this.logger.warn(`Sales schema was not initialized: ${message}`);
       this.schemaReady = false;
     }
   }

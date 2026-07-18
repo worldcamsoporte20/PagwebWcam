@@ -1,20 +1,54 @@
 "use client";
-
-import { BarChart3, FileText, Flame, GraduationCap, Home, Menu, Search, ShoppingCart, Sparkles, Tag, UserRound } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  FileText,
+  Flame,
+  Gamepad2,
+  GraduationCap,
+  Heart,
+  Home as HomeIcon,
+  LayoutGrid,
+  Moon,        // nuevo
+  Percent,
+  Search,
+  ShoppingCart,
+  Sparkles,
+  Sun,         // nuevo
+  Tag,
+  Truck,
+  UserRound,
+} from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { CART_UPDATED_EVENT, getCartTotals, readCart } from "../lib/cart";
 import { SALES_DRAFT_UPDATED_EVENT, readSalesDraftItems } from "../lib/salesDraft";
+import { SideMegaMenuButtonV2 } from "./SideMegaMenuButtonV2";
 
-type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas";
+type ActivePage = "home" | "catalogo" | "promociones" | "carrito" | "ventas" | "cursos";
+type NavItemKey = ActivePage | "nuevos" | "para-ti" | "cupones" | "cursos" | "cotizacion";
 type AuthState = { email: string; initials: string; role: string } | null;
 
-const navItems = [
-  { label: "Inicio", href: "/", icon: Home, key: "home" },
-  { label: "Productos", href: "/catalogo", icon: Menu, key: "catalogo" },
+type NavItem = {
+  label: string;
+  href: string;
+  icon: typeof HomeIcon;
+  key: NavItemKey;
+};
+
+const navItems: NavItem[] = [
+  { label: "Inicio", href: "/", icon: HomeIcon, key: "home" },
+  { label: "Productos", href: "/catalogo", icon: LayoutGrid, key: "catalogo" },
   { label: "Nuevos", href: "/#nuevos", icon: Flame, key: "nuevos" },
   { label: "Para ti", href: "/#para-ti", icon: Sparkles, key: "para-ti" },
+  { label: "Cupones", href: "/cupones", icon: Percent, key: "cupones" },
   { label: "Cursos", href: "/#eventos", icon: GraduationCap, key: "cursos" },
   { label: "Promociones", href: "/promociones", icon: Tag, key: "promociones" },
+];
+
+const topbarActions = [
+  { label: "Quiero ser distribuidor", href: "/distribuidor", icon: Truck },
+  { label: "Sucursales", href: "/sucursales", icon: HomeIcon },
+  { label: "Facturación", href: "/facturacion", icon: FileText },
 ];
 
 export default function SiteHeader({ active = "home" }: { active?: ActivePage }) {
@@ -23,6 +57,24 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
   const [auth, setAuth] = useState<AuthState>(null);
   const [cartQty, setCartQty] = useState(0);
   const [salesDraftQty, setSalesDraftQty] = useState(0);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("wc-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const initialDark = savedTheme ? savedTheme === "dark" : prefersDark;
+
+    setIsDark(initialDark);
+    document.documentElement.classList.toggle("dark", initialDark);
+    document.documentElement.style.colorScheme = initialDark ? "dark" : "light";
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+    document.body.classList.toggle("dark", isDark);
+    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    window.localStorage.setItem("wc-theme", isDark ? "dark" : "light");
+  }, [isDark]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -91,123 +143,205 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
   const isStaff = auth?.role === "employee" || auth?.role === "admin";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b1020]/95 text-white backdrop-blur">
-      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr] items-center gap-3 px-3 py-3 sm:px-4 md:grid-cols-[auto_1fr_auto] lg:grid-cols-[200px_1fr_auto] lg:gap-4 lg:px-8 lg:py-4">
-        <a href="/" aria-label="Ir a inicio">
-          <img src="/images/logo/logo.png" alt="Worldcam" className="h-11 w-auto sm:h-14 lg:h-24" />
-        </a>
-
-        <form
-          onSubmit={handleSearch}
-          className="order-3 col-span-2 flex h-10 min-w-0 items-center overflow-hidden rounded-lg border border-blue-400/30 bg-white/[0.04] text-blue-100 focus-within:border-coral focus-within:ring-2 focus-within:ring-coral/25 md:order-none md:col-span-1 lg:h-12"
-        >
-          <Search className="ml-3 h-4 w-4 shrink-0 text-blue-200 lg:ml-4 lg:h-5 lg:w-5" aria-hidden />
-          <input
-            className="h-full min-w-0 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-blue-200/55 lg:px-3 lg:text-base"
-            placeholder="Buscar PTZ, NVR, camaras..."
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </form>
-
-        <div className="flex items-center justify-end gap-2">
-          {auth ? (
-            <a
-              href="/cuenta"
-              aria-label="Mi cuenta"
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-blue-400/30 bg-blue-500/10 text-sm font-black text-blue-100 hover:bg-blue-500/20 md:hidden"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-black text-white">
-                {auth.initials}
-              </span>
-            </a>
-          ) : (
-            <a
-              href="/login"
-              aria-label="Iniciar sesion"
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 text-blue-100 hover:bg-white/10 md:hidden"
-            >
-              <UserRound className="h-5 w-5" aria-hidden />
-            </a>
-          )}
-          {auth ? (
-            <a
-              href="/cuenta"
-              className="hidden h-10 items-center gap-2 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 text-sm font-black text-blue-300 hover:bg-blue-500/20 md:flex lg:h-11 lg:px-4"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-black text-white">
-                {auth.initials}
-              </span>
-              <span className="hidden max-w-[100px] truncate lg:inline">{auth.email.split("@")[0]}</span>
-            </a>
-          ) : (
-            <a
-              className="hidden h-10 items-center gap-2 rounded-lg border border-white/10 px-3 text-sm font-black text-blue-100 hover:bg-white/10 md:flex lg:h-11 lg:px-4"
-              href="/login"
-            >
-              <UserRound className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span className="hidden lg:inline">Iniciar sesion</span>
-            </a>
-          )}
-          {isStaff ? (
-            <a
-              href="/ventas"
-              className="relative flex h-10 items-center gap-1.5 rounded-lg bg-coral px-3 text-sm font-black text-white hover:bg-coral/90 lg:h-11 lg:px-4"
-            >
-              <FileText className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span className="hidden sm:inline">Orden</span>
-              {salesDraftQty > 0 ? (
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-coral">
-                  {salesDraftQty}
-                </span>
-              ) : null}
-            </a>
-          ) : null}
-          {!isStaff ? (
-            <a className="relative flex h-10 items-center gap-1.5 rounded-lg bg-coral px-3 text-sm font-black text-white lg:h-11 lg:gap-2 lg:px-4" href="/carrito">
-              <ShoppingCart className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden />
-              <span className="hidden sm:inline">Carrito</span>
-              {cartQty > 0 ? (
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-black text-white">
-                  {cartQty}
-                </span>
-              ) : null}
-            </a>
-          ) : null}
+    <header className="sticky top-0 z-50 dark:bg-[#0d1526] dark:text-white">
+      <div className="bg-[#022C96] text-[#FCFCFD] text-xs">
+        <div className="mx-auto flex flex-wrap items-center justify-between gap-3 px-3 py-2.5 text-xs sm:px-4 lg:px-6">
+          <div className="flex w-full items-center gap-2 overflow-x-auto pb-0.5 sm:w-auto sm:flex-wrap sm:overflow-visible sm:pb-0">
+            {topbarActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <a
+                  key={action.label}
+                  href={action.href}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#1E49A2] px-3 py-1.5 text-xs font-black text-[#FCFCFD] transition hover:bg-[#2D70CF]"
+                >
+                  <Icon className="h-3.5 w-3.5" aria-hidden />
+                  {action.label}
+                </a>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      <nav className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-3 pb-3 sm:px-4 lg:px-8 lg:pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {[
-          ...navItems,
-          ...(auth && !isStaff ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" }] : []),
-          ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" }] : []),
-        ].map((item) => {
-          const Icon = item.icon;
-          const isHashActive = active === "home" && currentHash && item.key === currentHash;
-          const isActive = isHashActive || (!currentHash && item.key === active);
+      <div className="bg-white shadow-[0_1px_0_rgba(2,44,150,0.08)] dark:bg-[#0d1526] dark:text-white">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6 md:flex-nowrap lg:px-8">
+          <a
+            href="/"
+            aria-label="Ir a inicio"
+            className="relative h-20 w-56 flex-none overflow-hidden sm:h-24 sm:w-64 lg:h-28 lg:w-72"
+          >
+            <img
+              src="/images/logo/logo.png"
+              alt="Worldcam"
+              className="absolute left-1/2 top-1/2 w-[122%] max-w-none -translate-x-1/2 -translate-y-1/2"
+            />
+          </a>
 
-          return (
-            <a
-              key={item.label}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-black transition sm:h-11 sm:px-4 ${
-                isActive
-                  ? "border border-blue-400/60 bg-blue-700/30 text-blue-100"
-                  : "text-white/85 hover:bg-white/10"
-              }`}
-              href={item.href}
+          <div className="order-2 flex w-full min-w-0 flex-1 justify-center md:order-none md:min-w-[340px]">
+            <form
+              onSubmit={handleSearch}
+              className="w-full max-w-[760px] overflow-hidden rounded-full border border-[#CCD8F2] bg-[#F8FAFF] text-[#12141A] transition focus-within:border-[#1E49A2] focus-within:bg-white dark:border-white/10 dark:bg-[#0b1325] dark:text-white"
             >
-              <Icon className="h-4 w-4" aria-hidden />
-              {item.label}
-              {item.key === "ventas" && salesDraftQty > 0 ? (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
-                  {salesDraftQty}
+              <div className="flex h-10 items-center gap-2 px-4 sm:h-11 sm:gap-3 sm:px-5">
+                <Search className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
+                <input
+                  className="h-full w-full flex-1 bg-transparent text-sm outline-none placeholder:text-[#8F9BB3] sm:text-base dark:text-white dark:placeholder:text-white/40"
+                  placeholder="Buscar productos, categorias o marcas..."
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </div>
+            </form>
+          </div>
+
+          <div className="order-3 flex min-w-0 flex-1 items-center justify-end gap-1.5 md:ml-0 md:flex-none lg:ml-auto">
+            {auth ? (
+              <a
+                href="/cuenta"
+                aria-label="Mi cuenta"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
+                  {auth.initials}
                 </span>
-              ) : null}
+              </a>
+            ) : (
+              <a
+                href="/login"
+                aria-label="Iniciar sesion"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
+              >
+                <UserRound className="h-5 w-5" aria-hidden />
+              </a>
+            )}
+            {auth ? (
+              <a
+                href="/cuenta"
+                className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#022C96] text-sm font-black text-[#FCFCFD]">
+                  {auth.initials}
+                </span>
+                <span className="hidden max-w-[120px] truncate lg:inline">{auth.email.split("@")[0]}</span>
+              </a>
+            ) : (
+              <a
+                className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
+                href="/login"
+              >
+                <UserRound className="h-5 w-5" aria-hidden />
+                <span className="hidden lg:inline">Ingresar</span>
+              </a>
+            )}
+            <a
+              href="/favoritos"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-[#12141A] transition hover:bg-[#F1F5FF] md:hidden dark:text-white dark:hover:bg-white/10"
+              aria-label="Favoritos"
+            >
+              <Heart className="h-6 w-6 text-[#1E49A2] dark:text-white" aria-hidden />
             </a>
-          );
-        })}
-      </nav>
+            <a
+              href="/favoritos"
+              className="hidden h-10 items-center gap-2 rounded-full px-3 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] md:flex lg:px-4 dark:text-white dark:hover:bg-white/10"
+            >
+              <Heart className="h-5 w-5 text-[#1E49A2] dark:text-white" aria-hidden />
+              <span className="hidden lg:inline">Favoritos</span>
+            </a>
+            {isStaff ? (
+              <a
+                href="/ventas"
+                className="relative hidden h-10 items-center gap-1.5 rounded-full bg-[#1E49A2] px-4 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] lg:flex"
+              >
+                <FileText className="h-5 w-5" aria-hidden />
+                <span>Orden</span>
+                {salesDraftQty > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#FCFCFD] px-1 text-[11px] font-black text-[#1E49A2]">
+                    {salesDraftQty}
+                  </span>
+                ) : null}
+              </a>
+            ) : null}
+            
+            {!isStaff ? (
+              <a
+                className="relative flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#022C96] px-3 text-sm font-black text-[#FCFCFD] transition hover:bg-[#2D70CF] sm:px-4"
+                href="/carrito"
+              >
+                <ShoppingCart className="h-5 w-5" aria-hidden />
+                <span className="hidden sm:inline">Carrito</span>
+                {cartQty > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-[#1E49A2]">
+                    {cartQty}
+                  </span>
+                ) : null}
+              </a>
+            ) : null}
+          </div>
+            <button
+              type="button"
+              onClick={() => setIsDark((value) => !value)}
+              className="order-3 flex h-10 shrink-0 items-center gap-2 rounded-full px-1.5 text-sm font-black text-[#12141A] transition hover:bg-[#F1F5FF] dark:text-white dark:hover:bg-white/10"
+              aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+              aria-pressed={isDark}
+            >
+              <span className="hidden sm:inline">{isDark ? "Oscuro" : "Claro"}</span>
+              <span
+                className={`relative inline-flex h-7 w-13 items-center rounded-full border p-0.5 transition ${
+                  isDark ? "border-[#1E49A2] bg-[#022C96]" : "border-[#CCD8F2] bg-[#EEF4FF]"
+                }`}
+              >
+                <span
+                  className={`absolute flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#1E49A2] shadow-sm transition ${
+                    isDark ? "translate-x-6" : "translate-x-0"
+                  }`}
+                >
+                  {isDark ? <Moon className="h-3.5 w-3.5" aria-hidden /> : <Sun className="h-3.5 w-3.5" aria-hidden />}
+                </span>
+              </span>
+            </button>
+
+        </div>
+        
+        <div className="w-full border-t border-[#E8EEF9] bg-white">
+          <div className="mx-auto flex w-full max-w-[1240px] flex-col items-stretch gap-3 px-4 py-2 sm:px-6 md:flex-row md:items-center md:justify-start lg:px-8">
+            <div className="w-full md:w-52">
+              <SideMegaMenuButtonV2 />
+            </div>
+            <nav className="flex w-full flex-nowrap items-center justify-start gap-1 overflow-x-auto overflow-y-hidden pb-1 md:flex-1 md:pb-0">
+              {[
+                ...navItems,
+                ...(auth && !isStaff ? [{ label: "Cotizacion", href: "/promociones#cotizacion", icon: FileText, key: "cotizacion" as const }] : []),
+                ...(isStaff ? [{ label: "Ventas", href: "/ventas", icon: BarChart3, key: "ventas" as const }] : []),
+              ].map((item) => {
+                const Icon = item.icon;
+                const isHashActive = currentHash && item.key === currentHash;
+                const isActive = isHashActive || (!currentHash && item.key === active);
+
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={`group inline-flex h-9 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2.5 text-xs font-black transition sm:text-sm md:flex-1 ${
+                      isActive
+                        ? "bg-[#EAF1FF] text-[#012477] ring-1 ring-inset ring-[#1E49A2]"
+                        : "text-[#012477] hover:bg-[#F1F5FF] hover:text-[#0F46AF]"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 text-[#1E49A2]" aria-hidden />
+                    {item.label}
+                    {item.key === "ventas" && salesDraftQty > 0 ? (
+                      <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-coral px-1 text-[11px] font-black text-white">
+                        {salesDraftQty}
+                      </span>
+                    ) : null}
+                  </a>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }

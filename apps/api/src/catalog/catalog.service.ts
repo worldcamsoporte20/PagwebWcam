@@ -35,6 +35,8 @@ export type CatalogProductsPageQuery = {
   search?: string;
   brand?: string;
   category?: string;
+  cameraResolution?: string;
+  cameraType?: string;
   onlyStock?: boolean;
   sort?: "price-asc" | "price-desc" | "name-asc" | "stock-desc";
   limit?: number;
@@ -184,6 +186,8 @@ export class CatalogService {
       search: query.search?.trim() ?? "",
       brand: query.brand ?? "",
       category: query.category ?? "",
+      cameraResolution: query.cameraResolution ?? "",
+      cameraType: query.cameraType ?? "",
       onlyStock: Boolean(query.onlyStock),
       sort: query.sort ?? "price-asc",
       limit: Math.min(Math.max(Number(query.limit ?? 60), 1), 120),
@@ -199,21 +203,26 @@ export class CatalogService {
     const search = query.search?.trim() ?? "";
     const brand = query.brand && query.brand !== "Todas" ? query.brand : "";
     const category = query.category && query.category !== "Todas" ? query.category : "";
+    const cameraResolution = query.cameraResolution && query.cameraResolution !== "Todas" ? query.cameraResolution : "";
+    const cameraType = query.cameraType && query.cameraType !== "Todos" ? query.cameraType : "";
     const sort = query.sort ?? "price-asc";
     const limit = Math.min(Math.max(Number(query.limit ?? 60), 1), 120);
     const offset = Math.max(Number(query.offset ?? 0), 0);
     const hasSearch = this.searchTokens(search).length > 0;
 
-    const brands = ["Todas", ...Array.from(new Set(products.map((product) => product.brand || "Worldcam"))).sort()];
     const categories = ["Todas", ...Array.from(new Set(products.map((product) => product.category || "Sin categoria"))).sort()];
+    const availableBrands = new Set<string>();
 
     const scoredProducts = products.flatMap((product) => {
-      if (brand && product.brand !== brand) return [];
       if (category && product.category !== category) return [];
       if (query.onlyStock && Number(product.stock ?? 0) <= 0) return [];
+      if (!this.matchesCameraFacets(product, cameraResolution, cameraType)) return [];
 
       const score = this.productSearchScore(product, search);
       if (hasSearch && score <= 0) return [];
+      const catalogBrand = this.catalogBrand(product);
+      availableBrands.add(catalogBrand);
+      if (brand && catalogBrand !== brand) return [];
       return [{
         product,
         score,
@@ -242,15 +251,53 @@ export class CatalogService {
     });
 
     const pageResult = {
-      products: scoredProducts.slice(offset, offset + limit).map((item) => item.product),
+      products: scoredProducts.slice(offset, offset + limit).map((item) => ({
+        ...item.product,
+        brand: this.catalogBrand(item.product),
+      })),
       total: scoredProducts.length,
-      brands,
+      brands: ["Todas", ...Array.from(availableBrands).sort()],
       categories,
       status: result.status,
       message: result.message,
     };
     this.pageCache.set(pageCacheKey, { expiresAt: Date.now() + 60_000, result: pageResult });
     return pageResult;
+  }
+
+  private matchesCameraFacets(product: CatalogProductSource, resolution: string, cameraType: string) {
+    if (!resolution && !cameraType) return true;
+
+    const text = this.normalizeSearch(`${product.name} ${product.category} ${product.sku} ${product.clave}`);
+
+    if (resolution) {
+      const escapedResolution = resolution.replace(/[^0-9]/g, "");
+      if (!escapedResolution || !new RegExp(`\\b${escapedResolution}\\s*(?:mp|megapixel|megapixeles)\\b`).test(text)) {
+        return false;
+      }
+    }
+
+    const typePatterns: Record<string, RegExp> = {
+      domo: /\b(domo|dome|turret|eyeball)\b/,
+      bala: /\b(bala|bullet)\b/,
+      ptz: /\b(ptz|pan tilt zoom)\b/,
+      fullcolor: /\b(full\s*color|fullcolor|colorvu|wizcolor|full\s*time\s*color|tioc)\b/,
+    };
+
+    return !cameraType || !typePatterns[cameraType] || typePatterns[cameraType].test(text);
+  }
+
+  private catalogBrand(product: CatalogProductSource) {
+    const text = this.normalizeSearch(`${product.brand} ${product.name} ${product.sku} ${product.clave}`);
+    const knownBrands = [
+      { label: "Tiandy", pattern: /\btiandy\b/ },
+      { label: "IMOU", pattern: /\bimou\b/ },
+      { label: "Hikvision", pattern: /\bhikvision\b/ },
+      { label: "HiLook", pattern: /\bhilook\b/ },
+      { label: "Dahua", pattern: /\bdahua\b/ },
+      { label: "Epcom", pattern: /\bepcom\b/ },
+    ];
+    return knownBrands.find((item) => item.pattern.test(text))?.label || product.brand || "Worldcam";
   }
 
   private searchTokens(value: string) {
