@@ -58,6 +58,13 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
   const [cartQty, setCartQty] = useState(0);
   const [salesDraftQty, setSalesDraftQty] = useState(0);
   const [isDark, setIsDark] = useState(false);
+  const [themeReady, setThemeReady] = useState(false);
+
+  const applyTheme = (dark: boolean) => {
+    document.documentElement.classList.toggle("dark", dark);
+    document.body.classList.toggle("dark", dark);
+    document.documentElement.style.colorScheme = dark ? "dark" : "light";
+  };
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem("wc-theme");
@@ -65,16 +72,15 @@ export default function SiteHeader({ active = "home" }: { active?: ActivePage })
     const initialDark = savedTheme ? savedTheme === "dark" : prefersDark;
 
     setIsDark(initialDark);
-    document.documentElement.classList.toggle("dark", initialDark);
-    document.documentElement.style.colorScheme = initialDark ? "dark" : "light";
+    applyTheme(initialDark);
+    setThemeReady(true);
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-    document.body.classList.toggle("dark", isDark);
-    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+    if (!themeReady) return;
+    applyTheme(isDark);
     window.localStorage.setItem("wc-theme", isDark ? "dark" : "light");
-  }, [isDark]);
+  }, [isDark, themeReady]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
