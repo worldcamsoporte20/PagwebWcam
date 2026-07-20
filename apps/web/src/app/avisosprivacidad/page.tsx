@@ -249,7 +249,7 @@ export default function PoliticasPrivacidad() {
 
             {/* CONTACTO */}
 
-            <section className="thanks-section">
+            <section className="privacidad-thanks">
 
                 <div className="thanks-icon">
                     <Mail size={55} />
