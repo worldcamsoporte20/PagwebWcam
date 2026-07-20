@@ -27,7 +27,7 @@ export default function GarantiasPage() {
           WORLDCAM DE MEXICO SA DE CV
       </span>
 
-        <h1>Política de Garantías</h1>
+        <h1>Garantías y Devoluciones</h1>
 
         <p>
           Conoce las políticas, requisitos y el procedimiento para ingresar un

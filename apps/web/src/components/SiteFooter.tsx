@@ -34,7 +34,6 @@ const sitemapSections = [
       { label: "Mi cuenta", href: "/cuenta" },
       { label: "Política de garantía", href: "/poli_garantia" },
       { label: "Aviso de privacidad", href: "/avisosprivacidad" },
-      { label: "Política de Devoluciones", href: "/poli_devoluciones" },
     ],
   },
 ];
@@ -64,7 +63,13 @@ export default function SiteFooter() {
         <div className="footer-inner">
           <div className="footer-brand">
             <Link href="/" className="footer-logo" aria-label="WorldCam, inicio">
-              WORLDCAM
+              <img
+                src="/images/logo/logo_redondo.png"
+                alt="WorldCam"
+                width={283}
+                height={80}
+                className="footer-logo-image"
+              />
             </Link>
             <p>Soluciones de seguridad y tecnología para proteger lo que más importa.</p>
             <div className="footer-contact">

@@ -3,7 +3,6 @@
 import {
   ArrowLeft,
   ArrowRight,
-  BadgeCheck,
   Box,
   Copy,
   Layers3,
@@ -11,7 +10,6 @@ import {
   Search,
   ShieldCheck,
   ShoppingCart,
-  Tag,
   Warehouse,
 } from "lucide-react";
 import { useParams } from "next/navigation";
@@ -132,7 +130,7 @@ export default function ProductDetailPage() {
   const [relatedProducts, setRelatedProducts] = useState<CatalogProduct[]>([]);
   const [productDetail, setProductDetail] = useState<CatalogProduct | null>(null);
   const [warehouses, setWarehouses] = useState<WarehouseAvailability[]>([]);
-  const [source, setSource] = useState<"loading" | "odoo" | "error">("loading");
+  const [source, setSource] = useState<"loading" | "ready" | "error">("loading");
   const [addedId, setAddedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -185,7 +183,7 @@ export default function ProductDetailPage() {
           }
         }
 
-        setSource("odoo");
+        setSource("ready");
       } catch {
         if (!controller.signal.aborted) {
           setRelatedProducts([]);
@@ -258,7 +256,7 @@ export default function ProductDetailPage() {
           <PackageSearch className="mx-auto h-12 w-12 text-slate-300" aria-hidden />
           <h1 className="mt-4 text-3xl font-black">Producto no encontrado</h1>
           <p className="mt-3 text-slate-500">
-            {source === "error" ? "No se pudo conectar con la API de productos." : "El producto ya no aparece en el catalogo actual de Odoo."}
+            {source === "error" ? "No se pudo conectar con la API de productos." : "El producto ya no aparece en el catálogo actual."}
           </p>
           <a className="mt-6 inline-flex h-12 items-center justify-center rounded-lg bg-coral px-5 font-black text-white transition hover:bg-coral/90" href="/catalogo">
             Regresar al catalogo
@@ -297,7 +295,7 @@ export default function ProductDetailPage() {
 
               {product.internalNotesHtml ? (
                 <p className="mt-4 max-w-4xl text-base font-semibold leading-7 text-slate-600">
-                  {product.category || "Producto"} sincronizado desde Odoo. SKU {product.sku || product.clave}.
+                  {product.category || "Producto"}. SKU {product.sku || product.clave}.
                 </p>
               ) : product.description ? (
                 <p className="mt-4 max-w-4xl text-base font-semibold leading-7 text-slate-600">
@@ -305,7 +303,7 @@ export default function ProductDetailPage() {
                 </p>
               ) : (
                 <p className="mt-4 max-w-4xl text-base font-semibold leading-7 text-slate-500">
-                  Ficha sincronizada desde Odoo. Usa clave, categoria y stock para confirmar compatibilidad antes de comprar.
+                  Usa la clave, categoría y existencia para confirmar compatibilidad antes de comprar.
                 </p>
               )}
 
@@ -323,17 +321,13 @@ export default function ProductDetailPage() {
                 <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-5">
                   <p className="text-xs font-black uppercase tracking-wide text-slate-500">Precio de venta</p>
                   <p className="mt-2 text-4xl font-black text-coral">{money(product.price)}</p>
-                  <p className="mt-2 inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs font-black uppercase text-blue-700">
-                    <Tag className="h-3 w-3" aria-hidden />
-                    Precio Odoo
-                  </p>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-2">
                   <InfoTile label="SKU" value={product.sku} />
                   <InfoTile label="Clave / Codigo" value={product.clave || product.sku} />
                   <InfoTile label="Existencia" value={`${product.stock} unidades`} />
-                  <InfoTile label="ID variante Odoo" value={String(product.variantId ?? "N/D")} />
+                  <InfoTile label="ID de variante" value={String(product.variantId ?? "N/D")} />
                 </div>
               </div>
 
@@ -352,12 +346,7 @@ export default function ProductDetailPage() {
             </div>
           </section>
 
-          <section className="mx-auto grid max-w-[1500px] gap-4 px-4 pb-5 lg:grid-cols-3 lg:px-6">
-            <InfoPanel
-              icon={<BadgeCheck className="h-7 w-7 text-emerald-600" aria-hidden />}
-              title="Informacion de Odoo"
-              text="Descripcion, notas internas, precio, existencia, SKU y foto vienen sincronizados del ERP."
-            />
+          <section className="mx-auto grid max-w-[1500px] gap-4 px-4 pb-5 lg:grid-cols-2 lg:px-6">
             <InventoryPanel wcamStock={product.stock} warehouses={warehouses} />
             <InfoPanel
               icon={<ShieldCheck className="h-7 w-7 text-coral" aria-hidden />}
@@ -371,12 +360,8 @@ export default function ProductDetailPage() {
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-6">
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
                   <div>
-                    <p className="text-xs font-black uppercase tracking-[0.22em] text-blue-700">Notas internas</p>
-                    <h2 className="mt-1 text-2xl font-black text-slate-950">Descripcion tecnica de Odoo</h2>
+                    <h2 className="text-2xl font-black text-slate-950">Ficha técnica</h2>
                   </div>
-                  <span className="rounded bg-blue-50 px-2.5 py-1 text-xs font-black uppercase text-blue-700">
-                    Ficha sincronizada
-                  </span>
                 </div>
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
                   <div

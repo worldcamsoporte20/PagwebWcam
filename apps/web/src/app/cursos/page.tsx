@@ -10,7 +10,7 @@ import {
   readRegistrations,
   writeRegistrations,
   generateRegId,
-} from "@/app/cursos/registro_curs/page";
+} from "@/app/lib_cur/registrations";
 
 const emptyForm = {
   name: "",
