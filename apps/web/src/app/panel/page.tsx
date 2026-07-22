@@ -146,6 +146,11 @@ const modulos = [
   icono: <GraduationCap size={38} />,
   ruta: "/cursos_panel",
 },
+{
+  nombre: "Vacantes",
+  icono: <Users size={38} />,
+  ruta: "/vacantes",
+},
 ];
 
 export default function PanelAdministrador() {
