@@ -4295,3 +4295,1789 @@ html.dark .tiktok-label {
     text-align: center;
   }
 }
+/* =========================================================
+   PANEL DE RECURSOS HUMANOS - VACANTES
+========================================================= */
+
+.vacantesPanelPagina {
+  min-height: 100vh;
+  padding: 36px 20px 70px;
+  background: var(--fondo-secundario, #edf1fa);
+  color: var(--texto-principal, #12141a);
+}
+
+.vacantesPanelContenido {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   VOLVER AL PANEL
+========================================================= */
+
+.vacantesPanelVolver {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 18px;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.vacantesPanelVolver:hover {
+  color: var(--azul-principal, #022c96);
+}
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.vacantesPanelEncabezado {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.vacantesPanelEncabezadoIcono {
+  display: flex;
+  width: 58px;
+  height: 58px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: var(--azul-principal, #022c96);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(2, 44, 150, 0.2);
+}
+
+.vacantesPanelEncabezado h1 {
+  margin: 0 0 6px;
+  color: var(--texto-principal, #12141a);
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.vacantesPanelEncabezado p {
+  margin: 0;
+  color: var(--texto-secundario, #515767);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   FORMULARIO
+========================================================= */
+
+.vacantesPanelFormulario {
+  padding: 28px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(16, 36, 76, 0.08);
+}
+
+.vacantesPanelFormularioTitulo {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--bordes, #d3ddf0);
+  color: var(--azul-principal, #022c96);
+}
+
+.vacantesPanelFormularioTitulo h2 {
+  margin: 0 0 4px;
+  color: var(--texto-principal, #12141a);
+  font-size: 20px;
+  font-weight: 850;
+}
+
+.vacantesPanelFormularioTitulo p {
+  margin: 0;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+}
+
+.vacantesPanelCuadricula {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 16px;
+}
+
+.vacantesPanelCampo {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.vacantesPanelCampoCompleto {
+  grid-column: 1 / -1;
+}
+
+.vacantesPanelCampo label {
+  color: var(--texto-secundario, #515767);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+}
+
+.vacantesPanelCampo label span {
+  color: var(--rojo-principal, #e5192c);
+}
+
+.vacantesPanelCampo input,
+.vacantesPanelCampo select,
+.vacantesPanelCampo textarea {
+  width: 100%;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: var(--texto-principal, #12141a);
+  font-family: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vacantesPanelCampo input,
+.vacantesPanelCampo select {
+  min-height: 44px;
+  padding: 0 13px;
+}
+
+.vacantesPanelCampo textarea {
+  min-height: 110px;
+  padding: 12px 13px;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.vacantesPanelCampo input::placeholder,
+.vacantesPanelCampo textarea::placeholder {
+  color: #9299ab;
+}
+
+.vacantesPanelCampo input:focus,
+.vacantesPanelCampo select:focus,
+.vacantesPanelCampo textarea:focus {
+  border-color: var(--azul-boton, #0f46af);
+  box-shadow: 0 0 0 3px rgba(15, 70, 175, 0.12);
+}
+
+/* =========================================================
+   INPUT CON ICONO
+========================================================= */
+
+.vacantesPanelInputIcono {
+  position: relative;
+  width: 100%;
+}
+
+.vacantesPanelInputIcono svg {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  color: #7a8396;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.vacantesPanelInputIcono input {
+  padding-left: 40px;
+}
+
+/* =========================================================
+   BOTÓN PUBLICAR
+========================================================= */
+
+.vacantesPanelBotonPublicar {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 22px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 9px;
+  background: var(--azul-boton, #0f46af);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 70, 175, 0.2);
+}
+
+.vacantesPanelBotonPublicar:hover {
+  background: var(--azul-principal, #022c96);
+}
+
+/* =========================================================
+   MENSAJE
+========================================================= */
+
+.vacantesPanelMensaje {
+  margin: 16px 0 0;
+  padding: 11px 14px;
+  border: 1px solid rgba(2, 44, 150, 0.18);
+  border-radius: 8px;
+  background: rgba(2, 44, 150, 0.07);
+  color: var(--azul-principal, #022c96);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+/* =========================================================
+   VACANTES PUBLICADAS
+========================================================= */
+
+.vacantesPanelPublicadas {
+  margin-top: 34px;
+}
+
+.vacantesPanelSeccionTitulo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 13px;
+  color: var(--texto-secundario, #515767);
+}
+
+.vacantesPanelSeccionTitulo svg {
+  color: var(--azul-principal, #022c96);
+}
+
+.vacantesPanelSeccionTitulo h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.vacantesPanelLista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* =========================================================
+   TARJETA DE VACANTE
+========================================================= */
+
+.vacantesPanelTarjeta {
+  overflow: hidden;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 36, 76, 0.06);
+}
+
+.vacantesPanelTarjetaPrincipal {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.vacantesPanelTarjetaIcono {
+  display: flex;
+  width: 50px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 70, 175, 0.18);
+  border-radius: 12px;
+  background: rgba(15, 70, 175, 0.08);
+  color: var(--azul-principal, #022c96);
+}
+
+.vacantesPanelTarjetaDatos {
+  min-width: 0;
+}
+
+.vacantesPanelTituloEstado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.vacantesPanelTituloEstado h3 {
+  margin: 0;
+  color: var(--texto-principal, #12141a);
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.vacantesPanelTarjetaDatos > p {
+  margin: 0 0 10px;
+  color: var(--texto-secundario, #515767);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.vacantesPanelEstado {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.vacantesPanelEstadoActivo {
+  border: 1px solid rgba(16, 145, 73, 0.25);
+  background: rgba(16, 145, 73, 0.1);
+  color: #08783b;
+}
+
+.vacantesPanelEstadoInactivo {
+  border: 1px solid rgba(100, 108, 125, 0.25);
+  background: rgba(100, 108, 125, 0.1);
+  color: #515767;
+}
+
+.vacantesPanelMetadatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.vacantesPanelMetadatos span {
+  padding: 5px 9px;
+  border: 1px solid rgba(2, 44, 150, 0.13);
+  border-radius: 999px;
+  background: rgba(2, 44, 150, 0.05);
+  color: var(--azul-principal, #022c96);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   ACCIONES DE VACANTE
+========================================================= */
+
+.vacantesPanelAcciones {
+  display: flex;
+  gap: 7px;
+}
+
+.vacantesPanelBotonVer,
+.vacantesPanelBotonEstado,
+.vacantesPanelBotonEliminar {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #ffffff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.vacantesPanelBotonVer {
+  border: 1px solid rgba(15, 70, 175, 0.25);
+  color: var(--azul-boton, #0f46af);
+}
+
+.vacantesPanelBotonEstado {
+  border: 1px solid rgba(222, 147, 0, 0.3);
+  color: #bd7400;
+}
+
+.vacantesPanelBotonEliminar {
+  border: 1px solid rgba(229, 25, 44, 0.28);
+  color: var(--rojo-principal, #e5192c);
+}
+
+.vacantesPanelBotonVer:hover {
+  background: var(--azul-boton, #0f46af);
+  color: #ffffff;
+}
+
+.vacantesPanelBotonEstado:hover {
+  background: #bd7400;
+  color: #ffffff;
+}
+
+.vacantesPanelBotonEliminar:hover {
+  background: var(--rojo-principal, #e5192c);
+  color: #ffffff;
+}
+
+/* =========================================================
+   BOTÓN POSTULANTES
+========================================================= */
+
+.vacantesPanelBotonPostulantes {
+  display: flex;
+  width: 100%;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border: none;
+  border-top: 1px solid var(--bordes, #d3ddf0);
+  background: #f8faff;
+  color: var(--azul-principal, #022c96);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.vacantesPanelBotonPostulantes span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* =========================================================
+   POSTULANTES
+========================================================= */
+
+.vacantesPanelPostulantes {
+  border-top: 1px solid var(--bordes, #d3ddf0);
+  background: #fbfcff;
+}
+
+.vacantesPanelPostulante {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 38px;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 17px 20px;
+  border-bottom: 1px solid var(--bordes, #d3ddf0);
+}
+
+.vacantesPanelPostulante:last-child {
+  border-bottom: none;
+}
+
+.vacantesPanelPostulanteAvatar {
+  display: flex;
+  width: 43px;
+  height: 43px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: rgba(2, 44, 150, 0.1);
+  color: var(--azul-principal, #022c96);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.vacantesPanelPostulanteDatos h4 {
+  margin: 0 0 4px;
+  color: var(--texto-principal, #12141a);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.vacantesPanelPostulanteDatos > p {
+  margin: 0 0 9px;
+  color: var(--texto-secundario, #515767);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.vacantesPanelPostulanteEtiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.vacantesPanelPostulanteEtiquetas span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--fondo-secundario, #edf1fa);
+  color: var(--texto-secundario, #515767);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.vacantesPanelPostulanteMensaje {
+  margin: 10px 0 !important;
+  padding: 10px 12px;
+  border-left: 3px solid var(--azul-boton, #0f46af);
+  border-radius: 0 7px 7px 0;
+  background: #ffffff;
+  line-height: 1.5;
+}
+
+.vacantesPanelPostulanteDatos small {
+  color: #7c8495;
+  font-size: 11px;
+}
+
+.vacantesPanelEliminarPostulante {
+  display: flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(229, 25, 44, 0.25);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--rojo-principal, #e5192c);
+  cursor: pointer;
+}
+
+.vacantesPanelEliminarPostulante:hover {
+  background: var(--rojo-principal, #e5192c);
+  color: #ffffff;
+}
+
+/* =========================================================
+   SIN VACANTES O SIN POSTULANTES
+========================================================= */
+
+.vacantesPanelVacio,
+.vacantesPanelSinPostulantes {
+  padding: 45px 24px;
+  border: 1px dashed var(--bordes, #d3ddf0);
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.vacantesPanelVacio svg,
+.vacantesPanelSinPostulantes svg {
+  margin-bottom: 10px;
+  color: var(--azul-boton, #0f46af);
+}
+
+.vacantesPanelVacio h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.vacantesPanelVacio p,
+.vacantesPanelSinPostulantes p {
+  margin: 0;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 780px) {
+  .vacantesPanelPagina {
+    padding: 24px 14px 50px;
+  }
+
+  .vacantesPanelFormulario {
+    padding: 20px 16px;
+  }
+
+  .vacantesPanelCuadricula {
+    grid-template-columns: 1fr;
+  }
+
+  .vacantesPanelCampoCompleto {
+    grid-column: auto;
+  }
+
+  .vacantesPanelBotonPublicar {
+    width: 100%;
+  }
+
+  .vacantesPanelTarjetaPrincipal {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .vacantesPanelAcciones {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 520px) {
+  .vacantesPanelEncabezado {
+    align-items: flex-start;
+  }
+
+  .vacantesPanelEncabezadoIcono {
+    width: 48px;
+    height: 48px;
+  }
+
+  .vacantesPanelTarjetaPrincipal {
+    grid-template-columns: 1fr;
+  }
+
+  .vacantesPanelTarjetaIcono {
+    width: 44px;
+    height: 44px;
+  }
+
+  .vacantesPanelAcciones {
+    grid-column: auto;
+    justify-content: flex-start;
+  }
+
+  .vacantesPanelPostulante {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .vacantesPanelEliminarPostulante {
+    grid-column: 2;
+    justify-self: end;
+  }
+}
+/* =========================================================
+   PÁGINA PÚBLICA - ÚNETE AL EQUIPO
+========================================================= */
+
+.vacantesPublicasPagina {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: var(--texto-principal, #12141a);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.vacantesPublicasHero {
+  position: relative;
+  overflow: hidden;
+  padding: 70px 20px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(3, 22, 76, 0.98),
+      rgba(2, 44, 150, 0.95)
+    );
+}
+
+.vacantesPublicasHero::before {
+  content: "";
+  position: absolute;
+  top: -120px;
+  right: -90px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.vacantesPublicasHero::after {
+  content: "";
+  position: absolute;
+  bottom: -180px;
+  left: -100px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(15, 70, 175, 0.28);
+}
+
+.vacantesPublicasHeroContenido {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 50px;
+  align-items: center;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.vacantesPublicasHeroTexto {
+  max-width: 760px;
+}
+
+.vacantesPublicasEtiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.vacantesPublicasHero h1 {
+  margin: 0 0 18px;
+  color: #ffffff;
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1.4px;
+}
+
+.vacantesPublicasHero p {
+  max-width: 690px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.vacantesPublicasHeroBoton {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 28px;
+  padding: 0 22px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--azul-principal, #022c96);
+  font-size: 14px;
+  font-weight: 850;
+  text-decoration: none;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vacantesPublicasHeroBoton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+}
+
+.vacantesPublicasHeroIcono {
+  display: flex;
+  width: 230px;
+  height: 230px;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+  color: #ffffff;
+  box-shadow:
+    inset 0 0 0 22px rgba(255, 255, 255, 0.04),
+    0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.vacantesPublicasContenido {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 58px 20px 80px;
+}
+
+/* =========================================================
+   ENCABEZADO DE VACANTES
+========================================================= */
+
+.vacantesPublicasEncabezado {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.vacantesPublicasEncabezado > div:first-child > span {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--azul-boton, #0f46af);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.vacantesPublicasEncabezado h2 {
+  margin: 0 0 10px;
+  color: var(--texto-principal, #12141a);
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.vacantesPublicasEncabezado p {
+  margin: 0;
+  color: var(--texto-secundario, #515767);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.vacantesPublicasContador {
+  display: flex;
+  min-width: 150px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 22px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(16, 36, 76, 0.06);
+}
+
+.vacantesPublicasContador strong {
+  color: var(--azul-principal, #022c96);
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.vacantesPublicasContador span {
+  margin-top: 6px;
+  color: var(--texto-secundario, #515767);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.vacantesPublicasFiltros {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 36, 76, 0.05);
+}
+
+.vacantesPublicasBuscador {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.vacantesPublicasBuscador svg {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  color: #7c8494;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.vacantesPublicasBuscador input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 16px 0 44px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: var(--texto-principal, #12141a);
+  font-family: inherit;
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vacantesPublicasBuscador input::placeholder {
+  color: #9299aa;
+}
+
+.vacantesPublicasBuscador input:focus {
+  border-color: var(--azul-boton, #0f46af);
+  box-shadow: 0 0 0 3px rgba(15, 70, 175, 0.11);
+}
+
+.vacantesPublicasAreas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.vacantesPublicasAreaBoton {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--texto-secundario, #515767);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.vacantesPublicasAreaBoton:hover {
+  border-color: var(--azul-boton, #0f46af);
+  color: var(--azul-principal, #022c96);
+}
+
+.vacantesPublicasAreaActiva {
+  border-color: var(--azul-principal, #022c96);
+  background: var(--azul-principal, #022c96);
+  color: #ffffff;
+}
+
+.vacantesPublicasAreaActiva:hover {
+  color: #ffffff;
+}
+
+/* =========================================================
+   LISTA DE VACANTES
+========================================================= */
+
+.vacantesPublicasLista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.vacantesPublicasTarjeta {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 36, 76, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.vacantesPublicasTarjeta:hover {
+  border-color: rgba(15, 70, 175, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 38px rgba(16, 36, 76, 0.1);
+}
+
+.vacantesPublicasTarjetaIcono {
+  display: flex;
+  width: 54px;
+  height: 54px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 70, 175, 0.16);
+  border-radius: 13px;
+  background: rgba(15, 70, 175, 0.08);
+  color: var(--azul-principal, #022c96);
+}
+
+.vacantesPublicasTarjetaContenido {
+  min-width: 0;
+}
+
+.vacantesPublicasTituloArea > span {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--azul-boton, #0f46af);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+}
+
+.vacantesPublicasTituloArea h3 {
+  margin: 0;
+  color: var(--texto-principal, #12141a);
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+.vacantesPublicasDescripcion {
+  display: -webkit-box;
+  margin: 12px 0;
+  overflow: hidden;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.vacantesPublicasDatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.vacantesPublicasDatos span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--texto-secundario, #515767);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.vacantesPublicasDatos svg {
+  flex-shrink: 0;
+  color: var(--azul-boton, #0f46af);
+}
+
+.vacantesPublicasSueldo {
+  display: inline-flex;
+  margin: 0 0 14px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(2, 44, 150, 0.07);
+  color: var(--azul-principal, #022c96);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.vacantesPublicasTarjetaPie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 6px;
+  padding-top: 15px;
+  border-top: 1px solid var(--bordes, #d3ddf0);
+}
+
+.vacantesPublicasTarjetaPie small {
+  color: #7b8393;
+  font-size: 11px;
+}
+
+.vacantesPublicasBotonVer {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border-radius: 9px;
+  background: var(--azul-boton, #0f46af);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.vacantesPublicasBotonVer:hover {
+  background: var(--azul-principal, #022c96);
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   ESTADO VACÍO Y CARGANDO
+========================================================= */
+
+.vacantesPublicasEstado {
+  padding: 60px 24px;
+  border: 1px dashed var(--bordes, #d3ddf0);
+  border-radius: 16px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.vacantesPublicasEstado svg {
+  margin-bottom: 13px;
+  color: var(--azul-boton, #0f46af);
+}
+
+.vacantesPublicasEstado h3 {
+  margin: 0 0 8px;
+  color: var(--texto-principal, #12141a);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.vacantesPublicasEstado p {
+  max-width: 560px;
+  margin: 0 auto;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.vacantesPublicasEstado button {
+  min-height: 40px;
+  margin-top: 18px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 9px;
+  background: var(--azul-boton, #0f46af);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .vacantesPublicasHeroContenido {
+    grid-template-columns: 1fr;
+  }
+
+  .vacantesPublicasHeroIcono {
+    display: none;
+  }
+
+  .vacantesPublicasLista {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .vacantesPublicasHero {
+    padding: 54px 16px;
+  }
+
+  .vacantesPublicasContenido {
+    padding: 44px 14px 60px;
+  }
+
+  .vacantesPublicasEncabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .vacantesPublicasContador {
+    min-width: 130px;
+    align-items: flex-start;
+  }
+
+  .vacantesPublicasTarjeta {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 12px;
+    padding: 18px;
+  }
+
+  .vacantesPublicasTarjetaIcono {
+    width: 45px;
+    height: 45px;
+  }
+
+  .vacantesPublicasTarjetaPie {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .vacantesPublicasBotonVer {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .vacantesPublicasHero h1 {
+    font-size: 38px;
+  }
+
+  .vacantesPublicasHero p {
+    font-size: 15px;
+  }
+
+  .vacantesPublicasFiltros {
+    padding: 15px;
+  }
+
+  .vacantesPublicasTarjeta {
+    grid-template-columns: 1fr;
+  }
+
+  .vacantesPublicasTarjetaIcono {
+    width: 45px;
+    height: 45px;
+  }
+}
+/* =========================================================
+   DETALLE DE VACANTE Y FORMULARIO DE POSTULACIÓN
+========================================================= */
+
+.detalleVacantePagina {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: var(--texto-principal, #12141a);
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.detalleVacanteHero {
+  padding: 46px 20px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(3, 22, 76, 0.99),
+      rgba(2, 44, 150, 0.96)
+    );
+}
+
+.detalleVacanteHeroContenido {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.detalleVacanteVolver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.detalleVacanteVolver:hover {
+  color: #ffffff;
+}
+
+.detalleVacanteHeroInformacion {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.detalleVacanteHeroIcono {
+  display: flex;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.detalleVacanteArea {
+  display: inline-block;
+  margin-bottom: 9px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.detalleVacanteHero h1 {
+  margin: 0 0 16px;
+  color: #ffffff;
+  font-size: clamp(32px, 5vw, 50px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.detalleVacanteHeroDatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.detalleVacanteHeroDatos span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* =========================================================
+   CONFIRMACIÓN
+========================================================= */
+
+.detalleVacanteConfirmacion {
+  display: flex;
+  width: calc(100% - 40px);
+  max-width: 1180px;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 26px auto 0;
+  padding: 20px;
+  border: 1px solid rgba(16, 145, 73, 0.25);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 36, 76, 0.06);
+}
+
+.detalleVacanteConfirmacionIcono {
+  display: flex;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(16, 145, 73, 0.1);
+  color: #0b8a48;
+}
+
+.detalleVacanteConfirmacion h2 {
+  margin: 0 0 7px;
+  color: #0a713d;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.detalleVacanteConfirmacion p {
+  margin: 0 0 10px;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.detalleVacanteConfirmacion a {
+  color: var(--azul-principal, #022c96);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* =========================================================
+   CONTENIDO PRINCIPAL
+========================================================= */
+
+.detalleVacanteContenido {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 42px 20px 80px;
+}
+
+.detalleVacantePrincipal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 26px;
+  align-items: flex-start;
+}
+
+/* =========================================================
+   INFORMACIÓN DE LA VACANTE
+========================================================= */
+
+.detalleVacanteInformacion {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detalleVacanteBloque,
+.detalleVacanteResumen {
+  padding: 26px;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(16, 36, 76, 0.05);
+}
+
+.detalleVacanteBloque h2,
+.detalleVacanteResumen h2 {
+  margin: 0 0 15px;
+  color: var(--texto-principal, #12141a);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.detalleVacanteTexto {
+  margin: 0;
+  color: var(--texto-secundario, #515767);
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.detalleVacanteTextoLineas {
+  white-space: pre-line;
+}
+
+.detalleVacanteResumenCuadricula {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.detalleVacanteResumenDato {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid rgba(2, 44, 150, 0.12);
+  border-radius: 11px;
+  background: rgba(2, 44, 150, 0.04);
+}
+
+.detalleVacanteResumenDato > svg {
+  flex-shrink: 0;
+  color: var(--azul-boton, #0f46af);
+}
+
+.detalleVacanteResumenDato div {
+  min-width: 0;
+}
+
+.detalleVacanteResumenDato span {
+  display: block;
+  margin-bottom: 4px;
+  color: #7c8495;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.detalleVacanteResumenDato strong {
+  display: block;
+  color: var(--texto-principal, #12141a);
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.detalleVacanteFecha {
+  margin: 18px 0 0;
+  color: #7c8495;
+  font-size: 12px;
+}
+
+/* =========================================================
+   FORMULARIO
+========================================================= */
+
+.detalleVacanteFormularioContenedor {
+  position: sticky;
+  top: 24px;
+  overflow: hidden;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(16, 36, 76, 0.08);
+}
+
+.detalleVacanteFormularioEncabezado {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 22px;
+  border-bottom: 1px solid var(--bordes, #d3ddf0);
+  background: #f9fbff;
+}
+
+.detalleVacanteFormularioIcono {
+  display: flex;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(2, 44, 150, 0.1);
+  color: var(--azul-principal, #022c96);
+}
+
+.detalleVacanteFormularioEncabezado h2 {
+  margin: 0 0 5px;
+  color: var(--texto-principal, #12141a);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.detalleVacanteFormularioEncabezado p {
+  margin: 0;
+  color: var(--texto-secundario, #515767);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.detalleVacanteFormulario {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 22px;
+}
+
+.detalleVacanteCampo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.detalleVacanteCampo label {
+  color: var(--texto-secundario, #515767);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+}
+
+.detalleVacanteCampo label span {
+  color: var(--rojo-principal, #e5192c);
+}
+
+.detalleVacanteCampo input,
+.detalleVacanteCampo select,
+.detalleVacanteCampo textarea {
+  width: 100%;
+  border: 1px solid var(--bordes, #d3ddf0);
+  border-radius: 9px;
+  outline: none;
+  background: #ffffff;
+  color: var(--texto-principal, #12141a);
+  font-family: inherit;
+  font-size: 13px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.detalleVacanteCampo input,
+.detalleVacanteCampo select {
+  min-height: 43px;
+  padding: 0 12px;
+}
+
+.detalleVacanteCampo textarea {
+  min-height: 105px;
+  padding: 11px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.detalleVacanteCampo input::placeholder,
+.detalleVacanteCampo textarea::placeholder {
+  color: #9299aa;
+}
+
+.detalleVacanteCampo input:focus,
+.detalleVacanteCampo select:focus,
+.detalleVacanteCampo textarea:focus {
+  border-color: var(--azul-boton, #0f46af);
+  box-shadow: 0 0 0 3px rgba(15, 70, 175, 0.11);
+}
+
+/* =========================================================
+   INPUTS Y SELECTS CON ICONO
+========================================================= */
+
+.detalleVacanteInputIcono,
+.detalleVacanteSelectIcono {
+  position: relative;
+}
+
+.detalleVacanteInputIcono svg,
+.detalleVacanteSelectIcono svg {
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  z-index: 1;
+  color: #7c8495;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.detalleVacanteInputIcono input,
+.detalleVacanteSelectIcono select {
+  padding-left: 39px;
+}
+
+/* =========================================================
+   BOTÓN ENVIAR
+========================================================= */
+
+.detalleVacanteBotonEnviar {
+  display: inline-flex;
+  width: 100%;
+  min-height: 45px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 3px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 9px;
+  background: var(--azul-boton, #0f46af);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 70, 175, 0.2);
+}
+
+.detalleVacanteBotonEnviar:hover {
+  background: var(--azul-principal, #022c96);
+}
+
+/* =========================================================
+   MENSAJE DEL FORMULARIO
+========================================================= */
+
+.detalleVacanteMensaje {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(229, 25, 44, 0.2);
+  border-radius: 8px;
+  background: rgba(229, 25, 44, 0.06);
+  color: #b51424;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   ESTADO CARGANDO O NO DISPONIBLE
+========================================================= */
+
+.detalleVacanteEstado {
+  width: calc(100% - 40px);
+  max-width: 720px;
+  margin: 80px auto;
+  padding: 58px 24px;
+  border: 1px dashed var(--bordes, #d3ddf0);
+  border-radius: 17px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 14px 32px rgba(16, 36, 76, 0.06);
+}
+
+.detalleVacanteEstado svg {
+  margin-bottom: 14px;
+  color: var(--azul-boton, #0f46af);
+}
+
+.detalleVacanteEstado h1 {
+  margin: 0 0 9px;
+  color: var(--texto-principal, #12141a);
+  font-size: 25px;
+  font-weight: 900;
+}
+
+.detalleVacanteEstado p {
+  max-width: 520px;
+  margin: 0 auto;
+  color: var(--texto-secundario, #515767);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.detalleVacanteEstadoBoton {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 0 17px;
+  border-radius: 9px;
+  background: var(--azul-boton, #0f46af);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 950px) {
+  .detalleVacantePrincipal {
+    grid-template-columns: 1fr;
+  }
+
+  .detalleVacanteFormularioContenedor {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .detalleVacanteHero {
+    padding: 36px 15px;
+  }
+
+  .detalleVacanteContenido {
+    padding: 30px 14px 60px;
+  }
+
+  .detalleVacanteHeroInformacion {
+    flex-direction: column;
+  }
+
+  .detalleVacanteHeroIcono {
+    width: 56px;
+    height: 56px;
+  }
+
+  .detalleVacanteConfirmacion {
+    width: calc(100% - 28px);
+    flex-direction: column;
+  }
+
+  .detalleVacanteBloque,
+  .detalleVacanteResumen {
+    padding: 20px 17px;
+  }
+
+  .detalleVacanteResumenCuadricula {
+    grid-template-columns: 1fr;
+  }
+
+  .detalleVacanteFormularioEncabezado {
+    padding: 18px;
+  }
+
+  .detalleVacanteFormulario {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detalleVacanteHero h1 {
+    font-size: 32px;
+  }
+
+  .detalleVacanteHeroDatos {
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .detalleVacanteEstado {
+    width: calc(100% - 28px);
+    margin: 50px auto;
+    padding: 42px 18px;
+  }
+}
